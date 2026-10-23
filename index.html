@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Minuto Cinéfilo — Cápsulas de cine de Radio Monk</title>
+<meta name="description" content="Historias, curiosidades y secretos del cine en cápsulas de audio de 2 a 4 minutos. Un proyecto de Radio Monk.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Minuto Cinéfilo">
+<meta property="og:description" content="Hay películas que merecen unos minutos más. Cápsulas de audio sobre cine, por Radio Monk.">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23060606'/%3E%3Cpath d='M14 46V18l18 20 18-20v28' fill='none' stroke='%23f2ede4' stroke-width='5'/%3E%3Crect x='14' y='52' width='36' height='3' fill='%238e1b1b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Hanken+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060606; --ink:#f2ede4; --mute:#9a958b; --line:#26241f; --red:#8e1b1b; --red-hi:#a82323;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --pad:clamp(20px,5vw,72px);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px;background:var(--bg)}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-underline-offset:4px;text-decoration-color:var(--mute)}
+a:hover{text-decoration-color:var(--ink)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:2px}
+.wrap{padding-inline:var(--pad);max-width:1280px;margin-inline:auto}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:var(--bg);padding:8px 12px;z-index:30}
+.skip:focus{left:8px}
+
+/* encabezado */
+header{position:sticky;top:0;z-index:20;background:rgba(6,6,6,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:64px;flex-wrap:wrap;padding-block:8px}
+.logo{font:400 15px/1 var(--serif);letter-spacing:.22em;text-decoration:none}
+nav{display:flex;gap:clamp(14px,3vw,36px);align-items:center;font-size:14px;flex-wrap:wrap}
+nav a{color:var(--mute);text-decoration:none;padding:6px 0}
+nav a:hover{color:var(--ink)}
+nav .ext{display:inline-flex;gap:6px;align-items:center}
+nav svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.6}
+
+/* portada */
+.hero{padding-block:clamp(56px,10vw,140px)}
+.frame{position:relative;border-top:1px solid var(--line);border-bottom:1px solid var(--line);aspect-ratio:2.39/1;min-height:340px;display:flex;flex-direction:column;justify-content:center;padding-inline:clamp(0px,4vw,56px)}
+.frame::before{content:"";position:absolute;left:0;top:-1px;width:72px;height:1px;background:var(--red-hi)}
+h1{font:300 clamp(38px,7.4vw,104px)/1.02 var(--serif);letter-spacing:-.025em;max-width:13ch;font-variation-settings:"opsz" 144}
+h1 em{font-style:italic}
+.hero p{color:var(--mute);max-width:46ch;margin-top:clamp(20px,3vw,36px);font-size:clamp(16px,1.6vw,19px)}
+.cta{display:inline-block;margin-top:32px;padding:14px 26px;background:var(--red);color:var(--ink);text-decoration:none;font-weight:500;font-size:15px;border-radius:2px;transition:background .2s}
+.cta:hover{background:var(--red-hi)}
+@media(max-width:640px){.frame{aspect-ratio:auto;padding-block:48px}}
+
+/* secciones */
+section{padding-block:clamp(72px,12vw,160px)}
+.label{font:300 15px/1 var(--serif);font-style:italic;color:var(--mute);margin-bottom:28px}
+h2{font:300 clamp(30px,4.4vw,56px)/1.1 var(--serif);letter-spacing:-.02em}
+
+/* última cápsula */
+.latest{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,6vw,96px);align-items:start;margin-top:48px}
+.poster{aspect-ratio:2/3;border:1px solid var(--line);display:grid;place-items:center;text-align:center;color:var(--mute);font:italic 300 15px/1.5 var(--serif);padding:24px;overflow:hidden}
+.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.meta{color:var(--mute);font-size:14px;display:flex;flex-wrap:wrap;gap:6px 20px;margin:16px 0 24px}
+.desc{max-width:52ch;margin-bottom:36px}
+.film{font:300 clamp(26px,3vw,38px)/1.15 var(--serif)}
+.badge{display:inline-block;border:1px solid var(--red);color:var(--ink);font-size:13px;padding:3px 10px;border-radius:2px;margin-bottom:18px}
+.player{display:grid;grid-template-columns:56px 1fr auto;gap:16px;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0}
+.play{width:56px;height:56px;border-radius:50%;border:0;background:var(--red);color:var(--ink);cursor:pointer;display:grid;place-items:center;transition:background .2s}
+.play:hover{background:var(--red-hi)}
+.play:disabled{background:var(--line);color:var(--mute);cursor:not-allowed}
+.play svg{width:20px;height:20px;fill:currentColor}
+.play .i-pause{display:none}.play[aria-pressed=true] .i-pause{display:block}.play[aria-pressed=true] .i-play{display:none}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(to right,var(--ink) var(--p,0%),var(--line) var(--p,0%))}
+input[type=range]::-moz-range-track{height:2px;background:var(--line)}
+input[type=range]::-moz-range-progress{height:2px;background:var(--ink)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--ink);margin-top:-6px;border:0}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--ink);border:0}
+input[type=range]:disabled{opacity:.4;cursor:not-allowed}
+.time{font-size:14px;color:var(--mute);font-variant-numeric:tabular-nums;min-width:5.5em;text-align:right}
+.note{font-size:14px;color:var(--mute);margin-top:14px;min-height:1.6em}
+.links{margin-top:20px;font-size:15px}
+@media(max-width:820px){.latest{grid-template-columns:1fr}.poster{aspect-ratio:3/2;max-width:100%}}
+
+/* archivo */
+.head{display:flex;justify-content:space-between;align-items:end;gap:32px;flex-wrap:wrap;margin-bottom:48px}
+.search{position:relative;width:min(100%,340px)}
+.search input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--mute);color:var(--ink);font:inherit;font-size:16px;padding:10px 4px 10px 30px;border-radius:0}
+.search input::placeholder{color:var(--mute)}
+.search input:focus{outline:none;border-bottom-color:var(--ink)}
+.search svg{position:absolute;left:4px;top:13px;width:16px;height:16px;stroke:var(--mute);fill:none;stroke-width:1.6}
+.list{list-style:none;padding:0;border-top:1px solid var(--line)}
+.item{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:8px clamp(20px,4vw,56px);align-items:start;padding:32px 0;border-bottom:1px solid var(--line)}
+.item time,.item .dur{color:var(--mute);font-size:14px;padding-top:6px}
+.item h3{font:400 clamp(21px,2.2vw,28px)/1.25 var(--serif)}
+.item .by{color:var(--mute);font-size:14px;margin:4px 0 10px}
+.item p{color:var(--mute);max-width:56ch;font-size:16px}
+.listen{background:none;border:1px solid var(--mute);color:var(--ink);font:inherit;font-size:14px;padding:9px 18px;border-radius:2px;cursor:pointer;white-space:nowrap;transition:border-color .2s,background .2s}
+.listen:hover{border-color:var(--ink);background:#14130f}
+.item.on{box-shadow:inset 2px 0 0 var(--red-hi);padding-left:20px}
+.empty{padding:48px 0;color:var(--mute);border-bottom:1px solid var(--line)}
+@media(max-width:720px){.item{grid-template-columns:1fr}.item time,.item .dur{padding:0}.item .listen{justify-self:start;margin-top:8px}}
+
+/* sobre */
+.about{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,6vw,96px)}
+.about p{font:300 clamp(20px,2.2vw,27px)/1.55 var(--serif);max-width:34em}
+.about .sub{font:400 16px/1.7 var(--sans);color:var(--mute);margin-top:24px}
+@media(max-width:820px){.about{grid-template-columns:1fr}}
+
+footer{border-top:1px solid var(--line);padding-block:40px 56px;color:var(--mute);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px 40px;justify-content:space-between}
+footer div{display:flex;gap:20px;flex-wrap:wrap}
+footer em{font-family:var(--serif)}
+.tmdb{margin-top:32px;font-size:13px;gap:16px;align-items:center;justify-content:flex-start!important}
+.tmdb img{height:12px;width:auto;display:block}
+
+/* una sola entrada: la portada aparece al cargar */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.frame>*{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}.frame>p{animation-delay:.15s}.frame>a{animation-delay:.3s}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="Minuto Cinéfilo, inicio">MINUTO CINÉFILO</a>
+    <nav aria-label="Principal">
+      <a href="#inicio">Inicio</a>
+      <a href="#capsulas">Cápsulas</a>
+      <a href="#sobre">Sobre el proyecto</a>
+      <a class="ext" id="lnkRadio" href="#" target="_blank" rel="noopener">Radio Monk</a>
+      <a class="ext" id="lnkIg" href="#" target="_blank" rel="noopener" aria-label="Instagram de Minuto Cinéfilo">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6"/></svg>Instagram</a>
+    </nav>
+  </div>
+</header>
+
+<main id="contenido">
+  <div class="hero wrap" id="inicio">
+    <div class="frame">
+      <h1>Hay películas que merecen <em>unos minutos más.</em></h1>
+      <p>Historias, curiosidades y secretos del cine. Una mirada diferente a las películas que nos apasionan.</p>
+      <a class="cta" href="#capsulas">Explorar las cápsulas</a>
+    </div>
+  </div>
+
+  <section id="capsulas" aria-labelledby="t-ultima" style="padding-top:clamp(24px,4vw,56px)">
+    <div class="wrap">
+      <p class="label">Última cápsula</p>
+      <h2 id="t-ultima" class="sr" style="position:absolute;left:-999px">Última cápsula</h2>
+      <article class="latest" id="latest" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <section id="archivo" aria-labelledby="t-archivo" style="padding-top:0">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="t-archivo">Cápsulas anteriores</h2>
+        <form class="search" role="search" onsubmit="return false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>
+          <label for="q" style="position:absolute;left:-999px">Buscar por película o título</label>
+          <input id="q" type="search" placeholder="Buscar película o título" autocomplete="off">
+        </form>
+      </div>
+      <ul class="list" id="list"></ul>
+      <p class="empty" id="empty" hidden>No hay cápsulas que coincidan con la búsqueda. Probá con otro título o con el nombre de la película.</p>
+    </div>
+  </section>
+
+  <section id="sobre" aria-labelledby="t-sobre" style="padding-top:0">
+    <div class="wrap about">
+      <div><p class="label">Sobre el proyecto</p><h2 id="t-sobre">Cine, en pocos minutos.</h2></div>
+      <div>
+        <p id="aboutText"></p>
+        <p class="sub">Minuto Cinéfilo se produce y se emite en <a id="lnkRadio2" href="#" target="_blank" rel="noopener">Radio Monk</a>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> Minuto Cinéfilo</span>
+    <div><a id="fRadio" href="#" target="_blank" rel="noopener">Radio Monk</a><a id="fIg" href="#" target="_blank" rel="noopener">Instagram</a></div>
+    <em id="fraseFooter"></em>
+  </div>
+  <div class="wrap tmdb">
+    <img src="tmdb-logo.svg" alt="TMDB" height="12">
+    <span>Este producto usa la API de TMDB pero no está avalado ni certificado por TMDB. Pósteres y datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — editá solo este bloque y la lista CAPSULAS
+   ============================================================ */
+const SITE = {
+  instagramUrl: "https://www.instagram.com/",   // ← poné tu perfil real
+  radioUrl: "https://example.com/radio-monk",     // ← poné la web real de Radio Monk
+  about: "Minuto Cinéfilo es un espacio dedicado a descubrir las historias que hay detrás de las películas: curiosidades, decisiones creativas, anécdotas de rodaje y detalles que hacen del cine una experiencia que siempre merece unos minutos más.",
+  footerPhrase: "Luces, cámara y unos minutos más."
+};
+
+/* Cada cápsula es un objeto. Para agregar una nueva, copiá uno y pegalo
+   en la lista (el orden no importa: la más reciente por fecha es la «última»).
+   - audio: URL del .mp3 (dejá "" si todavía no existe)
+   - poster: URL de una imagen que tengas autorizada (dejá "" para el marcador)
+   - transcript: URL de la transcripción (dejá "" si no hay)
+   - duration: "m:ss"
+   - demo: true marca la entrada como ejemplo; borrá esa línea en las reales */
+const CAPSULAS = [
+  { id:"ejemplo-03", title:"Título de ejemplo: la escena que no estaba en el guion", film:"Película de ejemplo A", date:"2026-10-12", duration:"3:20",
+    description:"Contenido de demostración. Acá va la descripción breve de la cápsula: de qué trata y qué curiosidad cuenta.",
+    audio:"", poster:"", transcript:"", demo:true },
+  { id:"ejemplo-02", title:"Título de ejemplo: cuarenta años después", film:"Película de ejemplo B", date:"2026-10-05", duration:"2:45",
+    description:"Contenido de demostración. Un aniversario, una decisión creativa o una anécdota de rodaje, en un par de líneas.",
+    audio:"", poster:"", transcript:"", demo:true },
+  { id:"ejemplo-01", title:"Título de ejemplo: el plano que costó una semana", film:"Película de ejemplo C", date:"2026-09-28", duration:"3:55",
+    description:"Contenido de demostración. Reemplazalo por los datos reales de tu cápsula.",
+    audio:"", poster:"", transcript:"", demo:true }
+];
+/* ============================================================ */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = iso => new Date(iso + "T12:00:00").toLocaleDateString("es-AR", {day:"numeric", month:"long", year:"numeric"});
+const fmtTime = t => { if(!isFinite(t)) return "0:00"; const m=Math.floor(t/60), s=Math.floor(t%60); return m+":"+String(s).padStart(2,"0"); };
+const sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date));
+let current = sorted[0];
+let audio = null;
+
+/* enlaces y textos configurables */
+["lnkIg","fIg"].forEach(id => $("#"+id).href = SITE.instagramUrl);
+["lnkRadio","lnkRadio2","fRadio"].forEach(id => $("#"+id).href = SITE.radioUrl);
+$("#aboutText").textContent = SITE.about;
+$("#fraseFooter").textContent = SITE.footerPhrase;
+$("#year").textContent = new Date().getFullYear();
+
+const I_PLAY = '<svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
+
+function renderLatest(){
+  const c = current, box = $("#latest");
+  if(!c){ box.innerHTML = '<p class="empty">Todavía no hay cápsulas publicadas. Agregá la primera en la lista CAPSULAS.</p>'; return; }
+  const poster = c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : `<span>Póster provisional<br>Reemplazalo con una imagen autorizada</span>`;
+  box.innerHTML = `
+    <div class="poster">${poster}</div>
+    <div>
+      ${c.demo ? '<span class="badge">Contenido de ejemplo</span>' : ''}
+      <h3 class="film">${esc(c.film)}</h3>
+      <div class="meta"><span>${esc(c.title)}</span><time datetime="${esc(c.date)}">${fmtDate(c.date)}</time><span>${esc(c.duration)} min</span></div>
+      <p class="desc">${esc(c.description)}</p>
+      <div class="player" role="group" aria-label="Reproductor de ${esc(c.title)}">
+        <button class="play" id="play" aria-pressed="false" aria-label="Reproducir">${I_PLAY}</button>
+        <input type="range" id="seek" min="0" max="100" step="0.1" value="0" aria-label="Posición del audio">
+        <span class="time" id="time">0:00 / ${esc(c.duration)}</span>
+      </div>
+      <p class="note" id="note" role="status"></p>
+      <p class="links">${c.transcript ? `<a href="${esc(c.transcript)}">Leer la transcripción completa</a>` : ''}</p>
+      <audio id="audio" preload="none"></audio>
+    </div>`;
+  setupPlayer(c);
+}
+
+function setupPlayer(c){
+  audio = $("#audio"); const play=$("#play"), seek=$("#seek"), time=$("#time"), note=$("#note");
+  const setP = () => seek.style.setProperty("--p", seek.value + "%");
+  if(!c.audio){
+    play.disabled = seek.disabled = true;
+    note.textContent = "Audio de ejemplo: todavía no hay archivo. Pegá la URL del .mp3 en el campo «audio» de esta cápsula para activar el reproductor.";
+    return;
+  }
+  audio.src = c.audio;
+  play.onclick = () => audio.paused ? audio.play().catch(()=>{ note.textContent = "No se pudo reproducir el audio. Revisá que la URL sea correcta."; }) : audio.pause();
+  audio.onplay = () => { play.setAttribute("aria-pressed","true"); play.setAttribute("aria-label","Pausar"); };
+  audio.onpause = audio.onended = () => { play.setAttribute("aria-pressed","false"); play.setAttribute("aria-label","Reproducir"); };
+  audio.ontimeupdate = () => { if(audio.duration){ seek.value = audio.currentTime / audio.duration * 100; setP(); time.textContent = fmtTime(audio.currentTime) + " / " + fmtTime(audio.duration); } };
+  audio.onloadedmetadata = () => time.textContent = "0:00 / " + fmtTime(audio.duration);
+  audio.onerror = () => { note.textContent = "No se pudo cargar el audio. Revisá la URL."; play.disabled = true; };
+  seek.oninput = () => { if(audio.duration) audio.currentTime = seek.value / 100 * audio.duration; setP(); };
+}
+
+function renderList(){
+  const q = $("#q").value.trim().toLowerCase();
+  const norm = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const rows = sorted.filter(c => c !== sorted[0] || false).filter(c => !q || norm(c.title + " " + c.film).includes(norm(q)));
+  $("#list").innerHTML = rows.map(c => `
+    <li class="item${c === current ? ' on' : ''}">
+      <time datetime="${esc(c.date)}">${fmtDate(c.date)}</time>
+      <div>
+        <h3>${esc(c.title)}</h3>
+        <p class="by">${esc(c.film)}${c.demo ? ' · ejemplo' : ''}</p>
+        <p>${esc(c.description)}</p>
+      </div>
+      <div><span class="dur">${esc(c.duration)} min</span><br>
+        <button class="listen" data-id="${esc(c.id)}" aria-label="Escuchar ${esc(c.title)}">Escuchar</button></div>
+    </li>`).join("");
+  $("#empty").hidden = rows.length > 0;
+}
+
+$("#q").addEventListener("input", renderList);
+$("#list").addEventListener("click", e => {
+  const b = e.target.closest(".listen"); if(!b) return;
+  if(audio) audio.pause();
+  current = CAPSULAS.find(c => c.id === b.dataset.id) || current;
+  renderLatest(); renderList();
+  $("#capsulas").scrollIntoView({behavior:"smooth"});
+  const p = $("#play"); if(p && !p.disabled) p.focus({preventScroll:true});
+});
+
+renderLatest(); renderList();
+</script>
+</body>
+</html>
