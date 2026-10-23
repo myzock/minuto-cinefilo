@@ -84,6 +84,9 @@ input[type=range]:disabled{opacity:.4;cursor:not-allowed}
 .time{font-size:14px;color:var(--mute);font-variant-numeric:tabular-nums;min-width:5.5em;text-align:right}
 .note{font-size:14px;color:var(--mute);margin-top:14px;min-height:1.6em}
 .links{margin-top:20px;font-size:15px}
+.share{margin-top:24px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;font-size:14px;color:var(--mute)}
+.share a,.share button{color:var(--ink);background:none;border:0;font:inherit;font-size:14px;cursor:pointer;padding:6px 0;text-decoration:underline;text-decoration-color:var(--mute);text-underline-offset:4px}
+.share a:hover,.share button:hover{text-decoration-color:var(--ink)}
 @media(max-width:820px){.latest{grid-template-columns:1fr}.poster{aspect-ratio:3/2;max-width:100%}}
 
 /* archivo */
@@ -164,8 +167,7 @@ footer em{font-family:var(--serif)}
         <h2 id="t-archivo">Cápsulas anteriores</h2>
         <form class="search" role="search" onsubmit="return false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>
-          <label for="q" style="position:absolute;left:-999px">Buscar por película o título</label>
-          <input id="q" type="search" placeholder="Buscar película o título" autocomplete="off">
+          <input id="q" type="search" placeholder="Buscar película o título" aria-label="Buscar por película o título" autocomplete="off">
         </form>
       </div>
       <ul class="list" id="list"></ul>
@@ -263,9 +265,29 @@ function renderLatest(){
       </div>
       <p class="note" id="note" role="status"></p>
       <p class="links">${c.transcript ? `<a href="${esc(c.transcript)}">Leer la transcripción completa</a>` : ''}</p>
+      <div class="share" id="share"></div>
       <audio id="audio" preload="none"></audio>
     </div>`;
-  setupPlayer(c);
+  renderShare(c); setupPlayer(c);
+}
+
+function renderShare(c){
+  const url = location.origin + location.pathname;
+  const t = encodeURIComponent("Escuchá «" + c.film + "» en Minuto Cinéfilo");
+  const u = encodeURIComponent(url);
+  const links = [
+    ["WhatsApp", "https://wa.me/?text=" + t + "%20" + u],
+    ["Telegram", "https://t.me/share/url?url=" + u + "&text=" + t],
+    ["X", "https://twitter.com/intent/tweet?text=" + t + "&url=" + u],
+    ["Facebook", "https://www.facebook.com/sharer/sharer.php?u=" + u]
+  ];
+  $("#share").innerHTML = "<span>Compartir</span>" +
+    links.map(([n,h]) => `<a href="${h}" target="_blank" rel="noopener">${n}</a>`).join("") +
+    '<button type="button" id="copy">Copiar enlace</button>';
+  $("#copy").onclick = async () => {
+    try { await navigator.clipboard.writeText(url); $("#copy").textContent = "¡Copiado!"; }
+    catch { prompt("Copiá el enlace:", url); }
+  };
 }
 
 function setupPlayer(c){
