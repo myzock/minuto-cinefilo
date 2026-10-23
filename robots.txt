@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://myzock.github.io/minuto-cinefilo/sitemap.xml
