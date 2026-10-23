@@ -19,16 +19,16 @@
       "poster": "https://image.tmdb.org/t/p/w500/jmGVSLOrH9IxtcffbldrEHX4IfB.jpg"
     },
     {
-      "id": "ejemplo-02",
-      "title": "Título de ejemplo: cuarenta años después",
-      "film": "Película de ejemplo B",
-      "date": "2026-10-05",
-      "duration": "2:45",
-      "description": "Contenido de demostración. Un aniversario, una decisión creativa o una anécdota de rodaje, en un par de líneas.",
-      "audio": "",
-      "poster": "",
-      "transcript": "",
-      "demo": true
+      "id": "insidious-out-of-the-further-02",
+      "title": "La noche del demonio: Están entre nosotros",
+      "film": "Insidious: Out of the Further",
+      "date": "2026-08-21",
+      "duration": "",
+      "description": "¿Y si el verdadero peligro de entrar al Más Allá fuera que algo pudiera volver con vos? Esta semana nos metemos de lleno en el terror con una de las sagas más conocidas de los últimos años: Insidious. Y sí, tenemos nueva película. Se llama La Noche del Demonio: Están Entre Nosotros, y es la sexta entrega de la franquicia.",
+      "audio": "insidious-out-of-the-further.mp3",
+      "poster": "https://image.tmdb.org/t/p/w500/uIMddTcnM9P6PrJiDjsXIeYp902.jpg",
+      "transcript": "transcripciones/insidious-out-of-the-further.txt",
+      "demo": false
     },
     {
       "id": "ejemplo-01",
