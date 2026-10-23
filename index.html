@@ -9,7 +9,10 @@
 <meta property="og:title" content="Minuto Cinéfilo">
 <meta property="og:description" content="Hay películas que merecen unos minutos más. Cápsulas de audio sobre cine, por Radio Monk.">
 <meta property="og:locale" content="es_AR">
-<meta name="twitter:card" content="summary">
+<meta property="og:url" content="https://myzock.github.io/minuto-cinefilo/">
+<meta property="og:image" content="https://myzock.github.io/minuto-cinefilo/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://myzock.github.io/minuto-cinefilo/og.png">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23060606'/%3E%3Cpath d='M14 46V18l18 20 18-20v28' fill='none' stroke='%23f2ede4' stroke-width='5'/%3E%3Crect x='14' y='52' width='36' height='3' fill='%238e1b1b'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -202,48 +205,29 @@ footer em{font-family:var(--serif)}
 /* ============================================================
    CONFIGURACIÓN — editá solo este bloque y la lista CAPSULAS
    ============================================================ */
-const SITE = {
-  instagramUrl: "https://www.instagram.com/minutocinefilok",   // ← poné tu perfil real
-  radioUrl: "https://www.radiomonk.com.ar",     // ← poné la web real de Radio Monk
-  about: "Minuto Cinéfilo es un espacio dedicado a descubrir las historias que hay detrás de las películas: curiosidades, decisiones creativas, anécdotas de rodaje y detalles que hacen del cine una experiencia que siempre merece unos minutos más.",
-  footerPhrase: "Luces, cámara y unos minutos más."
-};
-
-/* Cada cápsula es un objeto. Para agregar una nueva, copiá uno y pegalo
-   en la lista (el orden no importa: la más reciente por fecha es la «última»).
-   - audio: URL del .mp3 (dejá "" si todavía no existe)
-   - poster: URL de una imagen que tengas autorizada (dejá "" para el marcador)
-   - transcript: URL de la transcripción (dejá "" si no hay)
-   - duration: "m:ss"
-   - demo: true marca la entrada como ejemplo; borrá esa línea en las reales */
-const CAPSULAS = [
-{ id:"whalefall-01", title:"La caída de la ballena (Whalefall)", film:"Whalefall", date:"2026-10-17", duration:"3:39",
-  description:"¿Qué harías si estuvieras buceando en el fondo del océano, con el oxígeno a punto de agotarse, y de repente descubrieras que tu única posibilidad de sobrevivir es escapar del interior de una ballena gigante?",
-  audio:"audio/whalefall.mp3", transcript:"",
-  poster:"https://image.tmdb.org/t/p/w500/jmGVSLOrH9IxtcffbldrEHX4IfB.jpg" },
-  { id:"ejemplo-02", title:"Título de ejemplo: cuarenta años después", film:"Película de ejemplo B", date:"2026-10-05", duration:"2:45",
-    description:"Contenido de demostración. Un aniversario, una decisión creativa o una anécdota de rodaje, en un par de líneas.",
-    audio:"", poster:"", transcript:"", demo:true },
-  { id:"ejemplo-01", title:"Título de ejemplo: el plano que costó una semana", film:"Película de ejemplo C", date:"2026-09-28", duration:"3:55",
-    description:"Contenido de demostración. Reemplazalo por los datos reales de tu cápsula.",
-    audio:"", poster:"", transcript:"", demo:true }
-];
+let SITE, CAPSULAS, sorted, current = null;
+const page = c => c.demo ? null : "capsulas/" + encodeURIComponent(c.id) + "/";
+fetch("capsulas.json").then(r => { if(!r.ok) throw 0; return r.json(); })
+  .then(d => { SITE = d.site; CAPSULAS = d.capsulas; init(); })
+  .catch(() => { $("#latest").innerHTML = '<p class="empty">No se pudieron cargar las cápsulas. Probá recargar la página.</p>'; });
 /* ============================================================ */
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtDate = iso => new Date(iso + "T12:00:00").toLocaleDateString("es-AR", {day:"numeric", month:"long", year:"numeric"});
 const fmtTime = t => { if(!isFinite(t)) return "0:00"; const m=Math.floor(t/60), s=Math.floor(t%60); return m+":"+String(s).padStart(2,"0"); };
-const sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date));
-let current = sorted[0];
 let audio = null;
 
-/* enlaces y textos configurables */
+function init(){
+sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date));
+current = sorted[0];
 ["lnkIg","fIg"].forEach(id => $("#"+id).href = SITE.instagramUrl);
 ["lnkRadio","lnkRadio2","fRadio"].forEach(id => $("#"+id).href = SITE.radioUrl);
 $("#aboutText").textContent = SITE.about;
 $("#fraseFooter").textContent = SITE.footerPhrase;
 $("#year").textContent = new Date().getFullYear();
+renderLatest(); renderList();
+}
 
 const I_PLAY = '<svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 
@@ -255,7 +239,7 @@ function renderLatest(){
     <div class="poster">${poster}</div>
     <div>
       ${c.demo ? '<span class="badge">Contenido de ejemplo</span>' : ''}
-      <h3 class="film">${esc(c.film)}</h3>
+      <h3 class="film">${page(c) ? `<a href="${page(c)}" style="text-decoration:none">${esc(c.film)}</a>` : esc(c.film)}</h3>
       <div class="meta"><span>${esc(c.title)}</span><time datetime="${esc(c.date)}">${fmtDate(c.date)}</time><span>${esc(c.duration)} min</span></div>
       <p class="desc">${esc(c.description)}</p>
       <div class="player" role="group" aria-label="Reproductor de ${esc(c.title)}">
@@ -264,7 +248,7 @@ function renderLatest(){
         <span class="time" id="time">0:00 / ${esc(c.duration)}</span>
       </div>
       <p class="note" id="note" role="status"></p>
-      <p class="links">${c.transcript ? `<a href="${esc(c.transcript)}">Leer la transcripción completa</a>` : ''}</p>
+      <p class="links">${c.transcript && page(c) ? `<a href="${page(c)}#transcripcion">Leer la transcripción completa</a>` : ''}</p>
       <div class="share" id="share"></div>
       <audio id="audio" preload="none"></audio>
     </div>`;
@@ -272,7 +256,8 @@ function renderLatest(){
 }
 
 function renderShare(c){
-  const url = location.origin + location.pathname;
+  const base = location.origin + location.pathname.replace(/[^/]*$/, "");
+  const url = c.demo ? base : base + "capsulas/" + encodeURIComponent(c.id) + "/";
   const t = encodeURIComponent("Escuchá «" + c.film + "» en Minuto Cinéfilo");
   const u = encodeURIComponent(url);
   const links = [
@@ -316,7 +301,7 @@ function renderList(){
     <li class="item${c === current ? ' on' : ''}">
       <time datetime="${esc(c.date)}">${fmtDate(c.date)}</time>
       <div>
-        <h3>${esc(c.title)}</h3>
+        <h3>${page(c) ? `<a href="${page(c)}" style="text-decoration:none">${esc(c.title)}</a>` : esc(c.title)}</h3>
         <p class="by">${esc(c.film)}${c.demo ? ' · ejemplo' : ''}</p>
         <p>${esc(c.description)}</p>
       </div>
@@ -336,7 +321,6 @@ $("#list").addEventListener("click", e => {
   const p = $("#play"); if(p && !p.disabled) p.focus({preventScroll:true});
 });
 
-renderLatest(); renderList();
 </script>
 </body>
 </html>
