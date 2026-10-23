@@ -42,7 +42,7 @@ for (const c of reales) {
 <a class="back" href="../../#capsulas">← Todas las cápsulas</a>
 <div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}</div>
 <div><h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.film)}</h1>
-<div class="meta"><span>${esc(c.title)}</span><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span>${esc(c.duration)} min</span></div>
+<div class="meta"><span>${esc(c.title)}</span><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
 <p class="desc">${esc(c.description)}</p>
 ${audio ? `<audio controls controlsList="nodownload noplaybackrate" oncontextmenu="return false" preload="none" src="${esc(audio)}"></audio>` : '<p class="note">El audio de esta cápsula todavía no está disponible.</p>'}
 <div class="share"><span>Compartir</span><a href="https://wa.me/?text=${t}%20${u}" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/share/url?url=${u}&text=${t}" target="_blank" rel="noopener">Telegram</a><a href="https://twitter.com/intent/tweet?text=${t}&url=${u}" target="_blank" rel="noopener">X</a><a href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a></div>
@@ -50,6 +50,7 @@ ${c.transcript && trans ? '<p class="links"><a href="#transcripcion">Leer la tra
 </div></div>${trans}</div></main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div>
 <div class="wrap tmdb"><img src="../../tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa la API de TMDB pero no está avalado ni certificado por TMDB.</span></div></footer>
+<script>const a=document.querySelector("audio");if(a){a.preload="metadata";a.addEventListener("loadedmetadata",()=>{const t=a.duration,m=Math.floor(t/60),s=Math.floor(t%60);document.getElementById("dur").textContent=m+":"+String(s).padStart(2,"0")+" min"})}</script>
 </body></html>`;
   mkdirSync(`capsulas/${c.id}`, { recursive: true });
   writeFileSync(`capsulas/${c.id}/index.html`, html);
