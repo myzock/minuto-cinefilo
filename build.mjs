@@ -44,7 +44,7 @@ for (const c of reales) {
 <div><h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.film)}</h1>
 <div class="meta"><span>${esc(c.title)}</span><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span>${esc(c.duration)} min</span></div>
 <p class="desc">${esc(c.description)}</p>
-${audio ? `<audio controls preload="none" src="${esc(audio)}"></audio>` : '<p class="note">El audio de esta cápsula todavía no está disponible.</p>'}
+${audio ? `<audio controls controlsList="nodownload noplaybackrate" oncontextmenu="return false" preload="none" src="${esc(audio)}"></audio>` : '<p class="note">El audio de esta cápsula todavía no está disponible.</p>'}
 <div class="share"><span>Compartir</span><a href="https://wa.me/?text=${t}%20${u}" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/share/url?url=${u}&text=${t}" target="_blank" rel="noopener">Telegram</a><a href="https://twitter.com/intent/tweet?text=${t}&url=${u}" target="_blank" rel="noopener">X</a><a href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a></div>
 ${c.transcript && trans ? '<p class="links"><a href="#transcripcion">Leer la transcripción</a></p>' : ""}
 </div></div>${trans}</div></main>
