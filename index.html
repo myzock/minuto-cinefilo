@@ -231,6 +231,17 @@ renderLatest(); renderList();
 
 const I_PLAY = '<svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 
+const durCache = {};
+function fillDurations(){
+  document.querySelectorAll("[data-dur]").forEach(el => {
+    const src = el.dataset.dur;
+    if(durCache[src]){ el.textContent = durCache[src]; return; }
+    const a = new Audio(); a.preload = "metadata";
+    a.onloadedmetadata = () => { durCache[src] = fmtTime(a.duration) + " min"; el.textContent = durCache[src]; };
+    a.src = src;
+  });
+}
+
 function renderLatest(){
   const c = current, box = $("#latest");
   if(!c){ box.innerHTML = '<p class="empty">Todavía no hay cápsulas publicadas. Agregá la primera en la lista CAPSULAS.</p>'; return; }
@@ -240,19 +251,19 @@ function renderLatest(){
     <div>
       ${c.demo ? '<span class="badge">Contenido de ejemplo</span>' : ''}
       <h3 class="film">${page(c) ? `<a href="${page(c)}" style="text-decoration:none">${esc(c.film)}</a>` : esc(c.film)}</h3>
-      <div class="meta"><span>${esc(c.title)}</span><time datetime="${esc(c.date)}">${fmtDate(c.date)}</time><span>${esc(c.duration)} min</span></div>
+      <div class="meta"><span>${esc(c.title)}</span><time datetime="${esc(c.date)}">${fmtDate(c.date)}</time><span ${c.audio ? `data-dur="${esc(c.audio)}"` : ""}>${c.duration ? esc(c.duration) + " min" : ""}</span></div>
       <p class="desc">${esc(c.description)}</p>
       <div class="player" role="group" aria-label="Reproductor de ${esc(c.title)}">
         <button class="play" id="play" aria-pressed="false" aria-label="Reproducir">${I_PLAY}</button>
         <input type="range" id="seek" min="0" max="100" step="0.1" value="0" aria-label="Posición del audio">
-        <span class="time" id="time">0:00 / ${esc(c.duration)}</span>
+        <span class="time" id="time">0:00 / ${esc(c.duration || "--:--")}</span>
       </div>
       <p class="note" id="note" role="status"></p>
       <p class="links">${c.transcript && page(c) ? `<a href="${page(c)}#transcripcion">Leer la transcripción completa</a>` : ''}</p>
       <div class="share" id="share"></div>
       <audio id="audio" preload="none"></audio>
     </div>`;
-  renderShare(c); setupPlayer(c);
+  renderShare(c); setupPlayer(c); fillDurations();
 }
 
 function renderShare(c){
@@ -305,10 +316,11 @@ function renderList(){
         <p class="by">${esc(c.film)}${c.demo ? ' · ejemplo' : ''}</p>
         <p>${esc(c.description)}</p>
       </div>
-      <div><span class="dur">${esc(c.duration)} min</span><br>
+      <div><span class="dur" ${c.audio ? `data-dur="${esc(c.audio)}"` : ""}>${c.duration ? esc(c.duration) + " min" : ""}</span><br>
         <button class="listen" data-id="${esc(c.id)}" aria-label="Escuchar ${esc(c.title)}">Escuchar</button></div>
     </li>`).join("");
   $("#empty").hidden = rows.length > 0;
+  fillDurations();
 }
 
 $("#q").addEventListener("input", renderList);
