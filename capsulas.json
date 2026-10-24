@@ -45,6 +45,19 @@
       "audio": "audio/backrooms.mp3",
       "poster": "https://image.tmdb.org/t/p/w500/3YTb97zytlWRWZb7HrOiEhk4e6f.jpg",
       "transcript": "transcripciones/backrooms.txt"
+    },
+    {
+      "id": "toystory5-04",
+      "numero": 3,
+      "title": "Toy Story 5",
+      "film": "Toy Story 5",
+      "tmdb_id": 1084244,
+      "date": "2026-06-13",
+      "duration": "",
+      "description": "Si creciste con Toy Story, esta quinta entrega seguramente te toque una fibra muy especial. Y si vas con chicos, preparate porque, además de entretener, deja un mensaje muy vigente.",
+      "audio": "audio/toystory5.mp3",
+      "poster": "https://image.tmdb.org/t/p/w500/zkQmhKTszD48vEcjIfwAlqLnGSr.jpg",
+      "transcript": "transcripciones/toystory5.txt"
     }
   ]
 }
