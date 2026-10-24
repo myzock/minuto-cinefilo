@@ -1,5 +1,8 @@
 name: Generar páginas de cápsulas
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 1 * *'   # renueva los datos de TMDB el día 1 de cada mes
   push:
     branches: [main]
     paths: ['capsulas.json', 'transcripciones/**', 'build.mjs', 'index.html']
@@ -13,6 +16,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: node build.mjs
+        env:
+          TMDB_KEY: ${{ secrets.TMDB_KEY }}
       - run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
