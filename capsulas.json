@@ -32,16 +32,15 @@
       "transcript": "transcripciones/insidious-out-of-the-further.txt",
     },
     {
-      "id": "ejemplo-01",
-      "title": "Título de ejemplo: el plano que costó una semana",
-      "film": "Película de ejemplo C",
-      "date": "2026-09-28",
-      "duration": "3:55",
-      "description": "Contenido de demostración. Reemplazalo por los datos reales de tu cápsula.",
-      "audio": "",
-      "poster": "",
-      "transcript": "",
-      "demo": true
+      "id": "backrooms",
+      "title": "Backrooms: Sin Salida",
+      "film": "Backrooms",
+      "date": "2026-06-11",
+      "duration": "",
+      "description": "Te pasó alguna vez entrar a un lugar y sentir una incomodidad difícil de explicar? Un pasillo vacío, una oficina desierta, un salón donde no hay nadie... y aun así sentís que algo no está bien. Bueno, esa sensación tiene nombre en internet: The Backrooms",
+      "audio": "audio/backrooms.mp3",
+      "poster": "https://image.tmdb.org/t/p/w500/3YTb97zytlWRWZb7HrOiEhk4e6f.jpg",
+      "transcript": "transcripciones/backrooms.txt",
     }
   ]
 }
