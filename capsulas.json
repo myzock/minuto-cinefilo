@@ -12,7 +12,7 @@
       "numero": 1,
       "title": "La caída de la ballena (Whalefall)",
       "film": "Whalefall",
-      "tmdb_id": 1255833
+      "tmdb_id": 1255833,
       "date": "2026-10-17",
       "description": "¿Qué harías si estuvieras buceando en el fondo del océano, con el oxígeno a punto de agotarse, y de repente descubrieras que tu única posibilidad de sobrevivir es escapar del interior de una ballena gigante?",
       "audio": "audio/whalefall.mp3",
@@ -25,26 +25,26 @@
       "numero": 2,
       "title": "La noche del demonio: Están entre nosotros",
       "film": "Insidious: Out of the Further",
-      "tmdb_id": 1291595
+      "tmdb_id": 1291595,
       "date": "2026-08-21",
       "duration": "",
       "description": "¿Y si el verdadero peligro de entrar al Más Allá fuera que algo pudiera volver con vos? Esta semana nos metemos de lleno en el terror con una de las sagas más conocidas de los últimos años: Insidious. Y sí, tenemos nueva película. Se llama La Noche del Demonio: Están Entre Nosotros, y es la sexta entrega de la franquicia.",
       "audio": "audio/insidious-out-of-the-further.mp3",
       "poster": "https://image.tmdb.org/t/p/w500/icc5Tjg14CZH94b0CDBQ2PP8YjH.jpg",
-      "transcript": "transcripciones/insidious-out-of-the-further.txt",
+      "transcript": "transcripciones/insidious-out-of-the-further.txt"
     },
     {
       "id": "backrooms-03",
       "numero": 3,
       "title": "Backrooms: Sin Salida",
       "film": "Backrooms",
-      "tmdb_id": 1083381
+      "tmdb_id": 1083381,
       "date": "2026-06-11",
       "duration": "",
       "description": "Te pasó alguna vez entrar a un lugar y sentir una incomodidad difícil de explicar? Un pasillo vacío, una oficina desierta, un salón donde no hay nadie... y aun así sentís que algo no está bien. Bueno, esa sensación tiene nombre en internet: The Backrooms",
       "audio": "audio/backrooms.mp3",
       "poster": "https://image.tmdb.org/t/p/w500/3YTb97zytlWRWZb7HrOiEhk4e6f.jpg",
-      "transcript": "transcripciones/backrooms.txt",
+      "transcript": "transcripciones/backrooms.txt"
     }
   ]
 }
