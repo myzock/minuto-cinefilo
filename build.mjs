@@ -86,6 +86,8 @@ const extra = `
 `;
 
 const urls = [site.url];
+const fichas = {}; // datos de TMDB para la home (solo episodios con ficha vigente)
+const REEL = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d93a32"/><circle cx="20" cy="20" r="3.2" fill="#090c10"/><g fill="#090c10"><circle cx="20" cy="9" r="4"/><circle cx="30.5" cy="16.5" r="4"/><circle cx="26.5" cy="29" r="4"/><circle cx="13.5" cy="29" r="4"/><circle cx="9.5" cy="16.5" r="4"/></g></svg>';
 for (const c of capsulas.filter(x => !x.demo)) {
   const pageUrl = `${site.url}capsulas/${c.id}/`; urls.push(pageUrl);
   const audio = c.audio ? (/^https?:/.test(c.audio) ? c.audio : "../../" + c.audio) : "";
@@ -93,6 +95,8 @@ for (const c of capsulas.filter(x => !x.demo)) {
   const dir = t?.credits?.crew?.find(p => p.job === "Director")?.name;
   const cast = (t?.credits?.cast || []).slice(0, 4).map(p => p.name).join(", ");
   const generos = (t?.genres || []).map(x => x.name).join(", ");
+  if (t) fichas[c.id] = { tmdb_id: t.id, title: t.title, original_title: t.original_title, year: (t.release_date || "").slice(0, 4), runtime: t.runtime,
+    country: (t.production_countries || []).map(p => p.name).join(", "), director: dir || "", cast, genres: (t.genres || []).map(x => x.name) };
   const fichaHtml = t ? `<aside class="ficha" aria-labelledby="tf"><h2 id="tf">Datos de la película</h2><dl>
 ${row("Título original", t.original_title !== t.title ? t.original_title : "")}${row("Título en español", t.title)}${row("Año", (t.release_date || "").slice(0, 4))}${row("Duración", hm(t.runtime))}${row("País", (t.production_countries || []).map(p => p.name).join(", "))}${row("Director", dir)}${row("Reparto principal", cast)}${row("Géneros", generos)}</dl>
 <a class="tm" href="https://www.themoviedb.org/movie/${t.id}" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside>` : "";
@@ -115,7 +119,7 @@ ${row("Título original", t.original_title !== t.title ? t.original_title : "")}
 <link rel="icon" href="../../favicon.svg">${fonts}
 <style>${css}${extra}</style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
-<header><div class="wrap"><a class="logo" href="../../">MINUTO CINÉFILO</a>
+<header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
 <nav aria-label="Principal"><a href="../../#capsulas">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main id="contenido"><div class="wrap" style="padding-block:clamp(48px,8vw,112px)">
 <a class="back" href="../../#capsulas">← Todas las cápsulas</a>
@@ -134,6 +138,8 @@ ${audio ? `<script>${client}</script>` : ""}
   mkdirSync(`capsulas/${c.id}`, { recursive: true });
   writeFileSync(`capsulas/${c.id}/index.html`, html);
 }
+mkdirSync("data", { recursive: true });
+writeFileSync("data/fichas.json", JSON.stringify(fichas));
 writeFileSync("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `<url><loc>${u}</loc></url>`).join("\n")}\n</urlset>\n`);
 writeFileSync("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${site.url}sitemap.xml\n`);
 console.log(`OK: ${urls.length - 1} página(s) generadas`);
