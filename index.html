@@ -83,7 +83,7 @@ footer div{display:flex;gap:20px;flex-wrap:wrap}
 .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#090c10 0%,rgba(9,12,16,.5) 45%,rgba(9,12,16,.05) 100%),linear-gradient(0deg,#090c10 0%,transparent 25%)}
 .hero.noimg .hero-bg{display:none}
 .hero-in{position:relative;width:100%;padding-block:72px}
-.hero-in::before{content:"";display:block;width:56px;height:2px;background:var(--red-hi);margin-bottom:24px}
+.eyebrow{font:700 12px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;margin-bottom:22px}.eyebrow::after{content:"";display:block;width:56px;height:2px;background:var(--red-hi);margin-top:12px}
 .hero h1{font-size:clamp(40px,6.2vw,78px);max-width:11ch}
 .hero-in>p.lead{color:#e6e3dc;max-width:44ch;margin-top:22px;font-size:clamp(16px,1.5vw,18px)}
 .actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:30px}
@@ -97,7 +97,7 @@ footer div{display:flex;gap:20px;flex-wrap:wrap}
 .feat{display:grid;grid-template-columns:minmax(0,1fr) 340px;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}.feat.solo{grid-template-columns:1fr}
 .feat-main{display:grid;grid-template-columns:210px minmax(0,1fr);gap:32px;padding:32px}
 .feat .sub{color:var(--mute);font-size:clamp(16px,1.6vw,19px);margin-top:6px}
-.chips{display:flex;flex-wrap:wrap;gap:6px 22px;color:var(--mute);font-size:14px;margin:16px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px 0;color:var(--mute);font-size:14px;margin:18px 0}.chips>span{display:inline-flex;align-items:center;gap:8px;padding-right:20px}.chips>span+span{border-left:1px solid var(--line);padding-left:20px}
 .bar{display:grid;grid-template-columns:auto auto 1fr auto auto;gap:14px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 18px 10px 12px;background:#0b0f14}
 .vol{display:flex;align-items:center;gap:8px;color:var(--mute)}.vol input{width:84px}
 .tools{display:flex;gap:26px;flex-wrap:wrap;margin-top:16px;font-size:14px}
@@ -106,7 +106,7 @@ footer div{display:flex;gap:20px;flex-wrap:wrap}
 .feat .share{display:none}.feat .share.open{display:flex}
 .fh{border-left:1px solid var(--line);padding:32px 28px}
 .fh h3{font:700 18px var(--serif);display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.fh h3 span{font-size:11px;letter-spacing:.12em;color:#01b4e4}
-.fh dl{display:grid;gap:14px}.fh dt{font-size:12px;color:var(--mute)}.fh dd{margin:0;font-size:14px}
+.fh dl{display:grid;gap:16px}.fh .r{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start}.fh .r svg{color:var(--mute);margin-top:2px}.fh dt{font-size:12px;color:var(--mute)}.fh dd{margin:0;font-size:14px}
 .fh .btn{display:block;text-align:center;margin-top:24px;border:1px solid #3a444f;border-radius:8px;padding:12px;text-decoration:none;font-size:14px}.fh .btn:hover{border-color:var(--ink)}
 @media(max-width:960px){.feat{grid-template-columns:1fr}.fh{border-left:0;border-top:1px solid var(--line)}}
 @media(max-width:640px){.feat-main{grid-template-columns:1fr;padding:20px;gap:20px}.feat .poster{max-width:190px}.bar{grid-template-columns:auto auto 1fr auto}.vol{display:none}}
@@ -150,11 +150,12 @@ footer div{display:flex;gap:20px;flex-wrap:wrap}
   <div class="hero noimg" id="inicio">
     <div class="hero-bg" id="heroBg" aria-hidden="true"></div>
     <div class="wrap hero-in">
+      <p class="eyebrow">Minuto Cinéfilo</p>
       <h1>El cine, en pocos minutos.</h1>
       <p class="lead">Una cápsula de 2 a 4 minutos, para que conozcas una película, descubras sus secretos y te den ganas de verla (o volver a verla).</p>
       <div class="actions">
         <button class="bigplay hero-play" type="button" aria-label="Reproducir el último episodio"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
-        <button class="pill hero-play" type="button"><span id="heroTxt">Escuchá el último episodio</span></button>
+        <button class="pill hero-play" type="button"><span id="heroTxt">Escuchá el último episodio</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 10v4M9 6v12M13 9v6M17 4v16M21 10v4"/></svg></button>
       </div>
       <p class="credit" id="heroCredit"></p>
     </div>
@@ -196,6 +197,17 @@ const norm = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""
 const page = c => c.demo ? null : "capsulas/" + encodeURIComponent(c.id) + "/";
 const fich = c => FICHAS[c.id];
 const ic = d => '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+const I = {
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  tag:'<path d="M3 12l9-9h8v8l-9 9z"/><circle cx="15.5" cy="8.5" r="1.2"/>',
+  film:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/>',
+  lang:'<path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6.5 8M11 6c0 3-2.5 6.5-6 8"/><path d="M13 20l4-9 4 9M14.5 17h5"/>',
+  flag:'<path d="M5 21V4M5 5h11l-2 4 2 4H5"/>',
+  user:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/>',
+  award:'<circle cx="12" cy="9" r="5"/><path d="M9 13.5L7.5 21l4.5-2.5 4.5 2.5L15 13.5"/>',
+  mask:'<path d="M4 5h16v6c0 5-3.5 8-8 8s-8-3-8-8z"/><path d="M9 10v1M15 10v1M9.5 14.5c1.5 1.2 3.5 1.2 5 0"/>'
+};
 const I_PLAY = '<svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 
 Promise.all([
@@ -236,15 +248,15 @@ function renderFeatured(){
   const f = fich(c);
   box.className = "feat" + (f ? "" : " solo");
   const poster = c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>";
-  const chips = [f?.year, `<span ${c.audio ? `data-dur="${esc(c.audio)}"` : ""}>${c.duration ? esc(c.duration) + " min" : ""}</span>`, (f?.genres || []).join(" / ")].filter(Boolean).map(x => `<span>${x}</span>`).join("");
+  const chips = [[I.cal, f?.year], [I.clock, `<span ${c.audio ? `data-dur="${esc(c.audio)}"` : ""}>${c.duration ? esc(c.duration) + " min" : ""}</span>`], [I.tag, (f?.genres || []).join(" / ")]].filter(x => x[1]).map(x => `<span>${ic(x[0])}${x[1]}</span>`).join("");
   const fh = f ? `<aside class="fh" aria-labelledby="fh-t"><h3 id="fh-t">Datos de la película <span>TMDB</span></h3><dl>
-    ${[["Título original", f.original_title && f.original_title !== f.title ? f.original_title : ""],["Título en español", f.title],["Año", f.year],["Duración", f.runtime ? Math.floor(f.runtime/60) + " h " + (f.runtime%60) + " min" : ""],["País", f.country],["Director", f.director],["Reparto principal", f.cast],["Géneros", (f.genres||[]).join(", ")]].filter(r => r[1]).map(r => `<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join("")}</dl>
+    ${[["Título original", f.original_title && f.original_title !== f.title ? f.original_title : "", I.film],["Título en español", f.title, I.lang],["Año", f.year, I.cal],["Duración", f.runtime ? Math.floor(f.runtime/60) + " h " + (f.runtime%60) + " min" : "", I.clock],["País", f.country, I.flag],["Director", f.director, I.award],["Reparto principal", f.cast, I.user],["Géneros", (f.genres||[]).join(", "), I.mask]].filter(r => r[1]).map(r => `<div class="r">${ic(r[2])}<div><dt>${r[0]}</dt><dd>${esc(r[1])}</dd></div></div>`).join("")}</dl>
     ${f.tmdb_id ? `<a class="btn" href="https://www.themoviedb.org/movie/${esc(f.tmdb_id)}" target="_blank" rel="noopener">Ver en TMDB ↗</a>` : ""}</aside>` : "";
   box.innerHTML = `<div class="feat-main"><div class="poster">${poster}</div><div>
     <p class="label">Episodio destacado${c.numero ? " · #" + esc(c.numero) : ""}</p>
     ${c.demo ? '<span class="badge">Contenido de ejemplo</span>' : ""}
     <h2 class="film">${page(c) ? `<a href="${page(c)}" style="text-decoration:none">${esc(c.title)}</a>` : esc(c.title)}</h2>
-    <p class="sub">${esc(c.film)}</p>
+    <p class="sub">${esc(c.subtitle || c.film)}</p>
     <div class="chips">${chips}</div>
     <p class="desc">${esc(c.description)}</p>
     <div class="bar" role="group" aria-label="Reproductor de ${esc(c.title)}">
