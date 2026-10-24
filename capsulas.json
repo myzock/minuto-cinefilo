@@ -25,7 +25,7 @@
       "numero": 2,
       "title": "La noche del demonio: Están entre nosotros",
       "film": "Insidious: Out of the Further",
-      "tmdb_id" 1291595,
+      "tmdb_id": 1291595,
       "date": "2026-08-21",
       "duration": "",
       "description": "¿Y si el verdadero peligro de entrar al Más Allá fuera que algo pudiera volver con vos? Esta semana nos metemos de lleno en el terror con una de las sagas más conocidas de los últimos años: Insidious. Y sí, tenemos nueva película. Se llama La Noche del Demonio: Están Entre Nosotros, y es la sexta entrega de la franquicia.",
@@ -38,14 +38,13 @@
       "numero": 3,
       "title": "Backrooms: Sin Salida",
       "film": "Backrooms",
-      "tmdb_id" 1083381,
+      "tmdb_id": 1083381,
       "date": "2026-06-11",
       "duration": "",
       "description": "Te pasó alguna vez entrar a un lugar y sentir una incomodidad difícil de explicar? Un pasillo vacío, una oficina desierta, un salón donde no hay nadie... y aun así sentís que algo no está bien. Bueno, esa sensación tiene nombre en internet: The Backrooms",
       "audio": "audio/backrooms.mp3",
       "poster": "https://image.tmdb.org/t/p/w500/3YTb97zytlWRWZb7HrOiEhk4e6f.jpg",
       "transcript": "transcripciones/backrooms.txt",
-      "demo": false
     }
   ]
 }
