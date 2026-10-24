@@ -10,13 +10,15 @@
     {
        "id": "whalefall-01",
       "numero": 1,
-  "title": "La caída de la ballena (Whalefall)",
-  "film": "Whalefall",
-  "tmdb_id": 1255833,
-  "date": "2026-10-17",
-  "description": "Tu descripción breve.",
-  "audio": "audio/whalefall.mp3",
-  "transcript": "transcripciones/whalefall.txt"
+      "title": "La caída de la ballena (Whalefall)",
+      "film": "Whalefall",
+      "tmdb_id": 1255833,
+      "date": "2026-10-17",
+      "description": "Tu descripción breve.",
+      "audio": "audio/whalefall.mp3",
+      "poster": "https://image.tmdb.org/t/p/w500/jmGVSLOrH9IxtcffbldrEHX4IfB.jpg",
+      "backdrop": "https://image.tmdb.org/t/p/w1280/shW2jHkQLZVv4Fko2rJDqTGU0gx.jpg",
+      "transcript": "transcripciones/whalefall.txt"
     },
     {
       "id": "insidious-out-of-the-further-02",
