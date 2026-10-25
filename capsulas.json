@@ -1,18 +1,19 @@
 {
-"site": {
-  "url": "https://minutocinefilo.com.ar/",
-  "instagramUrl": "https://www.instagram.com/minutocinefilok",
-  "radioUrl": "https://www.radiomonk.com.ar",
-  "about": "Minuto Cinéfilo es un espacio dedicado a descubrir las historias que hay detrás de las películas: curiosidades, decisiones creativas, anécdotas de rodaje y detalles que hacen del cine una experiencia que siempre merece unos minutos más.",
-  "footerPhrase": "Luces, cámara y unos minutos más.",
-  "podcast": {
-    "autor": "Minuto Cinefilo",
-    "email": "minutocinefilok@gmail.com",
-    "categoria": "TV & Film",
-    "subcategoria": "Film History"
+  "site": {
+    "url": "https://minutocinefilo.com.ar/",
+    "instagramUrl": "https://www.instagram.com/minutocinefilok",
+    "radioUrl": "https://www.radiomonk.com.ar",
+    "about": "Minuto Cinéfilo es un espacio dedicado a descubrir las historias que hay detrás de las películas: curiosidades, decisiones creativas, anécdotas de rodaje y detalles que hacen del cine una experiencia que siempre merece unos minutos más.",
+    "footerPhrase": "Luces, cámara y unos minutos más.",
+    "podcast": {
+      "autor": "Minuto Cinéfilo",
+      "email": "minutocinefilok@gmail.com",
+      "categoria": "TV & Film",
+      "subcategoria": "Film History",
+      "guidBase": "https://myzock.github.io/minuto-cinefilo/"
+    },
+    "spotifyUrl": "https://open.spotify.com/show/1oeQCcn4TciSQ1PHUHICJi"
   },
-  "spotifyUrl": "https://open.spotify.com/show/1oeQCcn4TciSQ1PHUHICJi"
-},
   "capsulas": [
     {
       "id": "whalefall-01",
@@ -65,8 +66,8 @@
       "audio": "audio/toystory5.mp3",
       "poster": "https://image.tmdb.org/t/p/w500/zkQmhKTszD48vEcjIfwAlqLnGSr.jpg",
       "transcript": "transcripciones/toystory5.txt"
-      },
-      {
+    },
+    {
       "id": "clayface-05",
       "tmdb_id": 1400940,
       "title": "Clayface",
@@ -74,15 +75,15 @@
       "description": "¿Qué estarías dispuesto a hacer para recuperar tu rostro? ¿Tu carrera? ¿El amor? ¿La vida que creías tener asegurada? Y, sobre todo… ¿cuánto de vos estarías dispuesto a perder en el camino?",
       "audio": "audio/clayface.mp3",
       "transcript": "transcripciones/clayface.txt"
-         },
-      {
+    },
+    {
       "id": "buddy-06",
       "tmdb_id": 1514026,
       "title": "Buddy",
       "date": "2026-10-31",
-      "description": "¿Qué pasaría si ese personaje infantil que nos enseñaba a compartir, cantar y ser buenos amigos escondiera algo verdaderamente aterrador? Bueno, esa es la premisa de *Buddy*, una de las propuestas más delirantes y sorprendentes del cine de terror de 2026.",
+      "description": "¿Qué pasaría si ese personaje infantil que nos enseñaba a compartir, cantar y ser buenos amigos escondiera algo verdaderamente aterrador? Bueno, esa es la premisa de Buddy, una de las propuestas más delirantes y sorprendentes del cine de terror de 2026.",
       "audio": "audio/buddy.mp3",
       "transcript": "transcripciones/buddy.txt"
-  }
+    }
   ]
 }
