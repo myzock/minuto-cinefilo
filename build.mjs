@@ -6,6 +6,8 @@ const index = readFileSync("index.html", "utf8");
 const css = index.match(/<style>([\s\S]*?)<\/style>/)[1];
 const fonts = index.match(/<link href="https:\/\/fonts\.googleapis[^>]*>/)[0];
 const KEY = process.env.TMDB_KEY;
+const IMG = "https://image.tmdb.org/t/p/";
+const HOY = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }); // AAAA-MM-DD, hora de Argentina
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fecha = iso => new Date(iso + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
 const hm = m => (m ? `${Math.floor(m / 60)} h ${m % 60} min` : "");
@@ -20,11 +22,14 @@ async function ficha(c) {
     }
     if (!id) return null;
     const file = `data/tmdb/${id}.json`;
-    if (KEY) {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${KEY}&language=es-AR&append_to_response=credits`);
+    const hit = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
+    const fresca = hit && "poster" in hit && (Date.now() - new Date(hit._fetched || 0)) / 864e5 < 30; // se vuelve a pedir a TMDB cada 30 días
+    if (KEY && !fresca) {
+      const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${KEY}&language=es-AR&append_to_response=credits,images&include_image_language=null`);
       if (res.ok) {
         const j = await res.json(); // se guarda solo lo que la web muestra, con fecha de descarga
-        const slim = { _fetched: new Date().toISOString(), title: j.title, original_title: j.original_title, release_date: j.release_date, runtime: j.runtime,
+        const slim = { _fetched: new Date().toISOString(), title: j.title, original_title: j.original_title, release_date: j.release_date, runtime: j.runtime, poster: j.poster_path || "",
+          backdrop: ((j.images?.backdrops || []).filter(x => !x.iso_639_1).sort((a, b) => b.vote_average - a.vote_average || b.vote_count - a.vote_count)[0]?.file_path) || j.backdrop_path || "",
           genres: (j.genres || []).map(g => ({ name: g.name })), production_countries: (j.production_countries || []).map(p => ({ iso: p.iso_3166_1, name: p.name })),
           credits: { crew: (j.credits?.crew || []).filter(p => p.job === "Director").map(p => ({ job: p.job, name: p.name })), cast: (j.credits?.cast || []).slice(0, 4).map(p => ({ name: p.name })) } };
         mkdirSync("data/tmdb", { recursive: true }); writeFileSync(file, JSON.stringify(slim));
@@ -90,17 +95,22 @@ const extra = `
 `;
 
 const urls = [site.url];
+const reales = capsulas.filter(x => !x.demo);
+const asc = [...reales].sort((a, b) => a.date.localeCompare(b.date)); // el número de episodio sale del orden por fecha
 const fichas = {}; // datos de TMDB para la home (solo episodios con ficha vigente)
 const REEL = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d93a32"/><circle cx="20" cy="20" r="3.2" fill="#090c10"/><g fill="#090c10"><circle cx="20" cy="9" r="4"/><circle cx="30.5" cy="16.5" r="4"/><circle cx="26.5" cy="29" r="4"/><circle cx="13.5" cy="29" r="4"/><circle cx="9.5" cy="16.5" r="4"/></g></svg>';
-for (const c of capsulas.filter(x => !x.demo)) {
-  const pageUrl = `${site.url}capsulas/${c.id}/`; urls.push(pageUrl);
+for (const c of reales) {
+  const pageUrl = `${site.url}capsulas/${c.id}/`; const futuro = c.date > HOY; if (!futuro) urls.push(pageUrl);
   const audio = c.audio ? (/^https?:/.test(c.audio) ? c.audio : "../../" + c.audio) : "";
   const g = guion(c.transcript), t = await ficha(c);
+  c.film = c.film || t?.title || ""; c.numero = c.numero || asc.indexOf(c) + 1;
+  c.poster = c.poster || (t?.poster ? IMG + "w500" + t.poster : "");
   const dir = t?.credits?.crew?.find(p => p.job === "Director")?.name;
   const cast = (t?.credits?.cast || []).slice(0, 4).map(p => p.name).join(", ");
   const generos = (t?.genres || []).map(x => x.name).join(", ");
   if (t) fichas[c.id] = { tmdb_id: t.id, title: t.title, original_title: t.original_title, year: (t.release_date || "").slice(0, 4), runtime: t.runtime,
-    country: pais(t), director: dir || "", cast, genres: (t.genres || []).map(x => x.name) };
+    country: pais(t), director: dir || "", cast, genres: (t.genres || []).map(x => x.name),
+    poster: t.poster ? IMG + "w500" + t.poster : "", backdrop: t.backdrop ? IMG + "w1280" + t.backdrop : "" };
   const fichaHtml = t ? `<aside class="ficha" aria-labelledby="tf"><h2 id="tf">Datos de la película</h2><dl>
 ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_title : "")}${row(IC.lang, "Título en español", t.title)}${row(IC.cal, "Año", (t.release_date || "").slice(0, 4))}${row(IC.clock, "Duración", hm(t.runtime))}${row(IC.flag, "País", pais(t))}${row(IC.award, "Director", dir)}${row(IC.user, "Reparto principal", cast)}${row(IC.mask, "Géneros", generos)}</dl>
 <a class="tm" href="https://www.themoviedb.org/movie/${t.id}" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside>` : "";
@@ -119,7 +129,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <meta property="og:type" content="article"><meta property="og:title" content="${esc(c.film)} — Minuto Cinéfilo">
 <meta property="og:description" content="${esc(c.description)}"><meta property="og:url" content="${pageUrl}">
 <meta property="og:image" content="${site.url}og.png"><meta property="og:locale" content="es_AR">
-<meta name="twitter:card" content="summary_large_image"><meta name="color-scheme" content="dark">
+<meta name="twitter:card" content="summary_large_image"><meta name="color-scheme" content="dark">${futuro ? '<meta name="robots" content="noindex">' : ""}
 <link rel="icon" href="../../favicon.svg">${fonts}
 <style>${css}${extra}</style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
