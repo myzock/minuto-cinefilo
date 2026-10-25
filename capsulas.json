@@ -1,11 +1,18 @@
 {
-  "site": {
-    "url": "https://myzock.github.io/minuto-cinefilo/",
-    "instagramUrl": "https://www.instagram.com/minutocinefilok",
-    "radioUrl": "https://www.radiomonk.com.ar",
-    "about": "Minuto Cinéfilo es un espacio dedicado a descubrir las historias que hay detrás de las películas: curiosidades, decisiones creativas, anécdotas de rodaje y detalles que hacen del cine una experiencia que siempre merece unos minutos más.",
-    "footerPhrase": "Luces, cámara y unos minutos más."
+"site": {
+  "url": "https://myzock.github.io/minuto-cinefilo/",
+  "instagramUrl": "https://www.instagram.com/minutocinefilok",
+  "radioUrl": "https://www.radiomonk.com.ar",
+  "about": "Minuto Cinéfilo es un espacio dedicado a descubrir las historias que hay detrás de las películas: curiosidades, decisiones creativas, anécdotas de rodaje y detalles que hacen del cine una experiencia que siempre merece unos minutos más.",
+  "footerPhrase": "Luces, cámara y unos minutos más.",
+  "podcast": {
+    "autor": "Minuto Cinefilo",
+    "email": "minutocinefilo@gmail.com",
+    "categoria": "TV & Film",
+    "subcategoria": "Film History"
   },
+  "spotifyUrl": "https://open.spotify.com/show/1oeQCcn4TciSQ1PHUHICJi"
+},
   "capsulas": [
     {
       "id": "whalefall-01",
@@ -41,7 +48,7 @@
       "tmdb_id": 1083381,
       "date": "2026-06-13",
       "duration": "",
-      "description": "Te pasó alguna vez entrar a un lugar y sentir una incomodidad difícil de explicar? Un pasillo vacío, una oficina desierta, un salón donde no hay nadie... y aun así sentís que algo no está bien. Bueno, esa sensación tiene nombre en internet: The Backrooms",
+      "description": "¿Te pasó alguna vez entrar a un lugar y sentir una incomodidad difícil de explicar? Un pasillo vacío, una oficina desierta, un salón donde no hay nadie... y aun así sentís que algo no está bien. Bueno, esa sensación tiene nombre en internet: The Backrooms",
       "audio": "audio/backrooms.mp3",
       "poster": "https://image.tmdb.org/t/p/w500/3YTb97zytlWRWZb7HrOiEhk4e6f.jpg",
       "transcript": "transcripciones/backrooms.txt"
