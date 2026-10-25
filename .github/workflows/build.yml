@@ -2,7 +2,7 @@ name: Generar páginas de cápsulas
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 1 * *'   # renueva los datos de TMDB el día 1 de cada mes
+    - cron: '5 3 * * *'   # todos los días a las 00:05 de Argentina: publica los episodios agendados y renueva datos de TMDB
   push:
     branches: [main]
     paths: ['capsulas.json', 'transcripciones/**', 'build.mjs', 'index.html']
