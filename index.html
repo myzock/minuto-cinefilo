@@ -213,7 +213,17 @@ const I_PLAY = '<svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path
 Promise.all([
   fetch("capsulas.json").then(r => { if(!r.ok) throw 0; return r.json(); }),
   fetch("data/fichas.json").then(r => r.ok ? r.json() : {}).catch(() => ({}))
-]).then(([d, f]) => { SITE = d.site; CAPSULAS = d.capsulas; FICHAS = f || {}; init(); })
+]).then(([d, f]) => {
+    SITE = d.site; FICHAS = f || {};
+    const hoy = new Date().toLocaleDateString("sv-SE", {timeZone: "America/Argentina/Buenos_Aires"});
+    const orden = d.capsulas.filter(c => !c.demo).sort((a, b) => a.date.localeCompare(b.date));
+    d.capsulas.forEach(c => {
+      const x = FICHAS[c.id] || {};
+      if(!c.numero && !c.demo) c.numero = orden.indexOf(c) + 1;
+      c.poster = c.poster || x.poster || ""; c.backdrop = c.backdrop || x.backdrop || ""; c.film = c.film || x.title || "";
+    });
+    CAPSULAS = d.capsulas.filter(c => c.date <= hoy);
+    init(); })
   .catch(() => { $("#latest").innerHTML = '<p class="empty" style="padding:32px">No se pudieron cargar los episodios. Probá recargar la página.</p>'; });
 
 function init(){
