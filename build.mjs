@@ -86,14 +86,16 @@ async function ficha(c) {
   } catch (e) { console.log("TMDB:", e.message); return null; }
 }
 
+const cursiva = s => s.replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
+const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 function guion(path) {
   if (!path || !existsSync(path)) return { html: "", sync: false };
   const paras = readFileSync(path, "utf8").split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
   let sync = false;
   const html = paras.map(p => {
     const m = p.match(/^\[(\d+):(\d{2})\]\s*/);
-    if (m) { sync = true; return `<p class="trans" data-t="${+m[1] * 60 + +m[2]}" tabindex="0" role="button">${esc(p.slice(m[0].length))}</p>`; }
-    return `<p class="trans">${esc(p).replace(/\n/g, "<br>")}</p>`;
+    if (m) { sync = true; return `<p class="trans" data-t="${+m[1] * 60 + +m[2]}" tabindex="0" role="button">${cursiva(esc(p.slice(m[0].length)))}</p>`; }
+    return `<p class="trans">${cursiva(esc(p)).replace(/\n/g, "<br>")}</p>`;
   }).join("");
   return { html, sync };
 }
@@ -139,7 +141,13 @@ const extra = `
 .trans[data-t]{cursor:pointer}.trans[data-t]:hover{color:var(--ink)}
 .trans.now{color:var(--ink);border-left-color:var(--red-hi)}
 .hint{font-size:13px;color:var(--mute);margin-bottom:24px}
-.trl{max-width:760px;display:grid;gap:12px}.trbtn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;aspect-ratio:16/9;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);font:700 18px var(--serif);cursor:pointer}.trbtn:hover{border-color:var(--ink)}.trbtn svg{width:34px;height:34px;color:var(--red-hi)}.trl iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}.trl a{font-size:14px;color:var(--mute)}
+.trl{display:grid;gap:12px}
+.trbtn{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;width:100%;aspect-ratio:16/9;background:var(--panel) center/cover no-repeat;border:1px solid var(--line);border-radius:12px;color:var(--ink);font:700 16px var(--serif);cursor:pointer}
+.trbtn.img::before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(9,12,16,.8),rgba(9,12,16,.35))}
+.trbtn>*{position:relative}.trbtn:hover{border-color:var(--ink)}
+.trbtn .pl{width:64px;height:64px;border-radius:50%;background:var(--red);display:grid;place-items:center;transition:background .2s}.trbtn:hover .pl{background:var(--red-hi)}.trbtn .pl svg{width:26px;height:26px;color:#fff}
+.trbtn:not(.img){aspect-ratio:auto;flex-direction:row;justify-content:flex-start;padding:16px 20px}.trbtn:not(.img) .pl{width:44px;height:44px}
+.trl iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}.trl a{font-size:14px;color:var(--mute)}
 #transcripcion h2,#transcripcion .hint{padding-left:18px}
 .ficha h2{font-size:22px;margin-bottom:24px}.ficha dl{display:grid;gap:16px}.ficha .r{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start}.ficha .r svg{color:var(--mute);margin-top:2px}.ficha dt{color:var(--mute);font-size:12px}.ficha dd{margin:0;font-size:15px}
 .ficha .tm{display:inline-block;margin-top:28px;border:1px solid var(--mute);padding:10px 18px;border-radius:2px;font-size:14px;text-decoration:none}.ficha .tm:hover{border-color:var(--ink)}
@@ -163,7 +171,8 @@ for (const c of reales) {
     country: pais(t), director: dir || "", cast, genres: (t.genres || []).map(x => x.name),
     poster: t.poster ? IMG + "w500" + t.poster : "", backdrop: t.backdrop ? IMG + "w1280" + t.backdrop : "" };
   const yt = c.trailer === false ? "" : ytId(c.trailer) || ytId(t?.trailer);
-  const trailerHtml = yt ? `<section id="trailer" style="padding:48px 0 0" aria-label="Tráiler"><p class="label">Tráiler</p><div class="trl"><button class="trbtn" id="trbtn" type="button" data-id="${yt}" data-t="Tráiler de ${esc(c.film)}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Ver el tráiler</button><a href="https://www.youtube.com/watch?v=${yt}" target="_blank" rel="noopener">Abrir en YouTube ↗</a></div></section>` : "";
+  const bd = c.backdrop || (t?.backdrop ? IMG + "w1280" + t.backdrop : "");
+  const trailerHtml = yt ? `<section id="trailer" aria-labelledby="tt" style="padding:0 0 44px"><h2 id="tt" style="font-size:22px;margin-bottom:16px">Tráiler</h2><div class="trl"><button class="trbtn${bd ? " img" : ""}" id="trbtn" type="button" data-id="${yt}" data-t="Tráiler de ${esc(c.film)}"${bd ? ` style="background-image:url('${esc(bd)}')"` : ""}><span class="pl"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span>Ver el tráiler</span></button><a href="https://www.youtube.com/watch?v=${yt}" target="_blank" rel="noopener">Abrir en YouTube ↗</a></div></section>` : "";
   const fichaHtml = t ? `<aside class="ficha" aria-labelledby="tf"><h2 id="tf">Datos de la película</h2><dl>
 ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_title : "")}${row(IC.lang, "Título en español", t.title)}${row(IC.cal, "Año", (t.release_date || "").slice(0, 4))}${row(IC.clock, "Duración", hm(t.runtime))}${row(IC.flag, "País", pais(t))}${row(IC.award, "Director", dir)}${row(IC.user, "Reparto principal", cast)}${row(IC.mask, "Géneros", generos)}</dl>
 <a class="tm" href="https://www.themoviedb.org/movie/${t.id}" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside>` : "";
@@ -191,13 +200,12 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <main id="contenido"><div class="wrap" style="padding-block:clamp(48px,8vw,112px)">
 <a class="back" href="../../#archivo">← Todos los episodios</a>
 <div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}</div>
-<div>${c.numero ? `<p class="label" style="margin-bottom:12px">Episodio #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.title)}</h1><p style="color:var(--mute);font-size:18px;margin-top:6px">${esc(c.subtitle || c.film)}</p>
+<div>${c.numero ? `<p class="label" style="margin-bottom:12px">Episodio #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.title)}</h1>${norm(c.subtitle || c.film) && norm(c.subtitle || c.film) !== norm(c.title) ? `<p style="color:var(--mute);font-size:18px;margin-top:6px">${esc(c.subtitle || c.film)}</p>` : ""}
 <div class="meta"><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
 <p class="desc">${esc(c.description)}</p>${player}
 <div class="share"><span>Compartir</span><a href="https://wa.me/?text=${q}%20${u}" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/share/url?url=${u}&text=${q}" target="_blank" rel="noopener">Telegram</a><a href="https://twitter.com/intent/tweet?text=${q}&url=${u}" target="_blank" rel="noopener">X</a><a href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a><button type="button" id="copy">Copiar enlace</button></div>
 </div></div>
-${trailerHtml}
-${g.html || fichaHtml ? `<div class="cols"><section id="transcripcion" aria-labelledby="tg" style="padding:0">${g.html ? `<h2 id="tg" style="font-size:22px;margin-bottom:12px">Guion</h2>${g.sync ? '<p class="hint">Tocá un párrafo para saltar a ese momento del audio.</p>' : '<div style="height:12px"></div>'}${g.html}` : ""}</section>${fichaHtml}</div>` : ""}
+${g.html || fichaHtml || trailerHtml ? `<div class="cols"><div>${trailerHtml}<section id="transcripcion" aria-labelledby="tg" style="padding:0">${g.html ? `<h2 id="tg" style="font-size:22px;margin-bottom:12px">Guion</h2>${g.sync ? '<p class="hint">Tocá un párrafo para saltar a ese momento del audio.</p>' : '<div style="height:12px"></div>'}${g.html}` : ""}</section></div>${fichaHtml}</div>` : ""}
 </div></main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div>
 <div class="wrap tmdb"><img src="../../tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB. Datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span></div></footer>
