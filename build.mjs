@@ -1,13 +1,48 @@
 // Genera capsulas/<id>/index.html, sitemap.xml y robots.txt desde capsulas.json
 // Si existe la variable TMDB_KEY, trae la ficha de cada película y la guarda en data/tmdb/<id>.json
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
-const { site, capsulas } = JSON.parse(readFileSync("capsulas.json", "utf8"));
+import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from "node:fs";
+const raw = readFileSync("capsulas.json", "utf8");
+let datos;
+try { datos = JSON.parse(raw); } catch (e) {
+  const m = /position (\d+)/.exec(e.message); let donde = "";
+  if (m) { const linea = raw.slice(0, +m[1]).split("\n").length; donde = ` (cerca de la línea ${linea}: ${raw.split("\n")[linea - 1].trim().slice(0, 80)})`; console.log(`::error file=capsulas.json,line=${linea}::Error de sintaxis en capsulas.json`); }
+  console.error(`capsulas.json no es un JSON válido${donde}.\nSuele ser una coma de más o de menos, o una comilla sin cerrar, en esa línea o en la anterior.`);
+  process.exit(1);
+}
+const { site, capsulas } = datos;
 const index = readFileSync("index.html", "utf8");
 const css = index.match(/<style>([\s\S]*?)<\/style>/)[1];
 const fonts = index.match(/<link href="https:\/\/fonts\.googleapis[^>]*>/)[0];
 const KEY = process.env.TMDB_KEY;
 const IMG = "https://image.tmdb.org/t/p/";
 const HOY = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }); // AAAA-MM-DD, hora de Argentina
+
+// ---- Chequeo de capsulas.json: si hay errores, el build se corta y la web publicada queda como estaba ----
+{
+  const errores = [], avisos = [], ids = new Set();
+  capsulas.forEach((c, i) => {
+    if (c.demo) return;
+    const n = `Episodio ${i + 1} de la lista`, id = c.id ? `"${c.id}"` : n;
+    if (!c.id || !/^[a-z0-9-]+$/.test(c.id)) errores.push(`${n}: "id" faltante o inválido (solo minúsculas, números y guiones). Valor: ${JSON.stringify(c.id)}`);
+    else if (ids.has(c.id)) errores.push(`${id}: el id está repetido`); else ids.add(c.id);
+    if (!c.title) errores.push(`${id}: falta "title"`);
+    if (!c.description) errores.push(`${id}: falta "description"`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(c.date || "") || isNaN(new Date(c.date))) errores.push(`${id}: "date" debe tener el formato AAAA-MM-DD (valor: ${JSON.stringify(c.date)})`);
+    if (c.tmdb_id && !Number.isInteger(+c.tmdb_id)) errores.push(`${id}: "tmdb_id" debe ser un número (valor: ${JSON.stringify(c.tmdb_id)})`);
+    if (!c.tmdb_id && !c.film) errores.push(`${id}: falta "tmdb_id" (o al menos "film")`);
+    const lanzado = c.date <= HOY, dest = lanzado ? errores : avisos, nota = lanzado ? "" : " (todavía no, el episodio está agendado)";
+    const falta = (campo, ruta) => { if (ruta && !/^https?:/.test(ruta) && !existsSync(ruta)) dest.push(`${id}: "${campo}" apunta a "${ruta}" y ese archivo no existe en el repositorio (revisá mayúsculas, extensión y carpeta)${nota}`); };
+    if (!c.audio) dest.push(`${id}: falta "audio"`); else falta("audio", c.audio);
+    falta("transcript", c.transcript);
+    if (!c.tmdb_id && !c.poster) avisos.push(`${id}: sin tmdb_id ni poster, se mostrará sin póster`);
+  });
+  avisos.forEach(m => console.log(`::warning file=capsulas.json::${m}`));
+  errores.forEach(m => console.log(`::error file=capsulas.json::${m}`));
+  const pub = capsulas.filter(c => !c.demo && c.date <= HOY).length, agen = capsulas.filter(c => !c.demo && c.date > HOY).length;
+  const resumen = `## Chequeo de capsulas.json\n- Publicados: ${pub}\n- Agendados: ${agen}\n` + (errores.length ? `\n### Errores (no se publicó nada)\n${errores.map(m => "- " + m).join("\n")}\n` : "\nTodo en orden.\n") + (avisos.length ? `\n### Avisos\n${avisos.map(m => "- " + m).join("\n")}\n` : "");
+  if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, resumen, { flag: "a" });
+  if (errores.length) { console.error("\nSe encontraron errores en capsulas.json:\n" + errores.map(m => " - " + m).join("\n") + "\n\nNo se generó nada: la web publicada sigue como estaba."); process.exit(1); }
+}
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fecha = iso => new Date(iso + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
 const hm = m => (m ? `${Math.floor(m / 60)} h ${m % 60} min` : "");
@@ -152,6 +187,30 @@ ${audio ? `<script>${client}</script>` : ""}
   mkdirSync(`capsulas/${c.id}`, { recursive: true });
   writeFileSync(`capsulas/${c.id}/index.html`, html);
 }
+// ---- Feed de podcast (para Spotify, Apple Podcasts, etc.) ----
+const pod = site.podcast;
+if (pod?.email) {
+  const rfc = d => new Date(d + "T09:00:00-03:00").toUTCString();
+  const abs = r => (/^https?:/.test(r) ? r : site.url + encodeURI(r));
+  const items = reales.filter(c => c.date <= HOY && c.audio && !/^https?:/.test(c.audio) && existsSync(c.audio))
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .map(c => `<item><title>${esc(c.title)}</title><description>${esc(c.description)}</description><link>${site.url}capsulas/${c.id}/</link><guid isPermaLink="false">${esc(site.url + c.id)}</guid><pubDate>${rfc(c.date)}</pubDate><enclosure url="${abs(c.audio)}" length="${statSync(c.audio).size}" type="audio/mpeg"/><itunes:episode>${c.numero}</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit>${c.duration ? `<itunes:duration>${esc(c.duration)}</itunes:duration>` : ""}</item>`).join("\n");
+  writeFileSync("feed.xml", `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<title>${esc(pod.titulo || "Minuto Cinéfilo")}</title><link>${site.url}</link><language>es</language>
+<description>${esc(site.about)}</description>
+<atom:link href="${site.url}feed.xml" rel="self" type="application/rss+xml"/>
+<itunes:author>${esc(pod.autor || "Radio Monk")}</itunes:author><itunes:explicit>false</itunes:explicit><itunes:type>episodic</itunes:type>
+<itunes:owner><itunes:name>${esc(pod.autor || "Radio Monk")}</itunes:name><itunes:email>${esc(pod.email)}</itunes:email></itunes:owner>
+<itunes:image href="${site.url}${esc(pod.imagen || "podcast.jpg")}"/>
+<itunes:category text="${esc(pod.categoria || "TV & Film")}">${pod.subcategoria === "" ? "" : `<itunes:category text="${esc(pod.subcategoria || "Film History")}"/>`}</itunes:category>
+${items}
+</channel></rss>
+`);
+  console.log(`Feed: ${items ? items.split("</item>").length - 1 : 0} episodio(s) en feed.xml`);
+} else console.log("Feed: falta site.podcast.email en capsulas.json; no se genera feed.xml");
+
 mkdirSync("data", { recursive: true });
 writeFileSync("data/fichas.json", JSON.stringify(fichas));
 writeFileSync("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `<url><loc>${u}</loc></url>`).join("\n")}\n</urlset>\n`);
