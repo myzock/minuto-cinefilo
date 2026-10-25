@@ -58,6 +58,15 @@
       "audio": "audio/toystory5.mp3",
       "poster": "https://image.tmdb.org/t/p/w500/zkQmhKTszD48vEcjIfwAlqLnGSr.jpg",
       "transcript": "transcripciones/toystory5.txt"
-    }
+      },
+      {
+  "id": "clayface-05",
+  "tmdb_id": 1400940,
+  "title": "Clayface",
+  "date": "2026-10-24",
+  "description": "¿Qué estarías dispuesto a hacer para recuperar tu rostro? ¿Tu carrera? ¿El amor? ¿La vida que creías tener asegurada? Y, sobre todo… ¿cuánto de vos estarías dispuesto a perder en el camino?",
+  "audio": "audio/clayface.mp3",
+  "transcript": "transcripciones/clayface.txt"
+  }
   ]
 }
