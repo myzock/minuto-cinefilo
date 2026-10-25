@@ -20,6 +20,9 @@ const HOY = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentin
 // ---- Chequeo de capsulas.json: si hay errores, el build se corta y la web publicada queda como estaba ----
 {
   const errores = [], avisos = [], ids = new Set();
+  const urlOk = u => /^https:\/\/[a-z0-9.-]+\/([^\s]*\/)?$/i.test(u || "");
+  if (!urlOk(site.url)) errores.push(`"site.url" debe tener la forma https://minutocinefilo.com.ar/ (con https:// una sola vez y la barra / al final). Valor actual: ${JSON.stringify(site.url)}`);
+  if (site.podcast?.guidBase && !urlOk(site.podcast.guidBase)) errores.push(`"podcast.guidBase" debe tener la forma https://dominio/ruta/ (con barra al final). Valor actual: ${JSON.stringify(site.podcast.guidBase)}`);
   capsulas.forEach((c, i) => {
     if (c.demo) return;
     const n = `Episodio ${i + 1} de la lista`, id = c.id ? `"${c.id}"` : n;
