@@ -5,7 +5,7 @@ on:
     - cron: '5 3 * * *'   # todos los días a las 00:05 de Argentina: publica los episodios agendados y renueva datos de TMDB
   push:
     branches: [main]
-    paths: ['capsulas.json', 'transcripciones/**', 'build.mjs', 'index.html']
+    paths: ['capsulas.json', 'transcripciones/**', 'audio/**', 'build.mjs', 'index.html']
 permissions:
   contents: write
 jobs:
