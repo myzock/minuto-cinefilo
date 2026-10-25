@@ -67,13 +67,22 @@
       "transcript": "transcripciones/toystory5.txt"
       },
       {
-  "id": "clayface-05",
-  "tmdb_id": 1400940,
-  "title": "Clayface",
-  "date": "2026-10-24",
-  "description": "¿Qué estarías dispuesto a hacer para recuperar tu rostro? ¿Tu carrera? ¿El amor? ¿La vida que creías tener asegurada? Y, sobre todo… ¿cuánto de vos estarías dispuesto a perder en el camino?",
-  "audio": "audio/clayface.mp3",
-  "transcript": "transcripciones/clayface.txt"
+      "id": "clayface-05",
+      "tmdb_id": 1400940,
+      "title": "Clayface",
+      "date": "2026-10-24",
+      "description": "¿Qué estarías dispuesto a hacer para recuperar tu rostro? ¿Tu carrera? ¿El amor? ¿La vida que creías tener asegurada? Y, sobre todo… ¿cuánto de vos estarías dispuesto a perder en el camino?",
+      "audio": "audio/clayface.mp3",
+      "transcript": "transcripciones/clayface.txt"
+         },
+      {
+      "id": "buddy-06",
+      "tmdb_id": 1514026,
+      "title": "Buddy",
+      "date": "2026-10-31",
+      "description": "¿Qué pasaría si ese personaje infantil que nos enseñaba a compartir, cantar y ser buenos amigos escondiera algo verdaderamente aterrador? Bueno, esa es la premisa de *Buddy*, una de las propuestas más delirantes y sorprendentes del cine de terror de 2026.",
+      "audio": "audio/buddy.mp3",
+      "transcript": "transcripciones/buddy.txt"
   }
   ]
 }
