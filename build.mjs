@@ -25,7 +25,7 @@ async function ficha(c) {
       if (res.ok) {
         const j = await res.json(); // se guarda solo lo que la web muestra, con fecha de descarga
         const slim = { _fetched: new Date().toISOString(), title: j.title, original_title: j.original_title, release_date: j.release_date, runtime: j.runtime,
-          genres: (j.genres || []).map(g => ({ name: g.name })), production_countries: (j.production_countries || []).map(p => ({ name: p.name })),
+          genres: (j.genres || []).map(g => ({ name: g.name })), production_countries: (j.production_countries || []).map(p => ({ iso: p.iso_3166_1, name: p.name })),
           credits: { crew: (j.credits?.crew || []).filter(p => p.job === "Director").map(p => ({ job: p.job, name: p.name })), cast: (j.credits?.cast || []).slice(0, 4).map(p => ({ name: p.name })) } };
         mkdirSync("data/tmdb", { recursive: true }); writeFileSync(file, JSON.stringify(slim));
       }
@@ -51,7 +51,10 @@ function guion(path) {
   return { html, sync };
 }
 
-const row = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : "";
+const pais = t => (t.production_countries || []).map(p => { try { return p.iso ? new Intl.DisplayNames(["es"], { type: "region" }).of(p.iso) : p.name; } catch { return p.name; } }).join(", ");
+const ic = d => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const IC = { film: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/>', lang: '<path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6.5 8M11 6c0 3-2.5 6.5-6 8"/><path d="M13 20l4-9 4 9M14.5 17h5"/>', cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/>', clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>', flag: '<path d="M5 21V4M5 5h11l-2 4 2 4H5"/>', award: '<circle cx="12" cy="9" r="5"/><path d="M9 13.5L7.5 21l4.5-2.5 4.5 2.5L15 13.5"/>', user: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/>', mask: '<path d="M4 5h16v6c0 5-3.5 8-8 8s-8-3-8-8z"/><path d="M9 10v1M15 10v1M9.5 14.5c1.5 1.2 3.5 1.2 5 0"/>' };
+const row = (icon, k, v) => v ? `<div class="r">${ic(icon)}<div><dt>${k}</dt><dd>${esc(v)}</dd></div></div>` : "";
 const client = `
 const a=document.getElementById('au'),pl=document.getElementById('pl'),sk=document.getElementById('sk'),tm=document.getElementById('tm'),vo=document.getElementById('vo');
 const f=t=>isFinite(t)?Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0'):'0:00';
@@ -81,7 +84,8 @@ const extra = `
 .trans[data-t]{cursor:pointer}.trans[data-t]:hover{color:var(--ink)}
 .trans.now{color:var(--ink);border-left-color:var(--red-hi)}
 .hint{font-size:13px;color:var(--mute);margin-bottom:24px}
-.ficha h2{font-size:22px;margin-bottom:24px}.ficha dl{display:grid;gap:16px}.ficha dt{color:var(--mute);font-size:13px}.ficha dd{margin:0;font-size:15px}
+#transcripcion h2,#transcripcion .hint{padding-left:18px}
+.ficha h2{font-size:22px;margin-bottom:24px}.ficha dl{display:grid;gap:16px}.ficha .r{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start}.ficha .r svg{color:var(--mute);margin-top:2px}.ficha dt{color:var(--mute);font-size:12px}.ficha dd{margin:0;font-size:15px}
 .ficha .tm{display:inline-block;margin-top:28px;border:1px solid var(--mute);padding:10px 18px;border-radius:2px;font-size:14px;text-decoration:none}.ficha .tm:hover{border-color:var(--ink)}
 `;
 
@@ -96,9 +100,9 @@ for (const c of capsulas.filter(x => !x.demo)) {
   const cast = (t?.credits?.cast || []).slice(0, 4).map(p => p.name).join(", ");
   const generos = (t?.genres || []).map(x => x.name).join(", ");
   if (t) fichas[c.id] = { tmdb_id: t.id, title: t.title, original_title: t.original_title, year: (t.release_date || "").slice(0, 4), runtime: t.runtime,
-    country: (t.production_countries || []).map(p => p.name).join(", "), director: dir || "", cast, genres: (t.genres || []).map(x => x.name) };
+    country: pais(t), director: dir || "", cast, genres: (t.genres || []).map(x => x.name) };
   const fichaHtml = t ? `<aside class="ficha" aria-labelledby="tf"><h2 id="tf">Datos de la película</h2><dl>
-${row("Título original", t.original_title !== t.title ? t.original_title : "")}${row("Título en español", t.title)}${row("Año", (t.release_date || "").slice(0, 4))}${row("Duración", hm(t.runtime))}${row("País", (t.production_countries || []).map(p => p.name).join(", "))}${row("Director", dir)}${row("Reparto principal", cast)}${row("Géneros", generos)}</dl>
+${row(IC.film, "Título original", t.original_title !== t.title ? t.original_title : "")}${row(IC.lang, "Título en español", t.title)}${row(IC.cal, "Año", (t.release_date || "").slice(0, 4))}${row(IC.clock, "Duración", hm(t.runtime))}${row(IC.flag, "País", pais(t))}${row(IC.award, "Director", dir)}${row(IC.user, "Reparto principal", cast)}${row(IC.mask, "Géneros", generos)}</dl>
 <a class="tm" href="https://www.themoviedb.org/movie/${t.id}" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside>` : "";
   const q = encodeURIComponent(`Escuchá «${c.film}» en Minuto Cinéfilo`), u = encodeURIComponent(pageUrl);
   const player = audio ? `<div class="player v" role="group" aria-label="Reproductor de ${esc(c.title)}">
@@ -120,16 +124,16 @@ ${row("Título original", t.original_title !== t.title ? t.original_title : "")}
 <style>${css}${extra}</style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
 <header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
-<nav aria-label="Principal"><a href="../../#capsulas">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
+<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Episodios</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main id="contenido"><div class="wrap" style="padding-block:clamp(48px,8vw,112px)">
-<a class="back" href="../../#capsulas">← Todas las cápsulas</a>
+<a class="back" href="../../#archivo">← Todos los episodios</a>
 <div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}</div>
-<div>${c.numero ? `<p class="label" style="margin-bottom:12px">Episodio #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.film)}</h1>
-<div class="meta"><span>${esc(c.title)}</span><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
+<div>${c.numero ? `<p class="label" style="margin-bottom:12px">Episodio #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.title)}</h1><p style="color:var(--mute);font-size:18px;margin-top:6px">${esc(c.subtitle || c.film)}</p>
+<div class="meta"><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
 <p class="desc">${esc(c.description)}</p>${player}
 <div class="share"><span>Compartir</span><a href="https://wa.me/?text=${q}%20${u}" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/share/url?url=${u}&text=${q}" target="_blank" rel="noopener">Telegram</a><a href="https://twitter.com/intent/tweet?text=${q}&url=${u}" target="_blank" rel="noopener">X</a><a href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a><button type="button" id="copy">Copiar enlace</button></div>
 </div></div>
-${g.html || fichaHtml ? `<div class="cols"><section id="transcripcion" aria-labelledby="tg" style="padding:0">${g.html ? `<h2 id="tg" style="font-size:22px;margin-bottom:12px">Guion</h2>${g.sync ? '<p class="hint">Tocá un párrafo para saltar a ese momento del audio.</p>' : '<p class="hint">&nbsp;</p>'}${g.html}` : ""}</section>${fichaHtml}</div>` : ""}
+${g.html || fichaHtml ? `<div class="cols"><section id="transcripcion" aria-labelledby="tg" style="padding:0">${g.html ? `<h2 id="tg" style="font-size:22px;margin-bottom:12px">Guion</h2>${g.sync ? '<p class="hint">Tocá un párrafo para saltar a ese momento del audio.</p>' : '<div style="height:12px"></div>'}${g.html}` : ""}</section>${fichaHtml}</div>` : ""}
 </div></main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div>
 <div class="wrap tmdb"><img src="../../tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB. Datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span></div></footer>
