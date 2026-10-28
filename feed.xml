@@ -4,8 +4,8 @@
 <title>Minuto Cinéfilo</title><link>https://minutocinefilo.com.ar/</link><language>es</language>
 <description>Minuto Cinéfilo es un espacio dedicado a descubrir las historias que hay detrás de las películas: curiosidades, decisiones creativas, anécdotas de rodaje y detalles que hacen del cine una experiencia que siempre merece unos minutos más. Un proyecto de Vamos x Partes, el programa que se emite en Radio Monk.</description>
 <atom:link href="https://minutocinefilo.com.ar/feed.xml" rel="self" type="application/rss+xml"/>
-<itunes:author>Vamos x Partes</itunes:author><itunes:explicit>false</itunes:explicit><itunes:type>episodic</itunes:type>
-<itunes:owner><itunes:name>Vamos x Partes</itunes:name><itunes:email>minutocinefilok@gmail.com</itunes:email></itunes:owner>
+<itunes:author>Minuto Cinéfilo</itunes:author><itunes:explicit>false</itunes:explicit><itunes:type>episodic</itunes:type>
+<itunes:owner><itunes:name>Minuto Cinéfilo</itunes:name><itunes:email>minutocinefilok@gmail.com</itunes:email></itunes:owner>
 <itunes:image href="https://minutocinefilo.com.ar/podcast.jpg"/>
 <itunes:category text="TV &amp; Film"><itunes:category text="Film History"/></itunes:category>
 <item><title>Clayface</title><description>¿Qué estarías dispuesto a hacer para recuperar tu rostro? ¿Tu carrera? ¿El amor? ¿La vida que creías tener asegurada? Y, sobre todo… ¿cuánto de vos estarías dispuesto a perder en el camino?</description><link>https://minutocinefilo.com.ar/capsulas/clayface-05/</link><guid isPermaLink="false">https://myzock.github.io/minuto-cinefilo/clayface-05</guid><pubDate>Sat, 24 Oct 2026 12:00:00 GMT</pubDate><enclosure url="https://minutocinefilo.com.ar/audio/clayface.mp3" length="2847774" type="audio/mpeg"/><itunes:episode>5</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit></item>
