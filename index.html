@@ -48,7 +48,9 @@ h2{font-size:clamp(26px,3.4vw,40px)}
 .poster{position:relative}.score{position:absolute;left:10px;bottom:10px;background:rgba(9,12,16,.82);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--ink);line-height:1.2}.score small{font-weight:400;color:var(--mute);font-size:10px;margin-left:3px}
 .listen{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;font-size:14px;color:var(--mute)}.listen a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--mute);text-underline-offset:3px}.listen a:hover{text-decoration-color:var(--ink)}
 .rate{color:var(--mute)}
-.estr{list-style:none;display:flex;gap:16px;overflow-x:auto;padding:4px 0 14px;margin:0;scroll-snap-type:x proximity}.estr li{flex:0 0 150px;scroll-snap-align:start}.estr a{display:grid;gap:8px;text-decoration:none;color:inherit}.estr img{width:150px;aspect-ratio:2/3;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--panel);display:block}.estr a:hover img{border-color:var(--ink)}.estr b{font-size:14px;font-weight:600;line-height:1.3}.estr time{font-size:12px;color:var(--mute)}.estr-n{font-size:12px;color:var(--mute);margin-top:6px}
+.estr-w{position:relative}.estr{list-style:none;display:flex;gap:16px;overflow-x:auto;padding:4px 0 14px;margin:0;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:smooth}.estr::-webkit-scrollbar{display:none}
+.estr-b{position:absolute;top:calc(50% - 34px);z-index:2;width:42px;height:42px;border-radius:50%;border:1px solid #3a444f;background:rgba(9,12,16,.88);color:var(--ink);font-size:26px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0 0 3px;transition:opacity .2s,border-color .2s}.estr-b:hover{border-color:var(--ink)}.estr-b.prev{left:-10px}.estr-b.next{right:-10px}.estr-b[hidden]{display:none}@media(hover:none){.estr-b{display:none}}
+@media(prefers-reduced-motion:reduce){.estr{scroll-behavior:auto}}.estr li{flex:0 0 150px;scroll-snap-align:start}.estr a{display:grid;gap:8px;text-decoration:none;color:inherit}.estr img{width:150px;aspect-ratio:2/3;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--panel);display:block}.estr a:hover img{border-color:var(--ink)}.estr b{font-size:14px;font-weight:600;line-height:1.3}.estr time{font-size:12px;color:var(--mute)}.estr-n{font-size:12px;color:var(--mute);margin-top:6px}
 .meta{color:var(--mute);font-size:14px;display:flex;flex-wrap:wrap;gap:6px 20px;margin:16px 0 24px}
 .desc{max-width:54ch;margin-bottom:28px;color:#cfd3d8}
 .badge{display:inline-block;border:1px solid var(--red);font-size:12px;padding:3px 10px;border-radius:999px;margin-bottom:14px}
@@ -195,7 +197,7 @@ body.mini-on{padding-bottom:76px}
 
   <section id="estrenos" hidden style="padding-bottom:0"><div class="wrap">
     <p class="label" style="margin-bottom:10px">Cartelera</p><h2 style="font-size:clamp(24px,3vw,34px);margin-bottom:20px">Próximos estrenos</h2>
-    <ul class="estr" id="estrList"></ul>
+    <div class="estr-w"><button class="estr-b prev" id="estrPrev" type="button" aria-label="Anteriores">‹</button><ul class="estr" id="estrList" tabindex="0" aria-label="Próximos estrenos"></ul><button class="estr-b next" id="estrNext" type="button" aria-label="Siguientes">›</button></div>
     <p class="estr-n">Fechas de estreno en cines de EEUU según TMDB; en Argentina pueden variar.</p>
   </div></section>
 
@@ -271,6 +273,22 @@ function init(){
     if (!d || !d.items || !d.items.length) return;
     $("#estrList").innerHTML = d.items.map(m => `<li><a href="https://www.themoviedb.org/movie/${esc(m.id)}" target="_blank" rel="noopener"><img src="${esc(m.poster)}" alt="Póster de ${esc(m.title)}" loading="lazy" width="150" height="225"><b>${esc(m.title)}</b><time datetime="${esc(m.date)}">${new Date(m.date + "T12:00:00").toLocaleDateString("es-AR", {day: "numeric", month: "long"})}</time></a></li>`).join("");
     $("#estrenos").hidden = false;
+    const ul = $("#estrList"), pv = $("#estrPrev"), nx = $("#estrNext");
+    const paso = () => (ul.querySelector("li")?.offsetWidth || 150) + 16;
+    const edge = () => { pv.hidden = ul.scrollLeft < 8; nx.hidden = ul.scrollLeft + ul.clientWidth >= ul.scrollWidth - 8; };
+    const mover = dir => { const fin = ul.scrollLeft + ul.clientWidth >= ul.scrollWidth - 8; if (dir > 0 && fin) ul.scrollTo({left: 0}); else ul.scrollBy({left: dir * paso() * 2}); };
+    pv.onclick = () => mover(-1); nx.onclick = () => mover(1);
+    ul.addEventListener("scroll", edge, {passive: true}); window.addEventListener("resize", edge); edge();
+    // avance automático lento: se frena al pasar el mouse, tocar, enfocar o si la persona prefiere menos movimiento
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      let pausa = false, visible = false, t;
+      const w = ul.parentElement;
+      ["mouseenter","focusin","touchstart"].forEach(e => w.addEventListener(e, () => pausa = true, {passive: true}));
+      ["mouseleave","focusout"].forEach(e => w.addEventListener(e, () => pausa = false));
+      w.addEventListener("touchend", () => setTimeout(() => pausa = false, 6000), {passive: true});
+      new IntersectionObserver(en => visible = en[0].isIntersecting).observe(w);
+      t = setInterval(() => { if (!pausa && visible && !document.hidden && ul.scrollWidth > ul.clientWidth + 8) mover(1); }, 4000);
+    }
   }).catch(() => {});
 }
 
