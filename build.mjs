@@ -184,6 +184,10 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
   const navEp = ant || sig ? `<div class="wrap"><nav class="epnav" aria-label="Más episodios">${ant ? `<a class="ant" href="../${ant.id}/"><small>← Episodio anterior</small><span>${esc(epN(ant))}</span></a>` : "<span></span>"}${sig ? `<a class="sig" href="../${sig.id}/"><small>Episodio siguiente →</small><span>${esc(epN(sig))}</span></a>` : "<span></span>"}</nav></div>` : "";
   const subs = [["Spotify", site.spotifyUrl], ["Apple Podcasts", site.appleUrl], ["YouTube Music", site.youtubeMusicUrl], ["Amazon Music", site.amazonUrl]].filter(x => x[1]);
   const subsHtml = `<div class="share subs"><span>Escuchá en</span>${subs.map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("")}<a href="../../feed.xml">RSS</a></div>`;
+  const jld = JSON.stringify({ "@context": "https://schema.org", "@type": "PodcastEpisode", name: c.title, url: pageUrl, datePublished: c.date, description: c.description,
+    ...(c.numero ? { episodeNumber: c.numero } : {}), image: ogImg, inLanguage: "es-AR",
+    ...(audio && !/^https?:/.test(c.audio) ? { associatedMedia: { "@type": "AudioObject", contentUrl: site.url + encodeURI(c.audio), encodingFormat: "audio/mpeg" } } : {}),
+    partOfSeries: { "@type": "PodcastSeries", name: "Minuto Cinéfilo", url: site.url } }).replace(/</g, "\\u003c");
   const q = encodeURIComponent(`Escuchá «${c.film}» en Minuto Cinéfilo`), u = encodeURIComponent(pageUrl);
   const player = audio ? `<div class="player v" role="group" aria-label="Reproductor de ${esc(c.title)}">
 <button class="play" id="pl" aria-pressed="false" aria-label="Reproducir"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
@@ -200,6 +204,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <meta property="og:description" content="${esc(c.description)}"><meta property="og:url" content="${pageUrl}">
 <meta property="og:image" content="${ogImg}"><meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${ogImg}"><meta name="color-scheme" content="dark">${futuro ? '<meta name="robots" content="noindex">' : ""}
+<script type="application/ld+json">${jld}</script>
 <link rel="icon" href="../../favicon.svg">${fonts}
 <style>${css}${extra}</style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
@@ -251,6 +256,12 @@ ${items}
 
 mkdirSync("data", { recursive: true });
 writeFileSync("data/fichas.json", JSON.stringify(fichas));
+{ // lista estática de episodios publicados dentro de <noscript> en la home (para quien no corre JS)
+  const lista = asc.filter(x => x.date <= HOY).reverse().map(x => `<li><a href="capsulas/${x.id}/">${esc(x.title)}</a> — ${esc(x.film || "")}</li>`).join("");
+  const idx = readFileSync("index.html", "utf8");
+  const nuevo = idx.replace(/<!--SEO-LIST-->[\s\S]*?<!--\/SEO-LIST-->/, `<!--SEO-LIST--><ul>${lista}</ul><!--/SEO-LIST-->`);
+  if (nuevo !== idx) writeFileSync("index.html", nuevo);
+}
 writeFileSync("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `<url><loc>${u}</loc></url>`).join("\n")}\n</urlset>\n`);
 writeFileSync("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${site.url}sitemap.xml\n`);
 console.log(`OK: ${urls.length - 1} página(s) generadas`);
