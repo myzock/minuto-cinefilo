@@ -179,7 +179,15 @@ for (const c of reales) {
   const fichaHtml = t ? `<aside class="ficha" aria-labelledby="tf"><h2 id="tf">Datos de la película</h2><dl>
 ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_title : "")}${row(IC.lang, "Título en español", t.title)}${row(IC.cal, "Año", (t.release_date || "").slice(0, 4))}${row(IC.clock, "Duración", hm(t.runtime))}${row(IC.flag, "País", pais(t))}${row(IC.award, "Director", dir)}${row(IC.user, "Reparto principal", cast)}${row(IC.mask, "Géneros", generos)}</dl>
 <a class="tm" href="https://www.themoviedb.org/movie/${t.id}" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside>` : "";
-  const ogImg = bd || c.poster || `${site.url}og.png`;
+  // tarjeta propia para compartir (si falla algo, se usa el fondo de la película o el og.png genérico)
+  mkdirSync(`capsulas/${c.id}`, { recursive: true });
+  const cardFile = `capsulas/${c.id}/og.jpg`;
+  try {
+    let bg = null; const src = bd || c.poster;
+    if (src) { try { const r = await fetch(src); if (r.ok) bg = Buffer.from(await r.arrayBuffer()); } catch {} }
+    if (bg || !existsSync(cardFile)) { const { tarjeta } = await import("./og.mjs"); const buf = await tarjeta({ numero: c.numero, title: c.film || c.title, bgBuffer: bg }); if (buf) writeFileSync(cardFile, buf); }
+  } catch (e) { console.log(`::warning::No se pudo generar la tarjeta de ${c.id}: ${e.message}`); }
+  const ogImg = existsSync(cardFile) ? `${pageUrl}og.jpg` : bd || c.poster || `${site.url}og.png`;
   const pub = asc.filter(x => x.date <= HOY), i = pub.indexOf(c);
   const ant = i > 0 ? pub[i - 1] : (futuro ? pub[pub.length - 1] : null), sig = i >= 0 && i < pub.length - 1 ? pub[i + 1] : null;
   const epN = x => x.film || x.title;
