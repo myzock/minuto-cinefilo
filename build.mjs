@@ -267,9 +267,14 @@ if (KEY) {
     const url = `https://api.themoviedb.org/3/discover/movie?api_key=${KEY}&language=es-AR&region=AR&with_release_type=2|3&release_date.gte=${HOY}&release_date.lte=${hasta}&sort_by=popularity.desc&include_adult=false`;
     const r = await (await fetch(url)).json();
     const propios = new Set(capsulas.map(c => c.tmdb_id).filter(Boolean));
-    const items = (r.results || []).filter(m => m.poster_path && !propios.has(m.id)).slice(0, 12)
-      .map(m => ({ id: m.id, title: m.title, date: m.release_date, poster: IMG + "w342" + m.poster_path }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+    const cand = (r.results || []).filter(m => m.poster_path && !propios.has(m.id)).slice(0, 16);
+    const items = [];
+    for (const m of cand) { // la fecha de "discover" es la global: se pide la de Argentina (estreno en cines o limitado)
+      const d = await (await fetch(`https://api.themoviedb.org/3/movie/${m.id}/release_dates?api_key=${KEY}`)).json();
+      const fechas = ((d.results || []).find(x => x.iso_3166_1 === "AR")?.release_dates || []).filter(x => x.type === 2 || x.type === 3).map(x => x.release_date.slice(0, 10)).filter(x => x >= HOY).sort();
+      if (fechas[0]) items.push({ id: m.id, title: m.title, date: fechas[0], poster: IMG + "w342" + m.poster_path });
+    }
+    items.sort((a, b) => a.date.localeCompare(b.date)); items.length = Math.min(items.length, 12);
     if (r.results) { writeFileSync("data/proximos.json", JSON.stringify({ actualizado: HOY, items })); console.log(`Próximos estrenos: ${items.length}`); }
   } catch (e) { console.log(`::warning::No se pudieron traer los próximos estrenos: ${e.message}`); }
 }
