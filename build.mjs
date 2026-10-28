@@ -171,6 +171,7 @@ for (const c of reales) {
   const generos = (t?.genres || []).map(x => x.name).join(", ");
   if (t) fichas[c.id] = { tmdb_id: t.id, title: t.title, original_title: t.original_title, year: (t.release_date || "").slice(0, 4), runtime: t.runtime,
     country: pais(t), director: dir || "", cast, genres: (t.genres || []).map(x => x.name),
+    vote_average: t.vote_average || 0, vote_count: t.vote_count || 0,
     poster: t.poster ? IMG + "w500" + t.poster : "", backdrop: t.backdrop ? IMG + "w1280" + t.backdrop : "" };
   const yt = c.trailer === false ? "" : ytId(c.trailer) || ytId(t?.trailer);
   const bd = c.backdrop || (t?.backdrop ? IMG + "w1280" + t.backdrop : "");
