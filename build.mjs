@@ -185,7 +185,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
   try {
     let bg = null; const src = bd || c.poster;
     if (src) { try { const r = await fetch(src); if (r.ok) bg = Buffer.from(await r.arrayBuffer()); } catch {} }
-    if (bg || !existsSync(cardFile)) { const { tarjeta } = await import("./og.mjs"); const buf = await tarjeta({ numero: c.numero, title: c.film || c.title, bgBuffer: bg }); if (buf) writeFileSync(cardFile, buf); }
+    if (bg || !existsSync(cardFile)) { const { tarjeta } = await import("./og.mjs"); const buf = await tarjeta({ numero: c.numero, title: c.title, bgBuffer: bg }); if (buf) writeFileSync(cardFile, buf); }
   } catch (e) { console.log(`::warning::No se pudo generar la tarjeta de ${c.id}: ${e.message}`); }
   const ogImg = existsSync(cardFile) ? `${pageUrl}og.jpg` : bd || c.poster || `${site.url}og.png`;
   const pub = asc.filter(x => x.date <= HOY), i = pub.indexOf(c);
