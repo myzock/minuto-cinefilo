@@ -62,7 +62,7 @@ async function ficha(c) {
     if (!id) return null;
     const file = `data/tmdb/${id}.json`;
     const hit = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
-    const fresca = hit && "trailer" in hit && (Date.now() - new Date(hit._fetched || 0)) / 864e5 < 30; // se vuelve a pedir a TMDB cada 30 días
+    const fresca = hit && "trailer" in hit && "vote_average" in hit && (Date.now() - new Date(hit._fetched || 0)) / 864e5 < 30; // se vuelve a pedir a TMDB cada 30 días
     if (KEY && !fresca) {
       const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${KEY}&language=es-AR&append_to_response=credits,images&include_image_language=null`);
       if (res.ok) {
@@ -70,7 +70,7 @@ async function ficha(c) {
         const videos = async lang => { try { const r = await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${KEY}&language=${lang}`); return r.ok ? (await r.json()).results || [] : []; } catch { return []; } };
         const elegir = l => l.filter(x => x.site === "YouTube" && x.type === "Trailer").sort((a, b) => (b.official - a.official) || String(b.published_at).localeCompare(String(a.published_at)))[0]?.key;
         const trailer = elegir(await videos("es-AR")) || elegir(await videos("en-US")) || "";
-        const slim = { _fetched: new Date().toISOString(), trailer, title: j.title, original_title: j.original_title, release_date: j.release_date, runtime: j.runtime, poster: j.poster_path || "",
+        const slim = { _fetched: new Date().toISOString(), trailer, title: j.title, original_title: j.original_title, release_date: j.release_date, runtime: j.runtime, vote_average: j.vote_average || 0, vote_count: j.vote_count || 0, poster: j.poster_path || "",
           backdrop: ((j.images?.backdrops || []).filter(x => !x.iso_639_1).sort((a, b) => b.vote_average - a.vote_average || b.vote_count - a.vote_count)[0]?.file_path) || j.backdrop_path || "",
           genres: (j.genres || []).map(g => ({ name: g.name })), production_countries: (j.production_countries || []).map(p => ({ iso: p.iso_3166_1, name: p.name })),
           credits: { crew: (j.credits?.crew || []).filter(p => p.job === "Director").map(p => ({ job: p.job, name: p.name })), cast: (j.credits?.cast || []).slice(0, 4).map(p => ({ name: p.name })) } };
@@ -134,6 +134,7 @@ const extra = `
 .cols{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:clamp(32px,6vw,96px);margin-top:clamp(56px,8vw,96px);align-items:start}
 @media(max-width:900px){.cols{grid-template-columns:1fr}}
 .back{display:inline-block;margin-bottom:40px;font-size:14px;color:var(--mute)}
+.poster{position:relative}.score{position:absolute;left:12px;bottom:12px;background:rgba(9,12,16,.82);border:1px solid #2a2f37;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600;backdrop-filter:blur(4px)}.score small{font-weight:400;color:var(--mute);font-size:11px;margin-left:4px}
 .epnav{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding-bottom:64px}.epnav a{display:grid;gap:6px;border:1px solid #2a2f37;border-radius:6px;padding:16px 18px;text-decoration:none;color:inherit}.epnav a:hover{border-color:var(--ink)}.epnav small{color:var(--mute);font-size:12px}.epnav span{font-size:16px}.epnav .sig{text-align:right}@media(max-width:560px){.epnav{grid-template-columns:1fr}.epnav .sig{text-align:left}}
 .player.v{grid-template-columns:56px 1fr auto auto}
 .vol{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:13px}.vol input{width:84px}
@@ -188,6 +189,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
     ...(c.numero ? { episodeNumber: c.numero } : {}), image: ogImg, inLanguage: "es-AR",
     ...(audio && !/^https?:/.test(c.audio) ? { associatedMedia: { "@type": "AudioObject", contentUrl: site.url + encodeURI(c.audio), encodingFormat: "audio/mpeg" } } : {}),
     partOfSeries: { "@type": "PodcastSeries", name: "Minuto Cinéfilo", url: site.url } }).replace(/</g, "\\u003c");
+  const pun = t && t.vote_count >= 20 && t.vote_average ? `<span class="score" title="Puntaje de los usuarios de TMDB (${t.vote_count} votos)">★ ${t.vote_average.toFixed(1)} <small>TMDB</small></span>` : ""; // solo con votos suficientes
   const q = encodeURIComponent(`Escuchá «${c.film}» en Minuto Cinéfilo`), u = encodeURIComponent(pageUrl);
   const player = audio ? `<div class="player v" role="group" aria-label="Reproductor de ${esc(c.title)}">
 <button class="play" id="pl" aria-pressed="false" aria-label="Reproducir"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
@@ -212,7 +214,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Episodios</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main id="contenido"><div class="wrap" style="padding-block:clamp(48px,8vw,112px)">
 <a class="back" href="../../#archivo">← Todos los episodios</a>
-<div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}</div>
+<div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}${pun}</div>
 <div>${c.numero ? `<p class="label" style="margin-bottom:12px">Episodio #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.title)}</h1>${norm(c.subtitle || c.film) && norm(c.subtitle || c.film) !== norm(c.title) ? `<p style="color:var(--mute);font-size:18px;margin-top:6px">${esc(c.subtitle || c.film)}</p>` : ""}
 <div class="meta"><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
 <p class="desc">${esc(c.description)}</p>${player}
@@ -224,6 +226,7 @@ ${g.html || fichaHtml || trailerHtml ? `<div class="cols"><div>${trailerHtml}<se
 ${navEp}</main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div>
 <div class="wrap tmdb"><img src="../../tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB. Datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span></div></footer>
+${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : ""}
 ${audio ? `<script>${client}</script>` : ""}
 ${yt ? `<script>${trl}</script>` : ""}
 </body></html>`;
