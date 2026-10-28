@@ -134,6 +134,7 @@ const extra = `
 .cols{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:clamp(32px,6vw,96px);margin-top:clamp(56px,8vw,96px);align-items:start}
 @media(max-width:900px){.cols{grid-template-columns:1fr}}
 .back{display:inline-block;margin-bottom:40px;font-size:14px;color:var(--mute)}
+.epnav{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding-bottom:64px}.epnav a{display:grid;gap:6px;border:1px solid #2a2f37;border-radius:6px;padding:16px 18px;text-decoration:none;color:inherit}.epnav a:hover{border-color:var(--ink)}.epnav small{color:var(--mute);font-size:12px}.epnav span{font-size:16px}.epnav .sig{text-align:right}@media(max-width:560px){.epnav{grid-template-columns:1fr}.epnav .sig{text-align:left}}
 .player.v{grid-template-columns:56px 1fr auto auto}
 .vol{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:13px}.vol input{width:84px}
 @media(hover:none){.vol{display:none}.player.v{grid-template-columns:56px 1fr auto}}
@@ -176,6 +177,13 @@ for (const c of reales) {
   const fichaHtml = t ? `<aside class="ficha" aria-labelledby="tf"><h2 id="tf">Datos de la película</h2><dl>
 ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_title : "")}${row(IC.lang, "Título en español", t.title)}${row(IC.cal, "Año", (t.release_date || "").slice(0, 4))}${row(IC.clock, "Duración", hm(t.runtime))}${row(IC.flag, "País", pais(t))}${row(IC.award, "Director", dir)}${row(IC.user, "Reparto principal", cast)}${row(IC.mask, "Géneros", generos)}</dl>
 <a class="tm" href="https://www.themoviedb.org/movie/${t.id}" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside>` : "";
+  const ogImg = bd || c.poster || `${site.url}og.png`;
+  const pub = asc.filter(x => x.date <= HOY), i = pub.indexOf(c);
+  const ant = i > 0 ? pub[i - 1] : (futuro ? pub[pub.length - 1] : null), sig = i >= 0 && i < pub.length - 1 ? pub[i + 1] : null;
+  const epN = x => x.film || x.title;
+  const navEp = ant || sig ? `<div class="wrap"><nav class="epnav" aria-label="Más episodios">${ant ? `<a class="ant" href="../${ant.id}/"><small>← Episodio anterior</small><span>${esc(epN(ant))}</span></a>` : "<span></span>"}${sig ? `<a class="sig" href="../${sig.id}/"><small>Episodio siguiente →</small><span>${esc(epN(sig))}</span></a>` : "<span></span>"}</nav></div>` : "";
+  const subs = [["Spotify", site.spotifyUrl], ["Apple Podcasts", site.appleUrl], ["YouTube Music", site.youtubeMusicUrl], ["Amazon Music", site.amazonUrl]].filter(x => x[1]);
+  const subsHtml = `<div class="share subs"><span>Escuchá en</span>${subs.map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("")}<a href="../../feed.xml">RSS</a></div>`;
   const q = encodeURIComponent(`Escuchá «${c.film}» en Minuto Cinéfilo`), u = encodeURIComponent(pageUrl);
   const player = audio ? `<div class="player v" role="group" aria-label="Reproductor de ${esc(c.title)}">
 <button class="play" id="pl" aria-pressed="false" aria-label="Reproducir"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
@@ -190,8 +198,8 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <link rel="canonical" href="${pageUrl}">
 <meta property="og:type" content="article"><meta property="og:title" content="${esc(c.film)} — Minuto Cinéfilo">
 <meta property="og:description" content="${esc(c.description)}"><meta property="og:url" content="${pageUrl}">
-<meta property="og:image" content="${site.url}og.png"><meta property="og:locale" content="es_AR">
-<meta name="twitter:card" content="summary_large_image"><meta name="color-scheme" content="dark">${futuro ? '<meta name="robots" content="noindex">' : ""}
+<meta property="og:image" content="${ogImg}"><meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${ogImg}"><meta name="color-scheme" content="dark">${futuro ? '<meta name="robots" content="noindex">' : ""}
 <link rel="icon" href="../../favicon.svg">${fonts}
 <style>${css}${extra}</style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
@@ -204,9 +212,11 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <div class="meta"><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
 <p class="desc">${esc(c.description)}</p>${player}
 <div class="share"><span>Compartir</span><a href="https://wa.me/?text=${q}%20${u}" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/share/url?url=${u}&text=${q}" target="_blank" rel="noopener">Telegram</a><a href="https://twitter.com/intent/tweet?text=${q}&url=${u}" target="_blank" rel="noopener">X</a><a href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a><button type="button" id="copy">Copiar enlace</button></div>
+${subsHtml}
 </div></div>
 ${g.html || fichaHtml || trailerHtml ? `<div class="cols"><div>${trailerHtml}<section id="transcripcion" aria-labelledby="tg" style="padding:0">${g.html ? `<h2 id="tg" style="font-size:22px;margin-bottom:12px">Guion</h2>${g.sync ? '<p class="hint">Tocá un párrafo para saltar a ese momento del audio.</p>' : '<div style="height:12px"></div>'}${g.html}` : ""}</section></div>${fichaHtml}</div>` : ""}
-</div></main>
+</div>
+${navEp}</main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div>
 <div class="wrap tmdb"><img src="../../tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB. Datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span></div></footer>
 ${audio ? `<script>${client}</script>` : ""}

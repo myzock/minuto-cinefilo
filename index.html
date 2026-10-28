@@ -249,7 +249,7 @@ function init(){
   $("#lnkIg").href = SITE.instagramUrl; ["lnkRadio","lnkRadio2"].forEach(id => $("#"+id).href = SITE.radioUrl);
   $("#aboutText").textContent = SITE.about; $("#fraseFooter").textContent = SITE.footerPhrase;
   $("#year").textContent = new Date().getFullYear();
-  const soc = [["Instagram",SITE.instagramUrl],["Radio Monk",SITE.radioUrl],["YouTube",SITE.youtubeUrl],["Spotify",SITE.spotifyUrl],["X",SITE.xUrl]].filter(x => x[1]);
+  const soc = [["Instagram",SITE.instagramUrl],["Radio Monk",SITE.radioUrl],["YouTube",SITE.youtubeUrl],["Spotify",SITE.spotifyUrl],["Apple Podcasts",SITE.appleUrl],["YouTube Music",SITE.youtubeMusicUrl],["Amazon Music",SITE.amazonUrl],["RSS","feed.xml"],["X",SITE.xUrl]].filter(x => x[1]);
   const lk = soc.map(([n,u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("");
   $("#socialLinks").innerHTML = lk; $("#footLinks").innerHTML = lk;
   renderHero(); renderFeatured(); renderList(); renderCats();
