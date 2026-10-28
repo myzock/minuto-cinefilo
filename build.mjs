@@ -260,6 +260,19 @@ ${items}
 
 mkdirSync("data", { recursive: true });
 writeFileSync("data/fichas.json", JSON.stringify(fichas));
+// ---- Próximos estrenos en Argentina (TMDB) ----
+if (KEY) {
+  try {
+    const hasta = new Date(Date.now() + 60 * 864e5).toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
+    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${KEY}&language=es-AR&region=AR&with_release_type=2|3&release_date.gte=${HOY}&release_date.lte=${hasta}&sort_by=popularity.desc&include_adult=false`;
+    const r = await (await fetch(url)).json();
+    const propios = new Set(capsulas.map(c => c.tmdb_id).filter(Boolean));
+    const items = (r.results || []).filter(m => m.poster_path && !propios.has(m.id)).slice(0, 12)
+      .map(m => ({ id: m.id, title: m.title, date: m.release_date, poster: IMG + "w342" + m.poster_path }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+    if (r.results) { writeFileSync("data/proximos.json", JSON.stringify({ actualizado: HOY, items })); console.log(`Próximos estrenos: ${items.length}`); }
+  } catch (e) { console.log(`::warning::No se pudieron traer los próximos estrenos: ${e.message}`); }
+}
 { // lista estática de episodios publicados dentro de <noscript> en la home (para quien no corre JS)
   const lista = asc.filter(x => x.date <= HOY).reverse().map(x => `<li><a href="capsulas/${x.id}/">${esc(x.title)}</a> — ${esc(x.film || "")}</li>`).join("");
   const idx = readFileSync("index.html", "utf8");

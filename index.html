@@ -48,6 +48,7 @@ h2{font-size:clamp(26px,3.4vw,40px)}
 .poster{position:relative}.score{position:absolute;left:10px;bottom:10px;background:rgba(9,12,16,.82);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--ink);line-height:1.2}.score small{font-weight:400;color:var(--mute);font-size:10px;margin-left:3px}
 .listen{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;font-size:14px;color:var(--mute)}.listen a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--mute);text-underline-offset:3px}.listen a:hover{text-decoration-color:var(--ink)}
 .rate{color:var(--mute)}
+.estr{list-style:none;display:flex;gap:16px;overflow-x:auto;padding:4px 0 14px;margin:0;scroll-snap-type:x proximity}.estr li{flex:0 0 150px;scroll-snap-align:start}.estr a{display:grid;gap:8px;text-decoration:none;color:inherit}.estr img{width:150px;aspect-ratio:2/3;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--panel);display:block}.estr a:hover img{border-color:var(--ink)}.estr b{font-size:14px;font-weight:600;line-height:1.3}.estr time{font-size:12px;color:var(--mute)}.estr-n{font-size:12px;color:var(--mute);margin-top:6px}
 .meta{color:var(--mute);font-size:14px;display:flex;flex-wrap:wrap;gap:6px 20px;margin:16px 0 24px}
 .desc{max-width:54ch;margin-bottom:28px;color:#cfd3d8}
 .badge{display:inline-block;border:1px solid var(--red);font-size:12px;padding:3px 10px;border-radius:999px;margin-bottom:14px}
@@ -191,6 +192,12 @@ body.mini-on{padding-bottom:76px}
     </div>
   </div></section>
 
+  <section id="estrenos" hidden style="padding-bottom:0"><div class="wrap">
+    <p class="label" style="margin-bottom:10px">Cartelera</p><h2 style="font-size:clamp(24px,3vw,34px);margin-bottom:20px">Próximos estrenos</h2>
+    <ul class="estr" id="estrList"></ul>
+    <p class="estr-n">Fechas de estreno en Argentina según TMDB; pueden cambiar.</p>
+  </div></section>
+
   <section id="sobre"><div class="wrap about">
     <div><p class="label">Sobre el proyecto</p><h2>Cine, en pocos minutos.</h2></div>
     <div><p class="t" id="aboutText"></p><p class="s">Escuchanos en <a id="lnkRadio2" href="#" target="_blank" rel="noopener">Radio Monk</a>.</p></div>
@@ -259,6 +266,11 @@ function init(){
   $("#socialLinks").innerHTML = lk; $("#footLinks").innerHTML = lk;
   if (SITE.goatcounter && /^[a-z0-9-]+$/i.test(SITE.goatcounter)) { const g = document.createElement("script"); g.async = true; g.src = "https://gc.zgo.at/count.js"; g.dataset.goatcounter = "https://" + SITE.goatcounter + ".goatcounter.com/count"; document.head.appendChild(g); }
   renderHero(); renderFeatured(); renderList(); renderCats();
+  fetch("data/proximos.json").then(r => r.ok ? r.json() : null).then(d => {
+    if (!d || !d.items || !d.items.length) return;
+    $("#estrList").innerHTML = d.items.map(m => `<li><a href="https://www.themoviedb.org/movie/${esc(m.id)}" target="_blank" rel="noopener"><img src="${esc(m.poster)}" alt="Póster de ${esc(m.title)}" loading="lazy" width="150" height="225"><b>${esc(m.title)}</b><time datetime="${esc(m.date)}">${new Date(m.date + "T12:00:00").toLocaleDateString("es-AR", {day: "numeric", month: "long"})}</time></a></li>`).join("");
+    $("#estrenos").hidden = false;
+  }).catch(() => {});
 }
 
 function renderHero(){
