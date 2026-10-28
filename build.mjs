@@ -266,8 +266,9 @@ if (KEY) {
     const hasta = new Date(Date.now() + 60 * 864e5).toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
     const url = `https://api.themoviedb.org/3/discover/movie?api_key=${KEY}&language=es-AR&region=AR&with_release_type=2|3&release_date.gte=${HOY}&release_date.lte=${hasta}&sort_by=popularity.desc&include_adult=false`;
     const r = await (await fetch(url)).json();
+    const desde = new Date(Date.now() - 21 * 864e5).toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
     const propios = new Set(capsulas.map(c => c.tmdb_id).filter(Boolean));
-    const cand = (r.results || []).filter(m => m.poster_path && !propios.has(m.id)).slice(0, 16);
+    const cand = (r.results || []).filter(m => m.poster_path && !propios.has(m.id) && (m.release_date || "") >= desde).slice(0, 16); // se descartan reestrenos (fecha global vieja)
     const items = [];
     for (const m of cand) { // la fecha de "discover" es la global: se pide la de Argentina (estreno en cines o limitado)
       const d = await (await fetch(`https://api.themoviedb.org/3/movie/${m.id}/release_dates?api_key=${KEY}`)).json();
