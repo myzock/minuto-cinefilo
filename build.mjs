@@ -139,6 +139,7 @@ const extra = `
 .player.v{grid-template-columns:56px 1fr auto auto}
 .vol{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:13px}.vol input{width:84px}
 @media(hover:none){.vol{display:none}.player.v{grid-template-columns:56px 1fr auto}}
+@media(max-width:640px){.latest .poster{max-width:220px;margin-inline:auto;padding:0}.trans{padding-left:12px}#transcripcion h2,#transcripcion .hint{padding-left:14px}.epnav{grid-template-columns:1fr}.epnav .sig{text-align:left}}
 .trans{max-width:60ch;margin-bottom:1.1em;color:#cfcac0;padding-left:16px;border-left:2px solid transparent;transition:color .25s,border-color .25s}
 .trans[data-t]{cursor:pointer}.trans[data-t]:hover{color:var(--ink)}
 .trans.now{color:var(--ink);border-left-color:var(--red-hi)}

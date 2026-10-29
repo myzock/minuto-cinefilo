@@ -76,6 +76,13 @@ footer div{display:flex;gap:20px;flex-wrap:wrap}
 .tmdb{margin-top:28px;font-size:13px;gap:16px;align-items:center;justify-content:flex-start!important}.tmdb img{height:12px;width:auto;display:block}
 .empty{padding:40px 0;color:var(--mute)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* ===== CELULAR ===== */
+@media(max-width:640px){
+header{position:static}
+header .wrap{gap:6px 16px;padding-block:10px;min-height:0}
+nav{flex-wrap:nowrap;overflow-x:auto;width:100%;order:3;scrollbar-width:none;margin-inline:calc(var(--pad)*-1);padding-inline:var(--pad);gap:22px}
+nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;padding:8px 0}
+}
 </style>
 <style id="home">
 /* ===== HOME ===== */
@@ -151,6 +158,12 @@ footer div{display:flex;gap:20px;flex-wrap:wrap}
 .mini .time{min-width:auto;white-space:nowrap}
 body.mini-on{padding-bottom:76px}
 @media(max-width:600px){.mini{grid-template-columns:auto minmax(0,1fr) auto}.mini input{display:none}}
+.item .s{display:flex;flex-wrap:wrap;gap:2px 0}.item .s>span{white-space:nowrap}.item .s>span:not(:last-child)::after{content:"·";margin:0 7px}
+@media(max-width:640px){
+.hero{min-height:0}.hero-in{padding-block:44px 64px}
+.feat .poster{margin-inline:auto;max-width:230px}
+}
+@media(hover:none),(pointer:coarse){.estr-b{display:none}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"PodcastSeries","name":"Minuto Cinéfilo","url":"https://minutocinefilo.com.ar/","description":"Cápsulas de audio de 2 a 4 minutos sobre cine. Un proyecto de Vamos x Partes, emitido en Radio Monk.","inLanguage":"es-AR","webFeed":"https://minutocinefilo.com.ar/feed.xml","image":"https://minutocinefilo.com.ar/podcast.jpg"}</script>
 </head>
@@ -392,7 +405,7 @@ function renderList(){
     const f = fich(c);
     return `<li class="item"><div class="thumb">${c.poster ? `<img src="${esc(c.poster)}" alt="" loading="lazy">` : "Sin imagen"}</div>
       <div>${c.numero ? `<p class="no">#${esc(c.numero)}</p>` : ""}<h4>${page(c) ? `<a href="${page(c)}">${esc(c.title)}</a>` : esc(c.title)}</h4>
-      <p class="s">${esc(c.film)}${f?.year ? " · " + esc(f.year) : ""}${f && f.vote_count >= 20 && f.vote_average ? ` · <span class="rate">★ ${Number(f.vote_average).toFixed(1)}</span>` : ""} · <span ${c.audio ? `data-dur="${esc(c.audio)}"` : ""}>${c.duration ? esc(c.duration) + " min" : ""}</span></p></div>
+      <p class="s"><span>${esc(c.film)}</span>${f?.year ? `<span>${esc(f.year)}</span>` : ""}${f && f.vote_count >= 20 && f.vote_average ? `<span class="rate">★ ${Number(f.vote_average).toFixed(1)}</span>` : ""}<span ${c.audio ? `data-dur="${esc(c.audio)}"` : ""}>${c.duration ? esc(c.duration) + " min" : ""}</span></p></div>
       <button class="rowplay" data-id="${esc(c.id)}" aria-label="Escuchar ${esc(c.title)}">${ic('<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>')}</button></li>`;
   }).join("");
   $("#empty").hidden = rows.length > 0; $("#more").hidden = full || rows.length <= shown.length;
