@@ -86,6 +86,17 @@
       "description": "¿Qué pasaría si ese personaje infantil que nos enseñaba a compartir, cantar y ser buenos amigos escondiera algo verdaderamente aterrador? Bueno, esa es la premisa de Buddy, una de las propuestas más delirantes y sorprendentes del cine de terror de 2026.",
       "audio": "audio/buddy.mp3",
       "transcript": "transcripciones/buddy.txt"
+    },
+    {
+      "id": "the-shining",
+      "title": "El resplandor",
+      "film": "The Shining",
+      "tmdb_id": 694,
+      "date": "2026-10-31",
+      "hora": "22:00",
+      "description": "¿Qué pasaría si aceptaras un trabajo que parece perfecto, en un hotel enorme, rodeado de montañas y completamente aislado durante el invierno? Un lugar tranquilo, sin huéspedes, sin ruido y con todo el tiempo del mundo para escribir. Suena bastante bien… hasta que descubrís que quizás no estás tan solo como pensabas.",
+      "audio": "audio/theshining.mp3",
+      "transcript": "transcripciones/theshining.txt"
     }
   ]
 }
