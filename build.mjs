@@ -221,7 +221,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <link rel="canonical" href="${pageUrl}">
 <meta property="og:type" content="article"><meta property="og:title" content="${esc(c.film)} — Minuto Cinéfilo">
 <meta property="og:description" content="${esc(c.description)}"><meta property="og:url" content="${pageUrl}">
-<meta property="og:image" content="${ogImg}"><meta property="og:locale" content="es_AR">
+<meta property="og:image" content="${ogImg}">${existsSync(cardFile) ? '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:type" content="image/jpeg">' : ""}<meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${ogImg}"><meta name="color-scheme" content="dark">${futuro ? '<meta name="robots" content="noindex">' : ""}
 <script type="application/ld+json">${jld}</script>
 <link rel="icon" href="../../favicon.svg">${fonts}
