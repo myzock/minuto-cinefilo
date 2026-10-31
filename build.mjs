@@ -216,10 +216,10 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
   const html = `<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(c.film)} — ${esc(c.title)} | Minuto Cinéfilo</title>
+<title>${esc(norm(c.film) && norm(c.film) !== norm(c.title) ? c.film + " — " + c.title : c.title)} | Minuto Cinéfilo</title>
 <meta name="description" content="${esc(c.description)}">
 <link rel="canonical" href="${pageUrl}">
-<meta property="og:type" content="article"><meta property="og:title" content="${esc(c.film)} — Minuto Cinéfilo">
+<meta property="og:type" content="article"><meta property="og:title" content="${esc(c.title)} — Minuto Cinéfilo">
 <meta property="og:description" content="${esc(c.description)}"><meta property="og:url" content="${pageUrl}">
 <meta property="og:image" content="${ogImg}">${existsSync(cardFile) ? '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:type" content="image/jpeg">' : ""}<meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${ogImg}"><meta name="color-scheme" content="dark">${futuro ? '<meta name="robots" content="noindex">' : ""}
