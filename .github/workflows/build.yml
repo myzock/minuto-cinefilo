@@ -2,7 +2,12 @@ name: Generar páginas de cápsulas
 on:
   workflow_dispatch:
   schedule:
-    - cron: '5 3 * * *'   # todos los días a las 00:05 de Argentina: publica los episodios agendados y renueva datos de TMDB
+    # GitHub retrasa o saltea a veces las ejecuciones programadas: se intenta varias veces entre las 00:05 y las 02:05 de Argentina
+    - cron: '5 3 * * *'
+    - cron: '35 3 * * *'
+    - cron: '5 4 * * *'
+    - cron: '35 4 * * *'
+    - cron: '5 5 * * *'
   push:
     branches: [main]
     paths: ['capsulas.json', 'transcripciones/**', 'audio/**', 'build.mjs', 'index.html']
