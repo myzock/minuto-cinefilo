@@ -261,7 +261,7 @@ Promise.all([
 ]).then(([d, f]) => {
     SITE = d.site; FICHAS = f || {};
     const hoy = new Date().toLocaleDateString("sv-SE", {timeZone: "America/Argentina/Buenos_Aires"});
-    const hm = new Date().toLocaleTimeString("en-GB", {timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hour12: false});
+    const hm = new Date().toLocaleTimeString("en-GB", {timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hourCycle: "h23"});
     const orden = d.capsulas.filter(c => !c.demo).sort((a, b) => a.date.localeCompare(b.date) || (a.hora || "").localeCompare(b.hora || ""));
     d.capsulas.forEach(c => {
       const x = FICHAS[c.id] || {};

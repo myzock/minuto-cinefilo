@@ -16,7 +16,7 @@ const fonts = index.match(/<link href="https:\/\/fonts\.googleapis[^>]*>/)[0];
 const KEY = process.env.TMDB_KEY;
 const IMG = "https://image.tmdb.org/t/p/";
 const HOY = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }); // AAAA-MM-DD, hora de Argentina
-const AHORA = new Date().toLocaleTimeString("en-GB", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hour12: false }); // HH:MM, hora de Argentina
+const AHORA = new Date().toLocaleTimeString("en-GB", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }); // HH:MM, hora de Argentina
 const publicado = c => c.date < HOY || (c.date === HOY && (!c.hora || c.hora <= AHORA)); // "hora" es opcional: HH:MM de Argentina
 
 // ---- Chequeo de capsulas.json: si hay errores, el build se corta y la web publicada queda como estaba ----
@@ -187,9 +187,13 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
   mkdirSync(`capsulas/${c.id}`, { recursive: true });
   const cardFile = `capsulas/${c.id}/og.jpg`;
   try {
-    let bg = null; const src = bd || c.poster;
-    if (src) { try { const r = await fetch(src); if (r.ok) bg = Buffer.from(await r.arrayBuffer()); } catch {} }
-    if (bg || !existsSync(cardFile)) { const { tarjeta } = await import("./og.mjs"); const buf = await tarjeta({ numero: c.numero, title: c.title, bgBuffer: bg }); if (buf) writeFileSync(cardFile, buf); }
+    const src = bd || c.poster;
+    const cacheFile = "data/og-cache.json", cache = existsSync(cacheFile) ? JSON.parse(readFileSync(cacheFile, "utf8")) : {};
+    const clave = JSON.stringify([c.numero, c.title, src || ""]);
+    let bg = null;
+    const alDia = existsSync(cardFile) && cache[c.id] === clave; // el build corre cada hora: solo se rehace la tarjeta si cambió algo
+    if (!alDia && src) { try { const r = await fetch(src); if (r.ok) bg = Buffer.from(await r.arrayBuffer()); } catch {} }
+    if (alDia) { /* tarjeta al día */ } else if (bg || !existsSync(cardFile)) { const { tarjeta } = await import("./og.mjs"); const buf = await tarjeta({ numero: c.numero, title: c.title, bgBuffer: bg }); if (buf) { writeFileSync(cardFile, buf); if (bg) { cache[c.id] = clave; writeFileSync(cacheFile, JSON.stringify(cache)); } } }
   } catch (e) { console.log(`::warning::No se pudo generar la tarjeta de ${c.id}: ${e.message}`); }
   const ogImg = existsSync(cardFile) ? `${pageUrl}og.jpg` : bd || c.poster || `${site.url}og.png`;
   const pub = asc.filter(publicado), i = pub.indexOf(c);
@@ -273,7 +277,8 @@ ${items}
 mkdirSync("data", { recursive: true });
 writeFileSync("data/fichas.json", JSON.stringify(fichas));
 // ---- Próximos estrenos en Argentina (TMDB) ----
-if (KEY) {
+const yaHoy = existsSync("data/proximos.json") && (() => { try { return JSON.parse(readFileSync("data/proximos.json", "utf8")).actualizado === HOY; } catch { return false; } })();
+if (KEY && !yaHoy) { // el build corre cada hora: los estrenos se renuevan una vez por día
   try {
     const hasta = new Date(Date.now() + 60 * 864e5).toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
     const url = `https://api.themoviedb.org/3/discover/movie?api_key=${KEY}&language=es-AR&region=US&with_release_type=2|3&release_date.gte=${HOY}&release_date.lte=${hasta}&sort_by=popularity.desc&include_adult=false`;
