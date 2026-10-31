@@ -2,12 +2,8 @@ name: Generar páginas de cápsulas
 on:
   workflow_dispatch:
   schedule:
-    # GitHub retrasa o saltea a veces las ejecuciones programadas: se intenta varias veces entre las 00:05 y las 02:05 de Argentina
-    - cron: '5 3 * * *'
-    - cron: '35 3 * * *'
-    - cron: '5 4 * * *'
-    - cron: '35 4 * * *'
-    - cron: '5 5 * * *'
+    # Cada hora (minuto 5): publica los episodios agendados con "hora". GitHub a veces atrasa estas ejecuciones.
+    - cron: '5 * * * *'
   push:
     branches: [main]
     paths: ['capsulas.json', 'transcripciones/**', 'audio/**', 'build.mjs', 'index.html']

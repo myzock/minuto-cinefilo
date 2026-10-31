@@ -261,18 +261,19 @@ Promise.all([
 ]).then(([d, f]) => {
     SITE = d.site; FICHAS = f || {};
     const hoy = new Date().toLocaleDateString("sv-SE", {timeZone: "America/Argentina/Buenos_Aires"});
-    const orden = d.capsulas.filter(c => !c.demo).sort((a, b) => a.date.localeCompare(b.date));
+    const hm = new Date().toLocaleTimeString("en-GB", {timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hour12: false});
+    const orden = d.capsulas.filter(c => !c.demo).sort((a, b) => a.date.localeCompare(b.date) || (a.hora || "").localeCompare(b.hora || ""));
     d.capsulas.forEach(c => {
       const x = FICHAS[c.id] || {};
       if(!c.numero && !c.demo) c.numero = orden.indexOf(c) + 1;
       c.poster = c.poster || x.poster || ""; c.backdrop = c.backdrop || x.backdrop || ""; c.film = c.film || x.title || "";
     });
-    CAPSULAS = d.capsulas.filter(c => c.date <= hoy);
+    CAPSULAS = d.capsulas.filter(c => c.date < hoy || (c.date === hoy && (!c.hora || c.hora <= hm)));
     init(); })
   .catch(() => { $("#latest").innerHTML = '<p class="empty" style="padding:32px">No se pudieron cargar los episodios. Probá recargar la página.</p>'; });
 
 function init(){
-  sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date) || (b.numero||0) - (a.numero||0));
+  sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date) || (b.hora||"").localeCompare(a.hora||"") || (b.numero||0) - (a.numero||0));
   current = sorted[0];
   $("#lnkIg").href = $("#lnkIg2").href = SITE.instagramUrl; ["lnkRadio","lnkRadio2"].forEach(id => $("#"+id).href = SITE.radioUrl);
   $("#aboutText").textContent = SITE.about; $("#fraseFooter").textContent = SITE.footerPhrase;

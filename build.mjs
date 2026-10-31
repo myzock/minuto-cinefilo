@@ -16,6 +16,8 @@ const fonts = index.match(/<link href="https:\/\/fonts\.googleapis[^>]*>/)[0];
 const KEY = process.env.TMDB_KEY;
 const IMG = "https://image.tmdb.org/t/p/";
 const HOY = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }); // AAAA-MM-DD, hora de Argentina
+const AHORA = new Date().toLocaleTimeString("en-GB", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hour12: false }); // HH:MM, hora de Argentina
+const publicado = c => c.date < HOY || (c.date === HOY && (!c.hora || c.hora <= AHORA)); // "hora" es opcional: HH:MM de Argentina
 
 // ---- Chequeo de capsulas.json: si hay errores, el build se corta y la web publicada queda como estaba ----
 {
@@ -30,10 +32,11 @@ const HOY = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentin
     else if (ids.has(c.id)) errores.push(`${id}: el id está repetido`); else ids.add(c.id);
     if (!c.title) errores.push(`${id}: falta "title"`);
     if (!c.description) errores.push(`${id}: falta "description"`);
+    if (c.hora && !/^([01]\d|2[0-3]):[0-5]\d$/.test(c.hora)) errores.push(`${id}: "hora" debe tener el formato HH:MM de 00:00 a 23:59 (valor: ${JSON.stringify(c.hora)})`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(c.date || "") || isNaN(new Date(c.date))) errores.push(`${id}: "date" debe tener el formato AAAA-MM-DD (valor: ${JSON.stringify(c.date)})`);
     if (c.tmdb_id && !Number.isInteger(+c.tmdb_id)) errores.push(`${id}: "tmdb_id" debe ser un número (valor: ${JSON.stringify(c.tmdb_id)})`);
     if (!c.tmdb_id && !c.film) errores.push(`${id}: falta "tmdb_id" (o al menos "film")`);
-    const lanzado = c.date <= HOY, dest = lanzado ? errores : avisos, nota = lanzado ? "" : " (todavía no, el episodio está agendado)";
+    const lanzado = publicado(c), dest = lanzado ? errores : avisos, nota = lanzado ? "" : " (todavía no, el episodio está agendado)";
     const falta = (campo, ruta) => { if (ruta && !/^https?:/.test(ruta) && !existsSync(ruta)) dest.push(`${id}: "${campo}" apunta a "${ruta}" y ese archivo no existe en el repositorio (revisá mayúsculas, extensión y carpeta)${nota}`); };
     if (!c.audio) dest.push(`${id}: falta "audio"`); else falta("audio", c.audio);
     falta("transcript", c.transcript);
@@ -42,7 +45,7 @@ const HOY = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentin
   });
   avisos.forEach(m => console.log(`::warning file=capsulas.json::${m}`));
   errores.forEach(m => console.log(`::error file=capsulas.json::${m}`));
-  const pub = capsulas.filter(c => !c.demo && c.date <= HOY).length, agen = capsulas.filter(c => !c.demo && c.date > HOY).length;
+  const pub = capsulas.filter(c => !c.demo && publicado(c)).length, agen = capsulas.filter(c => !c.demo && !publicado(c)).length;
   const resumen = `## Chequeo de capsulas.json\n- Publicados: ${pub}\n- Agendados: ${agen}\n` + (errores.length ? `\n### Errores (no se publicó nada)\n${errores.map(m => "- " + m).join("\n")}\n` : "\nTodo en orden.\n") + (avisos.length ? `\n### Avisos\n${avisos.map(m => "- " + m).join("\n")}\n` : "");
   if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, resumen, { flag: "a" });
   if (errores.length) { console.error("\nSe encontraron errores en capsulas.json:\n" + errores.map(m => " - " + m).join("\n") + "\n\nNo se generó nada: la web publicada sigue como estaba."); process.exit(1); }
@@ -158,11 +161,11 @@ const extra = `
 
 const urls = [site.url];
 const reales = capsulas.filter(x => !x.demo);
-const asc = [...reales].sort((a, b) => a.date.localeCompare(b.date)); // el número de episodio sale del orden por fecha
+const asc = [...reales].sort((a, b) => a.date.localeCompare(b.date) || (a.hora || "").localeCompare(b.hora || "")); // el número de episodio sale del orden por fecha
 const fichas = {}; // datos de TMDB para la home (solo episodios con ficha vigente)
 const REEL = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d93a32"/><circle cx="20" cy="20" r="3.2" fill="#090c10"/><g fill="#090c10"><circle cx="20" cy="9" r="4"/><circle cx="30.5" cy="16.5" r="4"/><circle cx="26.5" cy="29" r="4"/><circle cx="13.5" cy="29" r="4"/><circle cx="9.5" cy="16.5" r="4"/></g></svg>';
 for (const c of reales) {
-  const pageUrl = `${site.url}capsulas/${c.id}/`; const futuro = c.date > HOY; if (!futuro) urls.push(pageUrl);
+  const pageUrl = `${site.url}capsulas/${c.id}/`; const futuro = !publicado(c); if (!futuro) urls.push(pageUrl);
   const audio = c.audio ? (/^https?:/.test(c.audio) ? c.audio : "../../" + c.audio) : "";
   const g = guion(c.transcript), t = await ficha(c);
   c.film = c.film || t?.title || ""; c.numero = c.numero || asc.indexOf(c) + 1;
@@ -189,7 +192,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
     if (bg || !existsSync(cardFile)) { const { tarjeta } = await import("./og.mjs"); const buf = await tarjeta({ numero: c.numero, title: c.title, bgBuffer: bg }); if (buf) writeFileSync(cardFile, buf); }
   } catch (e) { console.log(`::warning::No se pudo generar la tarjeta de ${c.id}: ${e.message}`); }
   const ogImg = existsSync(cardFile) ? `${pageUrl}og.jpg` : bd || c.poster || `${site.url}og.png`;
-  const pub = asc.filter(x => x.date <= HOY), i = pub.indexOf(c);
+  const pub = asc.filter(publicado), i = pub.indexOf(c);
   const ant = i > 0 ? pub[i - 1] : (futuro ? pub[pub.length - 1] : null), sig = i >= 0 && i < pub.length - 1 ? pub[i + 1] : null;
   const epN = x => x.film || x.title;
   const navEp = ant || sig ? `<div class="wrap"><nav class="epnav" aria-label="Más episodios">${ant ? `<a class="ant" href="../${ant.id}/"><small>← Episodio anterior</small><span>${esc(epN(ant))}</span></a>` : "<span></span>"}${sig ? `<a class="sig" href="../${sig.id}/"><small>Episodio siguiente →</small><span>${esc(epN(sig))}</span></a>` : "<span></span>"}</nav></div>` : "";
@@ -246,11 +249,11 @@ ${yt ? `<script>${trl}</script>` : ""}
 // ---- Feed de podcast (para Spotify, Apple Podcasts, etc.) ----
 const pod = site.podcast;
 if (pod?.email) {
-  const rfc = d => new Date(d + "T09:00:00-03:00").toUTCString();
+  const rfc = (d, h) => new Date(d + "T" + (h || "09:00") + ":00-03:00").toUTCString();
   const abs = r => (/^https?:/.test(r) ? r : site.url + encodeURI(r));
-  const items = reales.filter(c => c.date <= HOY && c.audio && !/^https?:/.test(c.audio) && existsSync(c.audio))
-    .sort((a, b) => b.date.localeCompare(a.date) || (b.numero || 0) - (a.numero || 0))
-    .map(c => `<item><title>${esc(c.title)}</title><description>${esc(c.description)}</description><link>${site.url}capsulas/${c.id}/</link><guid isPermaLink="false">${esc((pod.guidBase || site.url) + c.id)}</guid><pubDate>${rfc(c.date)}</pubDate><enclosure url="${abs(c.audio)}" length="${statSync(c.audio).size}" type="audio/mpeg"/><itunes:episode>${c.numero}</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit>${c.duration ? `<itunes:duration>${esc(c.duration)}</itunes:duration>` : ""}</item>`).join("\n");
+  const items = reales.filter(c => publicado(c) && c.audio && !/^https?:/.test(c.audio) && existsSync(c.audio))
+    .sort((a, b) => b.date.localeCompare(a.date) || (b.hora || "").localeCompare(a.hora || "") || (b.numero || 0) - (a.numero || 0))
+    .map(c => `<item><title>${esc(c.title)}</title><description>${esc(c.description)}</description><link>${site.url}capsulas/${c.id}/</link><guid isPermaLink="false">${esc((pod.guidBase || site.url) + c.id)}</guid><pubDate>${rfc(c.date, c.hora)}</pubDate><enclosure url="${abs(c.audio)}" length="${statSync(c.audio).size}" type="audio/mpeg"/><itunes:episode>${c.numero}</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit>${c.duration ? `<itunes:duration>${esc(c.duration)}</itunes:duration>` : ""}</item>`).join("\n");
   writeFileSync("feed.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
@@ -289,7 +292,7 @@ if (KEY) {
   } catch (e) { console.log(`::warning::No se pudieron traer los próximos estrenos: ${e.message}`); }
 }
 { // lista estática de episodios publicados dentro de <noscript> en la home (para quien no corre JS)
-  const lista = asc.filter(x => x.date <= HOY).reverse().map(x => `<li><a href="capsulas/${x.id}/">${esc(x.title)}</a> — ${esc(x.film || "")}</li>`).join("");
+  const lista = asc.filter(publicado).reverse().map(x => `<li><a href="capsulas/${x.id}/">${esc(x.title)}</a> — ${esc(x.film || "")}</li>`).join("");
   const idx = readFileSync("index.html", "utf8");
   const nuevo = idx.replace(/<!--SEO-LIST-->[\s\S]*?<!--\/SEO-LIST-->/, `<!--SEO-LIST--><ul>${lista}</ul><!--/SEO-LIST-->`);
   if (nuevo !== idx) writeFileSync("index.html", nuevo);
