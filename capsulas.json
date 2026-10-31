@@ -97,6 +97,16 @@
       "description": "¿Qué pasaría si aceptaras un trabajo que parece perfecto, en un hotel enorme, rodeado de montañas y completamente aislado durante el invierno? Un lugar tranquilo, sin huéspedes, sin ruido y con todo el tiempo del mundo para escribir. Suena bastante bien… hasta que descubrís que quizás no estás tan solo como pensabas.",
       "audio": "audio/theshining.mp3",
       "transcript": "transcripciones/theshining.txt"
+    },
+    {
+      "id": "halloween",
+      "title": "La noche de Halloween",
+      "film": "Halloween",
+      "tmdb_id": 948,
+      "date": "2026-10-31",
+      "description": "Hay películas que necesitan monstruos gigantes, criaturas sobrenaturales o litros de sangre para provocar miedo. Y después está *Halloween*, una película que consiguió algo mucho más sencillo… y mucho más aterrador: convertir una calle tranquila de un barrio estadounidense en el escenario de una pesadilla.",
+      "audio": "audio/halloween.mp3",
+      "transcript": "transcripciones/halloween.txt"
     }
   ]
 }
