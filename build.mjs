@@ -249,7 +249,7 @@ if (pod?.email) {
   const rfc = d => new Date(d + "T09:00:00-03:00").toUTCString();
   const abs = r => (/^https?:/.test(r) ? r : site.url + encodeURI(r));
   const items = reales.filter(c => c.date <= HOY && c.audio && !/^https?:/.test(c.audio) && existsSync(c.audio))
-    .sort((a, b) => b.date.localeCompare(a.date))
+    .sort((a, b) => b.date.localeCompare(a.date) || (b.numero || 0) - (a.numero || 0))
     .map(c => `<item><title>${esc(c.title)}</title><description>${esc(c.description)}</description><link>${site.url}capsulas/${c.id}/</link><guid isPermaLink="false">${esc((pod.guidBase || site.url) + c.id)}</guid><pubDate>${rfc(c.date)}</pubDate><enclosure url="${abs(c.audio)}" length="${statSync(c.audio).size}" type="audio/mpeg"/><itunes:episode>${c.numero}</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit>${c.duration ? `<itunes:duration>${esc(c.duration)}</itunes:duration>` : ""}</item>`).join("\n");
   writeFileSync("feed.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom">

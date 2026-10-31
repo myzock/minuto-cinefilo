@@ -272,7 +272,7 @@ Promise.all([
   .catch(() => { $("#latest").innerHTML = '<p class="empty" style="padding:32px">No se pudieron cargar los episodios. Probá recargar la página.</p>'; });
 
 function init(){
-  sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date));
+  sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date) || (b.numero||0) - (a.numero||0));
   current = sorted[0];
   $("#lnkIg").href = $("#lnkIg2").href = SITE.instagramUrl; ["lnkRadio","lnkRadio2"].forEach(id => $("#"+id).href = SITE.radioUrl);
   $("#aboutText").textContent = SITE.about; $("#fraseFooter").textContent = SITE.footerPhrase;
