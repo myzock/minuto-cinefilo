@@ -113,7 +113,10 @@ const client = `
 const a=document.getElementById('au'),pl=document.getElementById('pl'),sk=document.getElementById('sk'),tm=document.getElementById('tm'),vo=document.getElementById('vo');
 const f=t=>isFinite(t)?Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0'):'0:00';
 const ps=[...document.querySelectorAll('[data-t]')];
-const setP=()=>sk.style.setProperty('--p',sk.value+'%');
+const setP=()=>{sk.style.setProperty('--p',sk.value+'%');dw()};
+const wb=document.getElementById('wb'),cv=document.getElementById('wv');
+function dw(){if(!W||!cv)return;const d=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;if(!w)return;cv.width=w*d;cv.height=h*d;const x=cv.getContext('2d');x.scale(d,d);const n=W.length,s=w/n,f=sk.value/100;for(let i=0;i<n;i++){const bh=Math.max(3,W[i]/100*h);x.fillStyle=(i+.5)/n<=f?'#ef4d44':'#3a424d';x.beginPath();x.roundRect?x.roundRect(i*s+s*.18,(h-bh)/2,s*.64,bh,2):x.rect(i*s+s*.18,(h-bh)/2,s*.64,bh);x.fill()}}
+if(W&&wb){wb.classList.add('on');addEventListener('resize',dw);dw()}
 pl.onclick=()=>a.paused?a.play():a.pause();
 a.onplay=()=>{pl.setAttribute('aria-pressed','true');pl.setAttribute('aria-label','Pausar')};
 a.onpause=a.onended=()=>{pl.setAttribute('aria-pressed','false');pl.setAttribute('aria-label','Reproducir')};
@@ -135,6 +138,7 @@ f.title=b.dataset.t;f.allow='autoplay; encrypted-media; picture-in-picture; full
 b.replaceWith(f)};
 `;
 const extra = `
+.wavebox{position:relative;height:44px;min-width:0}.wavebox canvas{display:none;width:100%;height:100%}.wavebox.on canvas{display:block}.wavebox input{position:absolute;inset:0;width:100%;height:100%;margin:0}.wavebox.on input{opacity:0}
 .cols{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:clamp(32px,6vw,96px);margin-top:clamp(56px,8vw,96px);align-items:start}
 @media(max-width:900px){.cols{grid-template-columns:1fr}}
 .back{display:inline-block;margin-bottom:40px;font-size:14px;color:var(--mute)}
@@ -164,6 +168,8 @@ const urls = [site.url];
 const reales = capsulas.filter(x => !x.demo);
 const asc = [...reales].sort((a, b) => a.date.localeCompare(b.date) || (a.hora || "").localeCompare(b.hora || "")); // el número de episodio sale del orden por fecha
 const fichas = {}; // datos de TMDB para la home (solo episodios con ficha vigente)
+const { ondas } = await import("./ondas.mjs");
+const ONDAS = ondas(reales.filter(x => x.audio && !/^https?:/.test(x.audio)).map(x => x.audio));
 const REEL = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d93a32"/><circle cx="20" cy="20" r="3.2" fill="#090c10"/><g fill="#090c10"><circle cx="20" cy="9" r="4"/><circle cx="30.5" cy="16.5" r="4"/><circle cx="26.5" cy="29" r="4"/><circle cx="13.5" cy="29" r="4"/><circle cx="9.5" cy="16.5" r="4"/></g></svg>';
 for (const c of reales) {
   const pageUrl = `${site.url}capsulas/${c.id}/`; const futuro = !publicado(c); if (!futuro) urls.push(pageUrl);
@@ -211,7 +217,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
   const q = encodeURIComponent(`Escuchá «${c.film}» en Minuto Cinéfilo`), u = encodeURIComponent(pageUrl);
   const player = audio ? `<div class="player v" role="group" aria-label="Reproductor de ${esc(c.title)}">
 <button class="play" id="pl" aria-pressed="false" aria-label="Reproducir"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
-<input type="range" id="sk" min="0" max="100" step="0.1" value="0" aria-label="Posición del audio"><span class="time" id="tm">0:00 / ${esc(c.duration || "--:--")}</span>
+<div class="wavebox" id="wb"><canvas id="wv" aria-hidden="true"></canvas><input type="range" id="sk" min="0" max="100" step="0.1" value="0" aria-label="Posición del audio"></div><span class="time" id="tm">0:00 / ${esc(c.duration || "--:--")}</span>
 <label class="vol">Vol <input type="range" id="vo" min="0" max="1" step="0.05" value="1" aria-label="Volumen"></label></div>
 <audio id="au" preload="metadata" src="${esc(audio)}"></audio><p class="note" id="note" role="status"></p>` : `<p class="note">El audio de esta cápsula todavía no está disponible.</p>`;
   const html = `<!doctype html>
@@ -245,7 +251,7 @@ ${navEp}</main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div>
 <div class="wrap tmdb"><img src="../../tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB. Datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span></div></footer>
 ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : ""}
-${audio ? `<script>${client}</script>` : ""}
+${audio ? `<script>const W=${JSON.stringify(c.audio && ONDAS[c.audio] ? ONDAS[c.audio].p : null)};${client}</script>` : ""}
 ${yt ? `<script>${trl}</script>` : ""}
 </body></html>`;
   mkdirSync(`capsulas/${c.id}`, { recursive: true });
