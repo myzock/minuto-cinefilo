@@ -504,8 +504,8 @@ function setBg(url){
 function renderStats(){
   const reales = CAPSULAS.filter(c => !c.demo), box = $("#stats"); if(!reales.length) return;
   let seg = 0; reales.forEach(c => { seg += ONDAS[c.audio]?.d || 0; });
-  const dec = new Set(reales.map(c => fich(c)?.year).filter(Boolean).map(y => Math.floor(y / 10)));
-  const it = [[reales.length, "cápsulas"], [Math.round(seg / 60), "minutos de cine"], [dec.size, dec.size === 1 ? "década" : "décadas"]].filter(x => x[0] > 0);
+  const gen = new Set(reales.flatMap(c => fich(c)?.genres || []));
+  const it = [[reales.length, "cápsulas"], [Math.round(seg / 60), "minutos de cine"], [gen.size, gen.size === 1 ? "género" : "géneros"]].filter(x => x[0] > 0);
   if(it.length < 2) return;
   box.style.gridTemplateColumns = "repeat(" + it.length + ",auto)";
   box.innerHTML = it.map(([n, l]) => `<div><b data-n="${n}">${n}</b><span>${l}</span></div>`).join(""); box.hidden = false;
