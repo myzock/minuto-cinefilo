@@ -88,6 +88,7 @@ header .wrap{gap:6px 16px;padding-block:10px;min-height:0}
 nav{flex-wrap:nowrap;overflow-x:auto;width:100%;order:3;scrollbar-width:none;margin-inline:calc(var(--pad)*-1);padding-inline:var(--pad);gap:22px}
 nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;padding:8px 0}
 }
+.charla{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between;margin-top:16px;border:1px solid var(--line);border-left:3px solid var(--red);border-radius:6px;padding:12px 16px;background:#0b0f14;color:var(--ink);text-decoration:none;font-size:15px}.charla b{color:var(--red-hi)}.charla em{font-style:normal;font-size:14px;border-bottom:1px solid var(--red)}.charla:hover em{color:var(--red-hi)}
 </style>
 <style id="home">
 /* ===== HOME ===== */
@@ -358,6 +359,7 @@ function renderHero(){
 }
 
 function score(f, small){ return f && f.vote_count >= 20 && f.vote_average ? `<span class="score" title="Puntaje de los usuarios de TMDB (${esc(f.vote_count)} votos)">★ ${Number(f.vote_average).toFixed(1)} <small>TMDB</small></span>` : ""; }
+function charlaBox(c){ return c.charla && /^https:\/\//.test(c.charla) ? `<a class="charla" href="${esc(c.charla)}" target="_blank" rel="noopener"><span><b>¿Querés más?</b> Escuchá la charla completa sobre ${esc(c.film || c.title)}</span><em>Spotify ↗</em></a>` : ""; }
 function listenRow(){
   const l = [["Spotify",SITE.spotifyUrl],["Apple Podcasts",SITE.appleUrl],["YouTube Music",SITE.youtubeMusicUrl],["Amazon Music",SITE.amazonUrl]].filter(x => x[1]);
   return `<div class="listen"><span>Escuchá en</span>${l.map(([n,u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("")}<a href="feed.xml">RSS</a></div>`;
@@ -394,6 +396,7 @@ function renderFeatured(){
       <button type="button" id="shareBtn" aria-expanded="false" aria-controls="share">${ic('<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>')}Compartir</button>
     </div>
     ${listenRow()}
+    ${charlaBox(c)}
     <div class="share" id="share"></div>
     <audio id="audio" preload="metadata"></audio></div></div>${fh}`;
   $("#autoBtn").onclick = () => { autoNext = !autoNext; $("#autoBtn").setAttribute("aria-pressed", autoNext); try { localStorage.setItem("autoNext", autoNext ? "1" : "0"); } catch(e) {} };
