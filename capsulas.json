@@ -20,7 +20,7 @@
   "capsulas": [
     {
       "id": "whalefall-01",
-      "numero": 1,
+      "numero": 4,
       "title": "La caída de la ballena (Whalefall)",
       "film": "Whalefall",
       "tmdb_id": 1255833,
@@ -32,7 +32,7 @@
     },
     {
       "id": "insidious-out-of-the-further-02",
-      "numero": 2,
+      "numero": 3,
       "title": "La noche del demonio: Están entre nosotros",
       "film": "Insidious: Out of the Further",
       "tmdb_id": 1291595,
@@ -45,7 +45,7 @@
     },
     {
       "id": "backrooms-03",
-      "numero": 3,
+      "numero": 2,
       "title": "Backrooms: Sin Salida",
       "film": "Backrooms",
       "tmdb_id": 1083381,
@@ -58,7 +58,7 @@
     },
     {
       "id": "toystory5-04",
-      "numero": 4,
+      "numero": 1,
       "title": "Toy Story 5",
       "film": "Toy Story 5",
       "tmdb_id": 1084244,
