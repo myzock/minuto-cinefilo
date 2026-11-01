@@ -31,6 +31,18 @@ Si `capsulas.json` tiene un error, el build se corta y la web publicada queda co
 - `cintaPosters`: `true` muestra la cinta de pósters (desde 6 cápsulas).
 - `goatcounter`, `spotifyUrl`, `youtubeMusicUrl`, `appleUrl`, `amazonUrl`, `podcast.*`: estadísticas, plataformas y datos del feed.
 
+## Medición de uso (invisible para el público)
+
+Además de las visitas, GoatCounter recibe eventos sin cookies, que se ven en su panel como rutas con estos prefijos:
+
+- `play/<id>`, `mitad/<id>` (escuchó al menos la mitad, sin contar saltos) y `fin/<id>`: reproducciones de cada cápsula, una vez por visita.
+- `siguiente-automatico/<id>` y `autoplay/on|off`: uso del botón "Seguir con el siguiente".
+- `compartir/<red>/<id>` (whatsapp, telegram, x, facebook, copiar), `charla/<id>`, `tmdb/<id>`, `trailer/<id>`.
+- `plataforma/<nombre>`: clics a Spotify, YouTube Music, Apple Podcasts, Amazon Music, RSS, Instagram y Radio Monk.
+- `filtro/ciclo/<nombre>`, `filtro/genero/<nombre>`, `busqueda` (sin guardar el texto), `calendario/google|ics`, `navegacion/anterior|siguiente`.
+
+Si GoatCounter no carga (por ejemplo por un bloqueador de anuncios), no pasa nada: la web funciona igual.
+
 ## Servicios externos
 
 - **TMDB**: fichas, pósters, puntajes y próximos estrenos. Necesita el secreto `TMDB_KEY` en GitHub (Settings → Secrets → Actions). Sin la clave, el build usa las copias guardadas en `data/tmdb/`. Las fichas se renuevan cada 30 días.

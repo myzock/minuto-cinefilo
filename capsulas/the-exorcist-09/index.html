@@ -7,7 +7,7 @@
 <meta property="og:type" content="article"><meta property="og:title" content="El Exorcista — Minuto Cinéfilo">
 <meta property="og:description" content="En 1973, una película llegó a los cines y provocó una auténtica conmoción. Hubo espectadores que abandonaban las salas, personas que se desmayaban y hasta quienes necesitaban salir a tomar aire. Su nombre era El exorcista."><meta property="og:url" content="https://minutocinefilo.com.ar/capsulas/the-exorcist-09/">
 <meta property="og:image" content="https://minutocinefilo.com.ar/capsulas/the-exorcist-09/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:type" content="image/jpeg"><meta property="og:locale" content="es_AR">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://minutocinefilo.com.ar/capsulas/the-exorcist-09/og.jpg"><meta name="color-scheme" content="dark"><meta name="robots" content="noindex">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://minutocinefilo.com.ar/capsulas/the-exorcist-09/og.jpg"><meta name="color-scheme" content="dark">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"PodcastEpisode","name":"El Exorcista","url":"https://minutocinefilo.com.ar/capsulas/the-exorcist-09/","datePublished":"2026-11-01","description":"En 1973, una película llegó a los cines y provocó una auténtica conmoción. Hubo espectadores que abandonaban las salas, personas que se desmayaban y hasta quienes necesitaban salir a tomar aire. Su nombre era El exorcista.","episodeNumber":9,"image":"https://minutocinefilo.com.ar/capsulas/the-exorcist-09/og.jpg","inLanguage":"es-AR","associatedMedia":{"@type":"AudioObject","contentUrl":"https://minutocinefilo.com.ar/audio/the-exorcist.mp3","encodingFormat":"audio/mpeg"},"partOfSeries":{"@type":"PodcastSeries","name":"Minuto Cinéfilo","url":"https://minutocinefilo.com.ar/"}}</script>
 <link rel="icon" href="../../favicon.svg"><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&family=Caveat:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -131,6 +131,37 @@ nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;padding:8px 0}
 <footer><div class="wrap"><span>© 2026 Minuto Cinéfilo</span><em>Luces, cámara y unos minutos más.</em></div>
 <div class="wrap tmdb"><img src="../../tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB. Datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span></div></footer>
 <script data-goatcounter="https://minuto-cinefilo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script>
+(function(){
+const gc=(p,t)=>{try{window.goatcounter&&window.goatcounter.count&&window.goatcounter.count({path:p,title:t||p,event:true})}catch(e){}};
+const id=(location.pathname.match(/capsulas\/([^/]+)/)||[])[1]||'';
+const vs=new Set();const una=(p,t)=>{if(vs.has(p))return;vs.add(p);gc(p,t)};
+const RU="https://www.radiomonk.com.ar";
+const au=document.getElementById('au');
+if(au){
+ au.addEventListener('play',()=>una('play/'+id,'Play: '+document.title));
+ au.addEventListener('ended',()=>una('fin/'+id,'Completo: '+document.title));
+ au.addEventListener('timeupdate',()=>{if(!au.duration)return;let s=0;const r=au.played;for(let i=0;i<r.length;i++)s+=r.end(i)-r.start(i);if(s/au.duration>=.5)una('mitad/'+id,'Mitad: '+document.title)});
+}
+const cl=a=>{const h=a.href||'';
+ if(/wa\.me|whatsapp/.test(h))return 'compartir/whatsapp/'+id;
+ if(/t\.me\//.test(h))return 'compartir/telegram/'+id;
+ if(/(twitter|x)\.com\/intent/.test(h))return 'compartir/x/'+id;
+ if(/facebook\.com\/sharer/.test(h))return 'compartir/facebook/'+id;
+ if(a.classList.contains('charla'))return 'charla/'+id;
+ if(/open\.spotify\.com/.test(h))return 'plataforma/spotify';
+ if(/music\.youtube\.com|youtube\.com\/playlist/.test(h))return 'plataforma/youtube-music';
+ if(/instagram\.com/.test(h))return 'plataforma/instagram';
+ try{if(RU&&new URL(h).hostname===new URL(RU).hostname)return 'plataforma/radio-monk'}catch(e){}
+ if(/themoviedb\.org/.test(h))return 'tmdb/'+id;
+ if(/\/capsulas\/[^/]+\/?$/.test(h)&&a.closest('.epnav'))return 'navegacion/'+(a.classList.contains('sig')?'siguiente':'anterior');
+ return null};
+document.addEventListener('click',e=>{
+ if(e.target.closest('#copy')){gc('compartir/copiar/'+id);return}
+ if(e.target.closest('#trbtn')){gc('trailer/'+id);return}
+ const a=e.target.closest('a[href]');if(!a)return;const p=cl(a);if(p)gc(p)});
+})();
+</script>
 <script>const W=[84,97,74,63,73,48,71,92,82,82,61,83,84,66,82,65,71,56,78,78,80,85,61,67,67,78,52,96,78,73,65,56,70,90,84,71,83,70,89,47,80,70,72,80,66,90,91,100,70,67,55,80,60,70,83,76,60,80,92,76,75,72,78,65,63,83,74,80,60,67,92,75,70,89,84,76,63,72,65,67,78,67,77,67,72,71,69,71,54,64];
 const a=document.getElementById('au'),pl=document.getElementById('pl'),sk=document.getElementById('sk'),tm=document.getElementById('tm'),vo=document.getElementById('vo');
 const f=t=>isFinite(t)?Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0'):'0:00';

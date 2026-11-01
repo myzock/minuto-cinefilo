@@ -150,6 +150,37 @@ const f=document.createElement('iframe');f.src='https://www.youtube-nocookie.com
 f.title=b.dataset.t;f.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';
 b.replaceWith(f)};
 `;
+const trk = `
+(function(){
+const gc=(p,t)=>{try{window.goatcounter&&window.goatcounter.count&&window.goatcounter.count({path:p,title:t||p,event:true})}catch(e){}};
+const id=(location.pathname.match(/capsulas\\/([^/]+)/)||[])[1]||'';
+const vs=new Set();const una=(p,t)=>{if(vs.has(p))return;vs.add(p);gc(p,t)};
+const RU=__RADIO__;
+const au=document.getElementById('au');
+if(au){
+ au.addEventListener('play',()=>una('play/'+id,'Play: '+document.title));
+ au.addEventListener('ended',()=>una('fin/'+id,'Completo: '+document.title));
+ au.addEventListener('timeupdate',()=>{if(!au.duration)return;let s=0;const r=au.played;for(let i=0;i<r.length;i++)s+=r.end(i)-r.start(i);if(s/au.duration>=.5)una('mitad/'+id,'Mitad: '+document.title)});
+}
+const cl=a=>{const h=a.href||'';
+ if(/wa\\.me|whatsapp/.test(h))return 'compartir/whatsapp/'+id;
+ if(/t\\.me\\//.test(h))return 'compartir/telegram/'+id;
+ if(/(twitter|x)\\.com\\/intent/.test(h))return 'compartir/x/'+id;
+ if(/facebook\\.com\\/sharer/.test(h))return 'compartir/facebook/'+id;
+ if(a.classList.contains('charla'))return 'charla/'+id;
+ if(/open\\.spotify\\.com/.test(h))return 'plataforma/spotify';
+ if(/music\\.youtube\\.com|youtube\\.com\\/playlist/.test(h))return 'plataforma/youtube-music';
+ if(/instagram\\.com/.test(h))return 'plataforma/instagram';
+ try{if(RU&&new URL(h).hostname===new URL(RU).hostname)return 'plataforma/radio-monk'}catch(e){}
+ if(/themoviedb\\.org/.test(h))return 'tmdb/'+id;
+ if(/\\/capsulas\\/[^/]+\\/?$/.test(h)&&a.closest('.epnav'))return 'navegacion/'+(a.classList.contains('sig')?'siguiente':'anterior');
+ return null};
+document.addEventListener('click',e=>{
+ if(e.target.closest('#copy')){gc('compartir/copiar/'+id);return}
+ if(e.target.closest('#trbtn')){gc('trailer/'+id);return}
+ const a=e.target.closest('a[href]');if(!a)return;const p=cl(a);if(p)gc(p)});
+})();
+`;
 const extra = `
 .wavebox{position:relative;height:44px;min-width:0}.wavebox canvas{display:none;width:100%;height:100%}.wavebox.on canvas{display:block}.wavebox input{position:absolute;inset:0;width:100%;height:100%;margin:0}.wavebox.on input{opacity:0}.wavebox:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
 .cols{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:clamp(32px,6vw,96px);margin-top:clamp(56px,8vw,96px);align-items:start}
@@ -265,6 +296,7 @@ ${navEp}</main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div>
 <div class="wrap tmdb"><img src="../../tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB. Datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span></div></footer>
 ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : ""}
+<script>${trk.replace("__RADIO__", JSON.stringify(site.radioUrl || "").replace(/</g, "\\u003c"))}</script>
 ${audio ? `<script>const W=${JSON.stringify(c.audio && ONDAS[c.audio] ? ONDAS[c.audio].p : null)};${client}</script>` : ""}
 ${yt ? `<script>${trl}</script>` : ""}
 </body></html>`;

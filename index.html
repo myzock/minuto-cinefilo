@@ -230,7 +230,7 @@ body.mini-on{padding-bottom:76px}
       <div class="panel" id="archivo">
         <div class="panel-h"><h3 id="listTitle">Últimos episodios</h3><button class="more-link" id="more" type="button" hidden>Ver todos →</button></div>
         <ul class="list" id="list"></ul>
-        <noscript><!--SEO-LIST--><ul><li><a href="capsulas/the-shining/">El resplandor</a> — The Shining</li><li><a href="capsulas/halloween/">La noche de Halloween</a> — Halloween</li><li><a href="capsulas/buddy-06/">Buddy</a> — Buddy</li><li><a href="capsulas/clayface-05/">Clayface</a> — Clayface</li><li><a href="capsulas/whalefall-01/">La caída de la ballena (Whalefall)</a> — Whalefall</li><li><a href="capsulas/insidious-out-of-the-further-02/">La noche del demonio: Están entre nosotros</a> — Insidious: Out of the Further</li><li><a href="capsulas/backrooms-03/">Backrooms: Sin Salida</a> — Backrooms</li><li><a href="capsulas/toystory5-04/">Toy Story 5</a> — Toy Story 5</li></ul><!--/SEO-LIST--></noscript>
+        <noscript><!--SEO-LIST--><ul><li><a href="capsulas/the-exorcist-09/">El Exorcista</a> — The Exorcist</li><li><a href="capsulas/the-shining/">El resplandor</a> — The Shining</li><li><a href="capsulas/halloween/">La noche de Halloween</a> — Halloween</li><li><a href="capsulas/buddy-06/">Buddy</a> — Buddy</li><li><a href="capsulas/clayface-05/">Clayface</a> — Clayface</li><li><a href="capsulas/whalefall-01/">La caída de la ballena (Whalefall)</a> — Whalefall</li><li><a href="capsulas/insidious-out-of-the-further-02/">La noche del demonio: Están entre nosotros</a> — Insidious: Out of the Further</li><li><a href="capsulas/backrooms-03/">Backrooms: Sin Salida</a> — Backrooms</li><li><a href="capsulas/toystory5-04/">Toy Story 5</a> — Toy Story 5</li></ul><!--/SEO-LIST--></noscript>
         <p class="empty" id="empty" hidden>No hay episodios que coincidan. Probá con otro título o con el nombre de la película.</p>
       </div>
       <div>
@@ -401,7 +401,7 @@ function renderFeatured(){
     ${charlaBox(c)}
     <div class="share" id="share"></div>
     <audio id="audio" preload="metadata"></audio></div></div>${fh}`;
-  $("#autoBtn").onclick = () => { autoNext = !autoNext; $("#autoBtn").setAttribute("aria-pressed", autoNext); try { localStorage.setItem("autoNext", autoNext ? "1" : "0"); } catch(e) {} };
+  $("#autoBtn").onclick = () => { autoNext = !autoNext; track("autoplay/" + (autoNext ? "on" : "off")); $("#autoBtn").setAttribute("aria-pressed", autoNext); try { localStorage.setItem("autoNext", autoNext ? "1" : "0"); } catch(e) {} };
   $("#shareBtn").onclick = () => { const o = $("#share").classList.toggle("open"); $("#shareBtn").setAttribute("aria-expanded", o); };
   renderShare(c); setupPlayer(c); fillDurations(); setBg(c.backdrop || c.poster);
 }
@@ -540,9 +540,42 @@ function listen(id, silencio){
   const p = $("#play"); if(p && !p.disabled) p.click();
 }
 $("#list").addEventListener("click", e => { const b = e.target.closest(".rowplay, .thumb[data-id]"); if(b) listen(b.dataset.id); });
-$("#cats").addEventListener("click", e => { const b = e.target.closest(".cat"); if(!b) return; genre = genre === b.dataset.g ? "" : b.dataset.g; renderCats(); renderList(); });
-$("#ciclos").addEventListener("click", e => { const b = e.target.closest(".cat"); if(!b) return; ciclo = ciclo === b.dataset.c ? "" : b.dataset.c; renderCiclos(); renderList(); });
-document.addEventListener("ended", e => { if(e.target.id !== "audio" || !autoNext) return; const n = siguiente(); if(n) listen(n.id, true); }, true);
+$("#cats").addEventListener("click", e => { const b = e.target.closest(".cat"); if(!b) return; genre = genre === b.dataset.g ? "" : b.dataset.g; if(genre) track("filtro/genero/" + genre); renderCats(); renderList(); });
+$("#ciclos").addEventListener("click", e => { const b = e.target.closest(".cat"); if(!b) return; ciclo = ciclo === b.dataset.c ? "" : b.dataset.c; if(ciclo) track("filtro/ciclo/" + ciclo); renderCiclos(); renderList(); });
+/* ---- Medición de uso (GoatCounter): eventos sin cookies, invisibles para el público ---- */
+const track = (p, t) => { try { window.goatcounter && window.goatcounter.count && window.goatcounter.count({path: p, title: t || p, event: true}); } catch(e) {} };
+const vistos = new Set();
+const unaVez = (k, t) => { if(vistos.has(k)) return; vistos.add(k); track(k, t); };
+function clasifica(a){
+  const h = a.href || "", id = current ? current.id : "";
+  if(a.classList.contains("charla")) return "charla/" + id;
+  if(a.hasAttribute("download") || /^data:text\/calendar/.test(h)) return "calendario/ics";
+  if(/calendar\.google\.com/.test(h)) return "calendario/google";
+  if(/wa\.me|whatsapp/.test(h)) return "compartir/whatsapp/" + id;
+  if(/t\.me\//.test(h)) return "compartir/telegram/" + id;
+  if(/(twitter|x)\.com\/intent/.test(h)) return "compartir/x/" + id;
+  if(/facebook\.com\/sharer/.test(h)) return "compartir/facebook/" + id;
+  if(/open\.spotify\.com/.test(h)) return "plataforma/spotify";
+  if(/music\.youtube\.com|youtube\.com\/playlist/.test(h)) return "plataforma/youtube-music";
+  if(/podcasts\.apple\.com/.test(h)) return "plataforma/apple-podcasts";
+  if(/amazon\./.test(h)) return "plataforma/amazon-music";
+  if(/youtube\.com|youtu\.be/.test(h)) return "plataforma/youtube";
+  if(/instagram\.com/.test(h)) return "plataforma/instagram";
+  if(/feed\.xml/.test(h)) return "plataforma/rss";
+  try { if(SITE && SITE.radioUrl && new URL(h).hostname === new URL(SITE.radioUrl).hostname) return "plataforma/radio-monk"; } catch(e) {}
+  if(/themoviedb\.org/.test(h)) return "tmdb/" + id;
+  return null;
+}
+document.addEventListener("click", e => {
+  if(e.target.closest("#copy")) { track("compartir/copiar/" + (current ? current.id : "")); return; }
+  const a = e.target.closest("a[href]"); if(!a) return;
+  const p = clasifica(a); if(p) track(p);
+});
+const segundosEscuchados = a => { let s = 0; for(let i = 0; i < a.played.length; i++) s += a.played.end(i) - a.played.start(i); return s; };
+document.addEventListener("play", e => { if(e.target.id === "audio" && current) unaVez("play/" + current.id, "Play: " + current.title); }, true);
+document.addEventListener("timeupdate", e => { const a = e.target; if(a.id === "audio" && current && a.duration && segundosEscuchados(a) / a.duration >= .5) unaVez("mitad/" + current.id, "Mitad: " + current.title); }, true);
+document.addEventListener("ended", e => { if(e.target.id === "audio" && current) unaVez("fin/" + current.id, "Completo: " + current.title); }, true);
+document.addEventListener("ended", e => { if(e.target.id !== "audio" || !autoNext) return; const n = siguiente(); if(n){ track("siguiente-automatico/" + n.id); listen(n.id, true); } }, true);
 $("#more").addEventListener("click", () => { showAll = true; renderList(); });
 let tq = null, ya = false;
 $("#q").addEventListener("input", () => {
@@ -552,6 +585,7 @@ $("#q").addEventListener("input", () => {
     if(has && !lista.style.minHeight) lista.style.minHeight = lista.offsetHeight + "px"; // evita que la página "salte" cuando la lista se achica
     if(!has) lista.style.minHeight = "";
     renderList();
+    if(has) unaVez("busqueda", "Búsqueda");
     if(has && !ya){ ya = true; const r = $("#archivo").getBoundingClientRect(); if(r.top > innerHeight * 0.6 || r.bottom < 120) $("#archivo").scrollIntoView({behavior: "instant", block: "start"}); }
     if(!has) ya = false;
   }, 200);

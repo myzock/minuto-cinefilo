@@ -127,10 +127,41 @@ nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;padding:8px 0}
 <div class="r"><dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg>Título original</dt><dd>The Shining</dd></div><div class="r"><dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6.5 8M11 6c0 3-2.5 6.5-6 8"/><path d="M13 20l4-9 4 9M14.5 17h5"/></svg>Título en español</dt><dd>El resplandor</dd></div><div class="r"><dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>Año</dt><dd>1980</dd></div><div class="r"><dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Duración</dt><dd>2 h 26 min</dd></div><div class="r"><dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4M5 5h11l-2 4 2 4H5"/></svg>País</dt><dd>Reino Unido, Estados Unidos</dd></div><div class="r"><dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="5"/><path d="M9 13.5L7.5 21l4.5-2.5 4.5 2.5L15 13.5"/></svg>Director</dt><dd>Stanley Kubrick</dd></div><div class="r"><dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/></svg>Reparto principal</dt><dd>Jack Nicholson, Shelley Duvall, Danny Lloyd, Scatman Crothers</dd></div><div class="r"><dt><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v6c0 5-3.5 8-8 8s-8-3-8-8z"/><path d="M9 10v1M15 10v1M9.5 14.5c1.5 1.2 3.5 1.2 5 0"/></svg>Géneros</dt><dd>Terror, Suspense</dd></div></dl>
 <a class="tm" href="https://www.themoviedb.org/movie/694" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside></div>
 </div>
-<div class="wrap"><nav class="epnav" aria-label="Más episodios"><a class="ant" href="../halloween/"><small>← Episodio anterior</small><span>Halloween</span></a><span></span></nav></div></main>
+<div class="wrap"><nav class="epnav" aria-label="Más episodios"><a class="ant" href="../halloween/"><small>← Episodio anterior</small><span>Halloween</span></a><a class="sig" href="../the-exorcist-09/"><small>Episodio siguiente →</small><span>The Exorcist</span></a></nav></div></main>
 <footer><div class="wrap"><span>© 2026 Minuto Cinéfilo</span><em>Luces, cámara y unos minutos más.</em></div>
 <div class="wrap tmdb"><img src="../../tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB. Datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span></div></footer>
 <script data-goatcounter="https://minuto-cinefilo.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script>
+(function(){
+const gc=(p,t)=>{try{window.goatcounter&&window.goatcounter.count&&window.goatcounter.count({path:p,title:t||p,event:true})}catch(e){}};
+const id=(location.pathname.match(/capsulas\/([^/]+)/)||[])[1]||'';
+const vs=new Set();const una=(p,t)=>{if(vs.has(p))return;vs.add(p);gc(p,t)};
+const RU="https://www.radiomonk.com.ar";
+const au=document.getElementById('au');
+if(au){
+ au.addEventListener('play',()=>una('play/'+id,'Play: '+document.title));
+ au.addEventListener('ended',()=>una('fin/'+id,'Completo: '+document.title));
+ au.addEventListener('timeupdate',()=>{if(!au.duration)return;let s=0;const r=au.played;for(let i=0;i<r.length;i++)s+=r.end(i)-r.start(i);if(s/au.duration>=.5)una('mitad/'+id,'Mitad: '+document.title)});
+}
+const cl=a=>{const h=a.href||'';
+ if(/wa\.me|whatsapp/.test(h))return 'compartir/whatsapp/'+id;
+ if(/t\.me\//.test(h))return 'compartir/telegram/'+id;
+ if(/(twitter|x)\.com\/intent/.test(h))return 'compartir/x/'+id;
+ if(/facebook\.com\/sharer/.test(h))return 'compartir/facebook/'+id;
+ if(a.classList.contains('charla'))return 'charla/'+id;
+ if(/open\.spotify\.com/.test(h))return 'plataforma/spotify';
+ if(/music\.youtube\.com|youtube\.com\/playlist/.test(h))return 'plataforma/youtube-music';
+ if(/instagram\.com/.test(h))return 'plataforma/instagram';
+ try{if(RU&&new URL(h).hostname===new URL(RU).hostname)return 'plataforma/radio-monk'}catch(e){}
+ if(/themoviedb\.org/.test(h))return 'tmdb/'+id;
+ if(/\/capsulas\/[^/]+\/?$/.test(h)&&a.closest('.epnav'))return 'navegacion/'+(a.classList.contains('sig')?'siguiente':'anterior');
+ return null};
+document.addEventListener('click',e=>{
+ if(e.target.closest('#copy')){gc('compartir/copiar/'+id);return}
+ if(e.target.closest('#trbtn')){gc('trailer/'+id);return}
+ const a=e.target.closest('a[href]');if(!a)return;const p=cl(a);if(p)gc(p)});
+})();
+</script>
 <script>const W=[71,75,98,65,100,38,75,61,60,86,88,67,63,94,90,67,79,75,77,72,91,68,96,71,94,73,93,74,96,76,70,77,79,76,87,55,76,64,95,95,76,79,76,85,62,91,62,85,81,78,97,64,91,60,94,59,92,78,69,68,70,67,76,65,73,63,71,73,79,56,62,72,74,79,61,77,83,69,63,75,65,64,81,55,69,55,81,74,51,75];
 const a=document.getElementById('au'),pl=document.getElementById('pl'),sk=document.getElementById('sk'),tm=document.getElementById('tm'),vo=document.getElementById('vo');
 const f=t=>isFinite(t)?Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0'):'0:00';
