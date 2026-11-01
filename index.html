@@ -517,7 +517,7 @@ function renderStats(){
 }
 function renderCinta(){
   const ps = sorted.filter(c => c.poster && !c.demo), sec = $("#cinta");
-  if(ps.length < 6){ sec.hidden = true; return; }
+  if(SITE.cintaPosters !== true || ps.length < 6){ sec.hidden = true; return; } // se enciende con "cintaPosters": true en capsulas.json
   const una = (c, dup) => `<li${dup ? ' class="dup" aria-hidden="true"' : ""}><button type="button" data-id="${esc(c.id)}" title="${esc(c.title)}" aria-label="Escuchar ${esc(c.title)}"${dup ? ' tabindex="-1"' : ""}><img src="${esc(c.poster)}" alt="" loading="lazy" width="96" height="144"></button></li>`;
   const ul = $("#cintaList"); ul.innerHTML = ps.map(c => una(c, 0)).join("") + ps.map(c => una(c, 1)).join("");
   ul.style.setProperty("--dur", Math.round(ps.length * 110 / 38) + "s"); sec.hidden = false;
