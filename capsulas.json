@@ -111,6 +111,19 @@
       "description": "Hay películas que necesitan monstruos gigantes, criaturas sobrenaturales o litros de sangre para provocar miedo. Y después está *Halloween*, una película que consiguió algo mucho más sencillo… y mucho más aterrador: convertir una calle tranquila de un barrio estadounidense en el escenario de una pesadilla.",
       "audio": "audio/halloween.mp3",
       "transcript": "transcripciones/halloween.txt"
+    },
+    {
+      "id": "the-exorcist-09",
+      "numero": 9,
+      "title": "El Exorcista",
+      "ciclo": "Halloween",
+      "film": "The Exorcist",
+      "tmdb_id": 9552,
+      "date": "2026-11-01",
+      "hora": "17:40",
+      "description": "En 1973, una película llegó a los cines y provocó una auténtica conmoción. Hubo espectadores que abandonaban las salas, personas que se desmayaban y hasta quienes necesitaban salir a tomar aire. Su nombre era El exorcista.",
+      "audio": "audio/the-exorcist.mp3",
+      "transcript": "transcripciones/the-exorcist.txt"
     }
   ]
 }
