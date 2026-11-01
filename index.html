@@ -442,7 +442,7 @@ function fillDurations(){
 function renderList(){
   const q = norm($("#q").value.trim());
   const rows = sorted.filter(c => ciclo || c !== current).filter(c => !ciclo || c.ciclo === ciclo).filter(c => !genre || (fich(c)?.genres || []).includes(genre)).filter(c => !q || norm(c.title + " " + c.film).includes(q));
-  const full = q || genre || ciclo || showAll, shown = full ? rows : rows.slice(0, 6);
+  const full = q || genre || ciclo || showAll, shown = full ? rows : rows.slice(0, 7);
   $("#listTitle").textContent = q ? "Resultados" : ciclo ? "Ciclo " + ciclo : genre ? genre : "Últimos episodios";
   $("#list").innerHTML = shown.map(c => {
     const f = fich(c);
