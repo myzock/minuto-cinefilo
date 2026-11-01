@@ -43,6 +43,18 @@ const publicado = c => c.date < HOY || (c.date === HOY && (!c.hora || c.hora <= 
     if (c.trailer && !/(youtu\.be\/|v=|embed\/)[\w-]{11}|^[\w-]{11}$/.test(String(c.trailer))) avisos.push(`${id}: "trailer" no parece un enlace o ID de YouTube válido (se ignora)`);
     if (!c.tmdb_id && !c.poster) avisos.push(`${id}: sin tmdb_id ni poster, se mostrará sin póster`);
   });
+  { // numeración y ciclos: se avisa (no se corta el build) para que se corrija a tiempo
+    const r0 = capsulas.filter(x => !x.demo), o0 = [...r0].sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")) || (a.hora || "").localeCompare(b.hora || ""));
+    const efec = c => c.numero || o0.indexOf(c) + 1; // el mismo número que usa la web: el del JSON o el que sale del orden por fecha
+    r0.forEach(c => { if (c.numero != null && !(Number.isInteger(c.numero) && c.numero > 0)) avisos.push(`${c.id ? `"${c.id}"` : "Un episodio"}: "numero" debe ser un entero positivo (valor: ${JSON.stringify(c.numero)})`); });
+    const usados = {}; o0.forEach(c => { (usados[efec(c)] ||= []).push(c.id); });
+    for (const [n, l] of Object.entries(usados)) if (l.length > 1) avisos.push(`Numeración repetida: el número ${n} lo tienen ${l.join(" y ")}`);
+    o0.forEach((c, i) => { const p = o0[i - 1]; if (p && efec(c) < efec(p)) avisos.push(`Numeración incoherente: "${c.id}" es el #${efec(c)} pero se publica después de "${p.id}" (#${efec(p)}); los números no siguen el orden de las fechas`); });
+    const clave = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim(), grupos = {};
+    r0.filter(c => c.ciclo).forEach(c => { (grupos[clave(c.ciclo)] ||= new Set()).add(c.ciclo); });
+    for (const s of Object.values(grupos)) if (s.size > 1) avisos.push(`Ciclos que solo difieren por mayúsculas, acentos o espacios: ${[...s].map(x => JSON.stringify(x)).join(" y ")}. La web los trata como ciclos distintos`);
+    r0.forEach(c => { if (c.ciclo && c.ciclo !== String(c.ciclo).replace(/\s+/g, " ").trim()) avisos.push(`${c.id ? `"${c.id}"` : "Un episodio"}: el ciclo ${JSON.stringify(c.ciclo)} tiene espacios de más al principio, al final o repetidos`); });
+  }
   avisos.forEach(m => console.log(`::warning file=capsulas.json::${m}`));
   errores.forEach(m => console.log(`::error file=capsulas.json::${m}`));
   const pub = capsulas.filter(c => !c.demo && publicado(c)).length, agen = capsulas.filter(c => !c.demo && !publicado(c)).length;
@@ -58,7 +70,7 @@ async function ficha(c) {
   let id = c.tmdb_id;
   try {
     if (KEY && !id) {
-      const r = await (await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${KEY}&language=es-AR&query=${encodeURIComponent(c.film)}`)).json();
+      const r = await (await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${KEY}&language=es-AR&query=${encodeURIComponent(c.film)}`, { signal: AbortSignal.timeout(15000) })).json();
       id = r.results?.[0]?.id;
       if (id) console.log(`Aviso: "${c.film}" sin tmdb_id; se usó ${id}. Agregá "tmdb_id": ${id} al JSON para fijarlo.`);
     }
@@ -66,11 +78,11 @@ async function ficha(c) {
     const file = `data/tmdb/${id}.json`;
     const hit = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
     const fresca = hit && "trailer" in hit && "vote_average" in hit && (Date.now() - new Date(hit._fetched || 0)) / 864e5 < 30; // se vuelve a pedir a TMDB cada 30 días
-    if (KEY && !fresca) {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${KEY}&language=es-AR&append_to_response=credits,images&include_image_language=null`);
+    if (KEY && !fresca) try {
+      const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${KEY}&language=es-AR&append_to_response=credits,images&include_image_language=null`, { signal: AbortSignal.timeout(15000) });
       if (res.ok) {
         const j = await res.json(); // se guarda solo lo que la web muestra, con fecha de descarga
-        const videos = async lang => { try { const r = await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${KEY}&language=${lang}`); return r.ok ? (await r.json()).results || [] : []; } catch { return []; } };
+        const videos = async lang => { try { const r = await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${KEY}&language=${lang}`, { signal: AbortSignal.timeout(15000) }); return r.ok ? (await r.json()).results || [] : []; } catch { return []; } };
         const elegir = l => l.filter(x => x.site === "YouTube" && x.type === "Trailer").sort((a, b) => (b.official - a.official) || String(b.published_at).localeCompare(String(a.published_at)))[0]?.key;
         const trailer = elegir(await videos("es-AR")) || elegir(await videos("en-US")) || "";
         const slim = { _fetched: new Date().toISOString(), trailer, title: j.title, original_title: j.original_title, release_date: j.release_date, runtime: j.runtime, vote_average: j.vote_average || 0, vote_count: j.vote_count || 0, poster: j.poster_path || "",
@@ -80,7 +92,7 @@ async function ficha(c) {
         mkdirSync("data/tmdb", { recursive: true }); writeFileSync(file, JSON.stringify(slim));
       }
       else console.log(`TMDB respondió ${res.status} para ${c.film}; se usa la copia guardada si existe.`);
-    }
+    } catch (e) { console.log(`TMDB no respondió para ${c.film} (${e.name}); se usa la copia guardada si existe.`); }
     if (!existsSync(file)) return null;
     const d = JSON.parse(readFileSync(file, "utf8"));
     const dias = (Date.now() - new Date(d._fetched || 0)) / 864e5;
@@ -90,6 +102,7 @@ async function ficha(c) {
 }
 
 const sinAst = s => String(s ?? "").replace(/\*([^*\n]+)\*/g, "$1"); // quita los asteriscos de cursiva donde no se puede mostrar cursiva
+const recorta = (s, max = 155) => { s = String(s ?? "").replace(/\s+/g, " ").trim(); if (s.length <= max) return s; const c = s.slice(0, max - 1), i = c.lastIndexOf(" "); return c.slice(0, i > 80 ? i : c.length).replace(/[\s,;:.\-–—]+$/, "") + "…"; }; // para la meta description de los buscadores; el texto original no se toca
 const cursiva = s => s.replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
 const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 function guion(path) {
@@ -108,7 +121,7 @@ const pais = t => (t.production_countries || []).map(p => { try { return p.iso ?
 const ic = d => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const IC = { film: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/>', lang: '<path d="M4 6h9M8.5 4v2M6 6c0 4 3 7 6.5 8M11 6c0 3-2.5 6.5-6 8"/><path d="M13 20l4-9 4 9M14.5 17h5"/>', cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/>', clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>', flag: '<path d="M5 21V4M5 5h11l-2 4 2 4H5"/>', award: '<circle cx="12" cy="9" r="5"/><path d="M9 13.5L7.5 21l4.5-2.5 4.5 2.5L15 13.5"/>', user: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6 7-6s7 2 7 6"/>', mask: '<path d="M4 5h16v6c0 5-3.5 8-8 8s-8-3-8-8z"/><path d="M9 10v1M15 10v1M9.5 14.5c1.5 1.2 3.5 1.2 5 0"/>' };
 const ytId = v => { if (!v) return ""; const s = String(v), m = s.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/) || s.match(/^([\w-]{11})$/); return m ? m[1] : ""; };
-const row = (icon, k, v) => v ? `<div class="r">${ic(icon)}<div><dt>${k}</dt><dd>${esc(v)}</dd></div></div>` : "";
+const row = (icon, k, v) => v ? `<div class="r"><dt>${ic(icon)}${k}</dt><dd>${esc(v)}</dd></div>` : "";
 const client = `
 const a=document.getElementById('au'),pl=document.getElementById('pl'),sk=document.getElementById('sk'),tm=document.getElementById('tm'),vo=document.getElementById('vo');
 const f=t=>isFinite(t)?Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0'):'0:00';
@@ -138,7 +151,7 @@ f.title=b.dataset.t;f.allow='autoplay; encrypted-media; picture-in-picture; full
 b.replaceWith(f)};
 `;
 const extra = `
-.wavebox{position:relative;height:44px;min-width:0}.wavebox canvas{display:none;width:100%;height:100%}.wavebox.on canvas{display:block}.wavebox input{position:absolute;inset:0;width:100%;height:100%;margin:0}.wavebox.on input{opacity:0}
+.wavebox{position:relative;height:44px;min-width:0}.wavebox canvas{display:none;width:100%;height:100%}.wavebox.on canvas{display:block}.wavebox input{position:absolute;inset:0;width:100%;height:100%;margin:0}.wavebox.on input{opacity:0}.wavebox:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
 .cols{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:clamp(32px,6vw,96px);margin-top:clamp(56px,8vw,96px);align-items:start}
 @media(max-width:900px){.cols{grid-template-columns:1fr}}
 .back{display:inline-block;margin-bottom:40px;font-size:14px;color:var(--mute)}
@@ -160,7 +173,7 @@ const extra = `
 .trbtn:not(.img){aspect-ratio:auto;flex-direction:row;justify-content:flex-start;padding:16px 20px}.trbtn:not(.img) .pl{width:44px;height:44px}
 .trl iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}.trl a{font-size:14px;color:var(--mute)}
 #transcripcion h2,#transcripcion .hint{padding-left:18px}
-.ficha h2{font-size:22px;margin-bottom:24px}.ficha dl{display:grid;gap:16px}.ficha .r{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start}.ficha .r svg{color:var(--mute);margin-top:2px}.ficha dt{color:var(--mute);font-size:12px}.ficha dd{margin:0;font-size:15px}
+.ficha h2{font-size:22px;margin-bottom:24px}.ficha dl{display:grid;gap:16px}.ficha .r{position:relative;padding-left:34px}.ficha .r svg{position:absolute;left:0;top:2px;color:var(--mute)}.ficha dt{color:var(--mute);font-size:12px}.ficha dd{margin:0;font-size:15px}
 .ficha .tm{display:inline-block;margin-top:28px;border:1px solid var(--mute);padding:10px 18px;border-radius:2px;font-size:14px;text-decoration:none}.ficha .tm:hover{border-color:var(--ink)}
 `;
 
@@ -199,7 +212,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
     const clave = JSON.stringify([c.numero, c.title, src || ""]);
     let bg = null;
     const alDia = existsSync(cardFile) && cache[c.id] === clave; // el build corre cada hora: solo se rehace la tarjeta si cambió algo
-    if (!alDia && src) { try { const r = await fetch(src); if (r.ok) bg = Buffer.from(await r.arrayBuffer()); } catch {} }
+    if (!alDia && src) { try { const r = await fetch(src, { signal: AbortSignal.timeout(15000) }); if (r.ok) bg = Buffer.from(await r.arrayBuffer()); } catch {} }
     if (alDia) { /* tarjeta al día */ } else if (bg || !existsSync(cardFile)) { const { tarjeta } = await import("./og.mjs"); const buf = await tarjeta({ numero: c.numero, title: c.title, bgBuffer: bg }); if (buf) { writeFileSync(cardFile, buf); if (bg) { cache[c.id] = clave; writeFileSync(cacheFile, JSON.stringify(cache)); } } }
   } catch (e) { console.log(`::warning::No se pudo generar la tarjeta de ${c.id}: ${e.message}`); }
   const ogImg = existsSync(cardFile) ? `${pageUrl}og.jpg` : bd || c.poster || `${site.url}og.png`;
@@ -224,7 +237,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(norm(c.film) && norm(c.film) !== norm(c.title) ? c.film + " — " + c.title : c.title)} | Minuto Cinéfilo</title>
-<meta name="description" content="${esc(sinAst(c.description))}">
+<meta name="description" content="${esc(recorta(sinAst(c.description)))}">
 <link rel="canonical" href="${pageUrl}">
 <meta property="og:type" content="article"><meta property="og:title" content="${esc(c.title)} — Minuto Cinéfilo">
 <meta property="og:description" content="${esc(sinAst(c.description))}"><meta property="og:url" content="${pageUrl}">
@@ -263,9 +276,10 @@ const pod = site.podcast;
 if (pod?.email) {
   const rfc = (d, h) => new Date(d + "T" + (h || "09:00") + ":00-03:00").toUTCString();
   const abs = r => (/^https?:/.test(r) ? r : site.url + encodeURI(r));
+  const durFeed = c => { if (c.duration) return c.duration; const d = ONDAS[c.audio]?.d; if (!d) return ""; const h = Math.floor(d / 3600), m = Math.floor(d % 3600 / 60), s = d % 60; return h ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` : `${m}:${String(s).padStart(2, "0")}`; }; // duración calculada al armar la onda de audio
   const items = reales.filter(c => publicado(c) && c.audio && !/^https?:/.test(c.audio) && existsSync(c.audio))
     .sort((a, b) => b.date.localeCompare(a.date) || (b.hora || "").localeCompare(a.hora || "") || (b.numero || 0) - (a.numero || 0))
-    .map(c => `<item><title>${esc(c.title)}</title><description>${esc(sinAst(c.description))}</description><link>${site.url}capsulas/${c.id}/</link><guid isPermaLink="false">${esc((pod.guidBase || site.url) + c.id)}</guid><pubDate>${rfc(c.date, c.hora)}</pubDate><enclosure url="${abs(c.audio)}" length="${statSync(c.audio).size}" type="audio/mpeg"/><itunes:episode>${c.numero}</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit>${c.duration ? `<itunes:duration>${esc(c.duration)}</itunes:duration>` : ""}</item>`).join("\n");
+    .map(c => `<item><title>${esc(c.title)}</title><description>${esc(sinAst(c.description))}</description><link>${site.url}capsulas/${c.id}/</link><guid isPermaLink="false">${esc((pod.guidBase || site.url) + c.id)}</guid><pubDate>${rfc(c.date, c.hora)}</pubDate><enclosure url="${abs(c.audio)}" length="${statSync(c.audio).size}" type="audio/mpeg"/><itunes:episode>${c.numero}</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit>${durFeed(c) ? `<itunes:duration>${esc(durFeed(c))}</itunes:duration>` : ""}</item>`).join("\n");
   writeFileSync("feed.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
@@ -290,13 +304,13 @@ if (KEY && !yaHoy) { // el build corre cada hora: los estrenos se renuevan una v
   try {
     const hasta = new Date(Date.now() + 60 * 864e5).toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
     const url = `https://api.themoviedb.org/3/discover/movie?api_key=${KEY}&language=es-AR&region=US&with_release_type=2|3&release_date.gte=${HOY}&release_date.lte=${hasta}&sort_by=popularity.desc&include_adult=false`;
-    const r = await (await fetch(url)).json();
+    const r = await (await fetch(url, { signal: AbortSignal.timeout(15000) })).json();
     const desde = new Date(Date.now() - 21 * 864e5).toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
     const propios = new Set(capsulas.map(c => c.tmdb_id).filter(Boolean));
     const cand = (r.results || []).filter(m => m.poster_path && !propios.has(m.id) && (m.release_date || "") >= desde).slice(0, 16); // se descartan reestrenos (fecha global vieja)
     const items = [];
     for (const m of cand) { // la fecha de "discover" es la global: se pide la de EEUU (estreno en cines o limitado)
-      const d = await (await fetch(`https://api.themoviedb.org/3/movie/${m.id}/release_dates?api_key=${KEY}`)).json();
+      const d = await (await fetch(`https://api.themoviedb.org/3/movie/${m.id}/release_dates?api_key=${KEY}`, { signal: AbortSignal.timeout(15000) })).json();
       const fechas = ((d.results || []).find(x => x.iso_3166_1 === "US")?.release_dates || []).filter(x => x.type === 2 || x.type === 3).map(x => x.release_date.slice(0, 10)).filter(x => x >= HOY).sort();
       if (fechas[0]) items.push({ id: m.id, title: m.title, date: fechas[0], poster: IMG + "w342" + m.poster_path });
     }
