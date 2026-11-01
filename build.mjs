@@ -234,7 +234,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <a class="back" href="../../#archivo">← Todos los episodios</a>
 <div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}${pun}${c.ciclo ? `<span class="ciclo">${esc(c.ciclo)}</span>` : ""}</div>
 <div>${c.numero ? `<p class="label" style="margin-bottom:12px">Episodio #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.title)}</h1>${norm(c.subtitle || c.film) && norm(c.subtitle || c.film) !== norm(c.title) ? `<p style="color:var(--mute);font-size:18px;margin-top:6px">${esc(c.subtitle || c.film)}</p>` : ""}
-<div class="meta"><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
+${site.paginasCiclos === true && c.ciclo ? `<p style="margin-top:8px"><a href="../../ciclos/${esc(norm(c.ciclo).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""))}/" style="color:var(--red-hi)">Ver todo el ciclo ${esc(c.ciclo)} →</a></p>` : ""}<div class="meta"><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
 <p class="desc">${cursiva(esc(c.description))}</p>${player}
 <div class="share"><span>Compartir</span><a href="https://wa.me/?text=${q}%20${u}" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/share/url?url=${u}&text=${q}" target="_blank" rel="noopener">Telegram</a><a href="https://twitter.com/intent/tweet?text=${q}&url=${u}" target="_blank" rel="noopener">X</a><a href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a><button type="button" id="copy">Copiar enlace</button></div>
 ${subsHtml}
@@ -296,6 +296,40 @@ if (KEY && !yaHoy) { // el build corre cada hora: los estrenos se renuevan una v
     items.sort((a, b) => a.date.localeCompare(b.date)); items.length = Math.min(items.length, 12);
     if (r.results) { writeFileSync("data/proximos.json", JSON.stringify({ actualizado: HOY, items })); console.log(`Próximos estrenos: ${items.length}`); }
   } catch (e) { console.log(`::warning::No se pudieron traer los próximos estrenos: ${e.message}`); }
+}
+// ---- Páginas de ciclo (/ciclos/<nombre>/): quedan APAGADAS hasta poner "paginasCiclos": true en site ----
+if (site.paginasCiclos === true) {
+  const slug = t => norm(t).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const grupos = {};
+  asc.filter(publicado).filter(x => x.ciclo).forEach(x => { (grupos[x.ciclo] ||= []).push(x); });
+  for (const [nombre, eps] of Object.entries(grupos)) {
+    const sl = slug(nombre); if (!sl) continue;
+    const pageUrl = `${site.url}ciclos/${sl}/`;
+    const lista = eps.map(x => `<li><a href="../../capsulas/${esc(x.id)}/"><b>${esc(x.title)}</b><span>${x.numero ? "#" + esc(x.numero) + " · " : ""}${fecha(x.date)}${x.duration ? " · " + esc(x.duration) + " min" : ""}</span></a></li>`).join("");
+    const desc = `Todas las cápsulas del ciclo ${nombre} de Minuto Cinéfilo (${eps.length}).`;
+    const html = `<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ciclo ${esc(nombre)} | Minuto Cinéfilo</title>
+<meta name="description" content="${esc(desc)}"><link rel="canonical" href="${pageUrl}">
+<meta property="og:type" content="website"><meta property="og:title" content="Ciclo ${esc(nombre)} — Minuto Cinéfilo"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${pageUrl}"><meta property="og:image" content="${site.url}og.png"><meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image"><meta name="color-scheme" content="dark">
+<link rel="icon" href="../../favicon.svg">${fonts}
+<style>${css}.cic{list-style:none;padding:0;margin:32px 0 0;display:grid;gap:12px}.cic a{display:grid;gap:4px;border:1px solid #2a2f37;border-radius:6px;padding:16px 18px;text-decoration:none;color:inherit}.cic a:hover{border-color:var(--ink)}.cic b{font-size:18px}.cic span{color:var(--mute);font-size:14px}</style></head><body>
+<header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
+<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Episodios</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
+<main><div class="wrap" style="padding-block:clamp(48px,8vw,112px);max-width:760px">
+<a class="back" href="../../#archivo">← Todos los episodios</a>
+<p class="label" style="margin-bottom:12px">Ciclo</p><h1 class="film" style="font-size:clamp(32px,5vw,56px)">${esc(nombre)}</h1>
+<p style="color:var(--mute);margin-top:10px">${eps.length} ${eps.length === 1 ? "cápsula" : "cápsulas"}, de la más antigua a la más nueva.</p>
+<ul class="cic">${lista}</ul></div></main>
+<footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div></footer>
+${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : ""}
+</body></html>`;
+    mkdirSync(`ciclos/${sl}`, { recursive: true });
+    writeFileSync(`ciclos/${sl}/index.html`, html);
+    urls.push(pageUrl);
+  }
 }
 { // lista estática de episodios publicados dentro de <noscript> en la home (para quien no corre JS)
   const lista = asc.filter(publicado).reverse().map(x => `<li><a href="capsulas/${x.id}/">${esc(x.title)}</a> — ${esc(x.film || "")}</li>`).join("");

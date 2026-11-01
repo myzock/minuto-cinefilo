@@ -166,6 +166,10 @@ body.mini-on{padding-bottom:76px}
 .feat .poster{margin-inline:auto;max-width:230px}
 }
 @media(hover:none),(pointer:coarse){.estr-b{display:none}}
+.prox{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-left:3px solid var(--red);background:var(--panel);border-radius:6px;padding:16px 20px;margin-top:20px}
+.prox[hidden]{display:none}.prox p{margin:0}.prox .t{font-size:17px;font-weight:600}.prox .w{color:var(--mute);font-size:14px;margin-top:2px}
+.prox .acts{display:flex;gap:14px;flex-wrap:wrap;font-size:14px}.prox .acts a{color:var(--ink);border-bottom:1px solid var(--red);text-decoration:none;padding:4px 0}.prox .acts a:hover{color:var(--red-hi)}
+.tools button[aria-pressed="true"] .dot{background:var(--red)}.tools .dot{width:8px;height:8px;border-radius:50%;background:#3a424d;display:inline-block}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"PodcastSeries","name":"Minuto Cinéfilo","url":"https://minutocinefilo.com.ar/","description":"Cápsulas de audio de 2 a 4 minutos sobre cine. Un proyecto de Vamos x Partes, emitido en Radio Monk.","inLanguage":"es-AR","webFeed":"https://minutocinefilo.com.ar/feed.xml","image":"https://minutocinefilo.com.ar/podcast.jpg"}</script>
 </head>
@@ -196,6 +200,7 @@ body.mini-on{padding-bottom:76px}
 
   <section id="capsulas" style="padding-bottom:0"><div class="wrap">
     <div class="feat" id="latest" aria-live="polite"></div>
+    <div class="prox" id="prox" hidden></div>
     <div class="duo">
       <div class="panel" id="archivo">
         <div class="panel-h"><h3 id="listTitle">Últimos episodios</h3><button class="more-link" id="more" type="button" hidden>Ver todos →</button></div>
@@ -204,6 +209,7 @@ body.mini-on{padding-bottom:76px}
         <p class="empty" id="empty" hidden>No hay episodios que coincidan. Probá con otro título o con el nombre de la película.</p>
       </div>
       <div>
+        <div class="panel" id="ciclosPanel" hidden><div class="panel-h"><h3>Ciclos</h3></div><div class="cats" id="ciclos"></div></div>
         <div class="panel" id="catsPanel" hidden><div class="panel-h"><h3>Géneros</h3></div><div class="cats" id="cats"></div></div>
         <div class="social"><div><strong>Más en Minuto Cinéfilo</strong><p>Seguinos para no perderte los próximos episodios.</p><div class="chiplinks" id="socialLinks"></div></div><span class="hand">Nos vemos en el próximo minuto…</span></div>
       </div>
@@ -235,7 +241,8 @@ body.mini-on{padding-bottom:76px}
 </div>
 
 <script>
-let SITE, CAPSULAS, FICHAS = {}, sorted, current = null, audio = null, showAll = false, genre = "";
+let SITE, CAPSULAS, FICHAS = {}, sorted, current = null, audio = null, showAll = false, genre = "", ciclo = "", PROX = [], autoNext = true;
+try { autoNext = localStorage.getItem("autoNext") !== "0"; } catch(e) {}
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtDate = iso => new Date(iso + "T12:00:00").toLocaleDateString("es-AR", {day:"numeric", month:"long", year:"numeric"});
@@ -270,7 +277,9 @@ Promise.all([
       if(!c.numero && !c.demo) c.numero = orden.indexOf(c) + 1;
       c.poster = c.poster || x.poster || ""; c.backdrop = c.backdrop || x.backdrop || ""; c.film = c.film || x.title || "";
     });
-    CAPSULAS = d.capsulas.filter(c => c.date < hoy || (c.date === hoy && (!c.hora || c.hora <= hm)));
+    const pub = c => c.date < hoy || (c.date === hoy && (!c.hora || c.hora <= hm));
+    CAPSULAS = d.capsulas.filter(pub);
+    PROX = d.capsulas.filter(c => !c.demo && !pub(c)).sort((a, b) => a.date.localeCompare(b.date) || (a.hora || "").localeCompare(b.hora || ""));
     init(); })
   .catch(() => { $("#latest").innerHTML = '<p class="empty" style="padding:32px">No se pudieron cargar los episodios. Probá recargar la página.</p>'; });
 
@@ -284,7 +293,7 @@ function init(){
   const lk = soc.map(([n,u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("");
   $("#socialLinks").innerHTML = lk; $("#footLinks").innerHTML = lk;
   if (SITE.goatcounter && /^[a-z0-9-]+$/i.test(SITE.goatcounter)) { const g = document.createElement("script"); g.async = true; g.src = "https://gc.zgo.at/count.js"; g.dataset.goatcounter = "https://" + SITE.goatcounter + ".goatcounter.com/count"; document.head.appendChild(g); }
-  renderHero(); renderFeatured(); renderList(); renderCats();
+  renderHero(); renderFeatured(); renderList(); renderCats(); renderCiclos(); renderProx();
   fetch("data/proximos.json").then(r => r.ok ? r.json() : null).then(d => {
     if (!d || !d.items || !d.items.length) return;
     $("#estrList").innerHTML = d.items.map(m => `<li><a href="https://www.themoviedb.org/movie/${esc(m.id)}" target="_blank" rel="noopener"><img src="${esc(m.poster)}" alt="Póster de ${esc(m.title)}" loading="lazy" width="150" height="225"><b>${esc(m.title)}</b><time datetime="${esc(m.date)}">${new Date(m.date + "T12:00:00").toLocaleDateString("es-AR", {day: "numeric", month: "long"})}</time></a></li>`).join("");
@@ -355,11 +364,13 @@ function renderFeatured(){
     <div class="tools">
       ${page(c) ? `<a href="${page(c)}${c.transcript ? "#transcripcion" : ""}">${ic('<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9.5 12h5M9.5 16h5"/>')}${c.transcript ? "Guion" : "Ver episodio"}</a>` : ""}
       ${f?.tmdb_id ? `<a href="https://www.themoviedb.org/movie/${esc(f.tmdb_id)}" target="_blank" rel="noopener">${ic('<path d="M3 12l9-9h8v8l-9 9z"/><circle cx="15.5" cy="8.5" r="1.2"/>')}TMDB</a>` : ""}
+      <button type="button" id="autoBtn" aria-pressed="${autoNext}" title="Al terminar, reproduce el siguiente episodio de la lista"><span class="dot" aria-hidden="true"></span>Seguir con el siguiente</button>
       <button type="button" id="shareBtn" aria-expanded="false" aria-controls="share">${ic('<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>')}Compartir</button>
     </div>
     ${listenRow()}
     <div class="share" id="share"></div>
     <audio id="audio" preload="metadata"></audio></div></div>${fh}`;
+  $("#autoBtn").onclick = () => { autoNext = !autoNext; $("#autoBtn").setAttribute("aria-pressed", autoNext); try { localStorage.setItem("autoNext", autoNext ? "1" : "0"); } catch(e) {} };
   $("#shareBtn").onclick = () => { const o = $("#share").classList.toggle("open"); $("#shareBtn").setAttribute("aria-expanded", o); };
   renderShare(c); setupPlayer(c); fillDurations();
 }
@@ -401,9 +412,9 @@ function fillDurations(){
 
 function renderList(){
   const q = norm($("#q").value.trim());
-  const rows = sorted.filter(c => c !== current).filter(c => !genre || (fich(c)?.genres || []).includes(genre)).filter(c => !q || norm(c.title + " " + c.film).includes(q));
-  const full = q || genre || showAll, shown = full ? rows : rows.slice(0, 4);
-  $("#listTitle").textContent = q ? "Resultados" : genre ? genre : "Últimos episodios";
+  const rows = sorted.filter(c => ciclo || c !== current).filter(c => !ciclo || c.ciclo === ciclo).filter(c => !genre || (fich(c)?.genres || []).includes(genre)).filter(c => !q || norm(c.title + " " + c.film).includes(q));
+  const full = q || genre || ciclo || showAll, shown = full ? rows : rows.slice(0, 4);
+  $("#listTitle").textContent = q ? "Resultados" : ciclo ? "Ciclo " + ciclo : genre ? genre : "Últimos episodios";
   $("#list").innerHTML = shown.map(c => {
     const f = fich(c);
     return `<li class="item"><div class="thumb">${c.poster ? `<img src="${esc(c.poster)}" alt="" loading="lazy">` : "Sin imagen"}</div>
@@ -422,15 +433,51 @@ function renderCats(){
   $("#cats").innerHTML = gs.map(g => `<button class="cat${g === genre ? " on" : ""}" type="button" data-g="${esc(g)}" aria-pressed="${g === genre}">${esc(g)}<small>${m[g]}</small></button>`).join("");
 }
 
-function listen(id){
+function renderCiclos(){
+  const m = {}; CAPSULAS.filter(c => !c.demo && c.ciclo).forEach(c => m[c.ciclo] = (m[c.ciclo] || 0) + 1);
+  const cs = Object.keys(m).sort((a,b) => m[b] - m[a] || a.localeCompare(b));
+  $("#ciclosPanel").hidden = !cs.length;
+  $("#ciclos").innerHTML = cs.map(g => `<button class="cat${g === ciclo ? " on" : ""}" type="button" data-c="${esc(g)}" aria-pressed="${g === ciclo}">${esc(g)}<small>${m[g]}</small></button>`).join("");
+}
+function renderProx(){
+  const box = $("#prox"), c = PROX[0];
+  if(!c){ box.hidden = true; return; }
+  const p = c.date.split("-").map(Number), [hh, mm] = c.hora ? c.hora.split(":").map(Number) : [null, null];
+  const ini = c.hora ? new Date(c.date + "T" + c.hora + ":00-03:00") : null;
+  if(c.date > new Date(Date.now() + 30*864e5).toISOString().slice(0,10)){ box.hidden = true; return; } // solo si falta menos de un mes
+  const dia = new Date(c.date + "T12:00:00").toLocaleDateString("es-AR", {weekday:"long", day:"numeric", month:"long"});
+  const cuando = dia.charAt(0).toUpperCase() + dia.slice(1) + (c.hora ? " · " + c.hora + " hs" : "");
+  const z = n => String(n).padStart(2,"0"), fz = d => d.getUTCFullYear() + z(d.getUTCMonth()+1) + z(d.getUTCDate()) + "T" + z(d.getUTCHours()) + z(d.getUTCMinutes()) + "00Z";
+  const dia8 = d => d.getUTCFullYear() + z(d.getUTCMonth()+1) + z(d.getUTCDate());
+  let a, b;
+  if(ini){ a = fz(ini); b = fz(new Date(ini.getTime() + 15*60000)); }
+  else { const d0 = new Date(Date.UTC(p[0], p[1]-1, p[2])); a = dia8(d0); b = dia8(new Date(d0.getTime() + 864e5)); }
+  const titulo = "Minuto Cinéfilo: " + c.title, det = "Nueva cápsula de Minuto Cinéfilo: " + c.title + ". " + location.origin + "/";
+  const g = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(titulo) + "&dates=" + a + "/" + b + "&details=" + encodeURIComponent(det) + "&location=" + encodeURIComponent(location.origin + "/");
+  const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Minuto Cinefilo//ES","BEGIN:VEVENT","UID:" + c.id + "@minutocinefilo.com.ar","DTSTAMP:" + fz(new Date()),
+    ini ? "DTSTART:" + a : "DTSTART;VALUE=DATE:" + a, ini ? "DTEND:" + b : "DTEND;VALUE=DATE:" + b,
+    "SUMMARY:" + titulo.replace(/[,;]/g, " "), "DESCRIPTION:" + det.replace(/[,;]/g, " "), "URL:" + location.origin + "/", "END:VEVENT","END:VCALENDAR"].join("\r\n");
+  box.innerHTML = `<div><p class="label" style="margin-bottom:6px">Próximamente</p><p class="t">${esc(c.title)}</p><p class="w">${esc(cuando)}</p></div>
+    <div class="acts"><a href="${esc(g)}" target="_blank" rel="noopener">Agregar a Google Calendar</a><a href="data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}" download="minuto-cinefilo.ics">Otro calendario (.ics)</a></div>`;
+  box.hidden = false;
+}
+
+function siguiente(){
+  const lista = ciclo ? sorted.filter(c => c.ciclo === ciclo) : sorted, i = lista.indexOf(current);
+  for(let j = i + 1; j < lista.length; j++) if(lista[j].audio) return lista[j];
+  return null;
+}
+function listen(id, silencio){
   if(audio) audio.pause();
   current = CAPSULAS.find(c => c.id === id) || current;
   renderFeatured(); renderList();
-  $("#capsulas").scrollIntoView({behavior:"smooth"});
+  if(!silencio) $("#capsulas").scrollIntoView({behavior:"smooth"});
   const p = $("#play"); if(p && !p.disabled) p.click();
 }
 $("#list").addEventListener("click", e => { const b = e.target.closest(".rowplay"); if(b) listen(b.dataset.id); });
 $("#cats").addEventListener("click", e => { const b = e.target.closest(".cat"); if(!b) return; genre = genre === b.dataset.g ? "" : b.dataset.g; renderCats(); renderList(); });
+$("#ciclos").addEventListener("click", e => { const b = e.target.closest(".cat"); if(!b) return; ciclo = ciclo === b.dataset.c ? "" : b.dataset.c; renderCiclos(); renderList(); });
+document.addEventListener("ended", e => { if(e.target.id !== "audio" || !autoNext) return; const n = siguiente(); if(n) listen(n.id, true); }, true);
 $("#more").addEventListener("click", () => { showAll = true; renderList(); });
 let tq = null, ya = false;
 $("#q").addEventListener("input", () => {
