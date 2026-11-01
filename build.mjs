@@ -89,6 +89,7 @@ async function ficha(c) {
   } catch (e) { console.log("TMDB:", e.message); return null; }
 }
 
+const sinAst = s => String(s ?? "").replace(/\*([^*\n]+)\*/g, "$1"); // quita los asteriscos de cursiva donde no se puede mostrar cursiva
 const cursiva = s => s.replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
 const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 function guion(path) {
@@ -202,7 +203,7 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
   const navEp = ant || sig ? `<div class="wrap"><nav class="epnav" aria-label="Más episodios">${ant ? `<a class="ant" href="../${ant.id}/"><small>← Episodio anterior</small><span>${esc(epN(ant))}</span></a>` : "<span></span>"}${sig ? `<a class="sig" href="../${sig.id}/"><small>Episodio siguiente →</small><span>${esc(epN(sig))}</span></a>` : "<span></span>"}</nav></div>` : "";
   const subs = [["Spotify", site.spotifyUrl], ["Apple Podcasts", site.appleUrl], ["YouTube Music", site.youtubeMusicUrl], ["Amazon Music", site.amazonUrl]].filter(x => x[1]);
   const subsHtml = `<div class="share subs"><span>Escuchá en</span>${subs.map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("")}<a href="../../feed.xml">RSS</a></div>`;
-  const jld = JSON.stringify({ "@context": "https://schema.org", "@type": "PodcastEpisode", name: c.title, url: pageUrl, datePublished: c.date, description: c.description,
+  const jld = JSON.stringify({ "@context": "https://schema.org", "@type": "PodcastEpisode", name: c.title, url: pageUrl, datePublished: c.date, description: sinAst(c.description),
     ...(c.numero ? { episodeNumber: c.numero } : {}), image: ogImg, inLanguage: "es-AR",
     ...(audio && !/^https?:/.test(c.audio) ? { associatedMedia: { "@type": "AudioObject", contentUrl: site.url + encodeURI(c.audio), encodingFormat: "audio/mpeg" } } : {}),
     partOfSeries: { "@type": "PodcastSeries", name: "Minuto Cinéfilo", url: site.url } }).replace(/</g, "\\u003c");
@@ -217,10 +218,10 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(norm(c.film) && norm(c.film) !== norm(c.title) ? c.film + " — " + c.title : c.title)} | Minuto Cinéfilo</title>
-<meta name="description" content="${esc(c.description)}">
+<meta name="description" content="${esc(sinAst(c.description))}">
 <link rel="canonical" href="${pageUrl}">
 <meta property="og:type" content="article"><meta property="og:title" content="${esc(c.title)} — Minuto Cinéfilo">
-<meta property="og:description" content="${esc(c.description)}"><meta property="og:url" content="${pageUrl}">
+<meta property="og:description" content="${esc(sinAst(c.description))}"><meta property="og:url" content="${pageUrl}">
 <meta property="og:image" content="${ogImg}">${existsSync(cardFile) ? '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:type" content="image/jpeg">' : ""}<meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${ogImg}"><meta name="color-scheme" content="dark">${futuro ? '<meta name="robots" content="noindex">' : ""}
 <script type="application/ld+json">${jld}</script>
@@ -231,10 +232,10 @@ ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_tit
 <nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Episodios</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main id="contenido"><div class="wrap" style="padding-block:clamp(48px,8vw,112px)">
 <a class="back" href="../../#archivo">← Todos los episodios</a>
-<div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}${pun}</div>
+<div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}${pun}${c.ciclo ? `<span class="ciclo">${esc(c.ciclo)}</span>` : ""}</div>
 <div>${c.numero ? `<p class="label" style="margin-bottom:12px">Episodio #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.title)}</h1>${norm(c.subtitle || c.film) && norm(c.subtitle || c.film) !== norm(c.title) ? `<p style="color:var(--mute);font-size:18px;margin-top:6px">${esc(c.subtitle || c.film)}</p>` : ""}
 <div class="meta"><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
-<p class="desc">${esc(c.description)}</p>${player}
+<p class="desc">${cursiva(esc(c.description))}</p>${player}
 <div class="share"><span>Compartir</span><a href="https://wa.me/?text=${q}%20${u}" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/share/url?url=${u}&text=${q}" target="_blank" rel="noopener">Telegram</a><a href="https://twitter.com/intent/tweet?text=${q}&url=${u}" target="_blank" rel="noopener">X</a><a href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a><button type="button" id="copy">Copiar enlace</button></div>
 ${subsHtml}
 </div></div>
@@ -257,7 +258,7 @@ if (pod?.email) {
   const abs = r => (/^https?:/.test(r) ? r : site.url + encodeURI(r));
   const items = reales.filter(c => publicado(c) && c.audio && !/^https?:/.test(c.audio) && existsSync(c.audio))
     .sort((a, b) => b.date.localeCompare(a.date) || (b.hora || "").localeCompare(a.hora || "") || (b.numero || 0) - (a.numero || 0))
-    .map(c => `<item><title>${esc(c.title)}</title><description>${esc(c.description)}</description><link>${site.url}capsulas/${c.id}/</link><guid isPermaLink="false">${esc((pod.guidBase || site.url) + c.id)}</guid><pubDate>${rfc(c.date, c.hora)}</pubDate><enclosure url="${abs(c.audio)}" length="${statSync(c.audio).size}" type="audio/mpeg"/><itunes:episode>${c.numero}</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit>${c.duration ? `<itunes:duration>${esc(c.duration)}</itunes:duration>` : ""}</item>`).join("\n");
+    .map(c => `<item><title>${esc(c.title)}</title><description>${esc(sinAst(c.description))}</description><link>${site.url}capsulas/${c.id}/</link><guid isPermaLink="false">${esc((pod.guidBase || site.url) + c.id)}</guid><pubDate>${rfc(c.date, c.hora)}</pubDate><enclosure url="${abs(c.audio)}" length="${statSync(c.audio).size}" type="audio/mpeg"/><itunes:episode>${c.numero}</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit>${c.duration ? `<itunes:duration>${esc(c.duration)}</itunes:duration>` : ""}</item>`).join("\n");
   writeFileSync("feed.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>

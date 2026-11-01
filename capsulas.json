@@ -89,6 +89,7 @@
     },
     {
       "id": "the-shining",
+      "ciclo": "Halloween",
       "title": "El resplandor",
       "film": "The Shining",
       "tmdb_id": 694,
@@ -100,6 +101,7 @@
     },
     {
       "id": "halloween",
+      "ciclo": "Halloween",
       "title": "La noche de Halloween",
       "film": "Halloween",
       "tmdb_id": 948,
