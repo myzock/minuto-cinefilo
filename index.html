@@ -35,7 +35,7 @@ header{position:sticky;top:0;z-index:20;background:rgba(9,12,16,.9);backdrop-fil
 header .wrap{display:flex;align-items:center;gap:12px 32px;min-height:66px;flex-wrap:wrap;padding-block:8px}
 .logo{display:flex;align-items:center;gap:10px;font:800 20px/1 var(--serif);text-decoration:none;margin-right:auto;white-space:nowrap}.logo svg{width:34px;height:34px;flex:none}
 nav{display:flex;gap:clamp(14px,2.4vw,30px);align-items:center;font-size:14px;flex-wrap:wrap}
-nav a{color:var(--mute);text-decoration:none;padding:6px 0}nav a:hover{color:var(--ink)}
+nav a{color:var(--mute);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}nav a:hover{color:var(--ink)}nav a.on{color:var(--ink);border-bottom-color:var(--red)}
 section{padding-block:clamp(40px,6vw,80px)}
 .label{font:700 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:20px}
 .label::before{content:"";width:16px;height:2px;background:var(--red-hi)}
@@ -472,6 +472,25 @@ document.querySelectorAll(".hero-play").forEach(b => b.addEventListener("click",
   mPlay.onclick = () => { const a = cur(); if(a) a.paused ? a.play() : a.pause(); };
   mSeek.oninput = () => { const a = cur(); if(a && a.duration) a.currentTime = mSeek.value / 100 * a.duration; };
   mini.querySelector(".mt").onclick = () => $("#capsulas").scrollIntoView({behavior: "smooth"});
+})();
+
+/* Subrayado de la sección activa en el menú */
+(function(){
+  const links=[...document.querySelectorAll('nav[aria-label="Principal"] a[href^="#"]')].filter(a=>a.getAttribute('href').length>1);
+  const items=links.map(a=>({a,el:document.getElementById(a.getAttribute('href').slice(1))})).filter(x=>x.el);
+  if(!items.length)return;
+  let tk=false;
+  function marcar(){
+    tk=false;
+    const y=window.innerHeight*0.35;
+    let act=items[0];
+    for(const it of items){ if(it.el.getBoundingClientRect().top<=y) act=it; }
+    if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-4) act=items[items.length-1];
+    items.forEach(it=>it.a.classList.toggle('on',it===act));
+  }
+  addEventListener('scroll',()=>{if(!tk){tk=true;requestAnimationFrame(marcar)}},{passive:true});
+  addEventListener('resize',marcar);
+  marcar();
 })();
 </script>
 </body>

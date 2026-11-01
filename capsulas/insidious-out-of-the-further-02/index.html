@@ -26,7 +26,7 @@ header{position:sticky;top:0;z-index:20;background:rgba(9,12,16,.9);backdrop-fil
 header .wrap{display:flex;align-items:center;gap:12px 32px;min-height:66px;flex-wrap:wrap;padding-block:8px}
 .logo{display:flex;align-items:center;gap:10px;font:800 20px/1 var(--serif);text-decoration:none;margin-right:auto;white-space:nowrap}.logo svg{width:34px;height:34px;flex:none}
 nav{display:flex;gap:clamp(14px,2.4vw,30px);align-items:center;font-size:14px;flex-wrap:wrap}
-nav a{color:var(--mute);text-decoration:none;padding:6px 0}nav a:hover{color:var(--ink)}
+nav a{color:var(--mute);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}nav a:hover{color:var(--ink)}nav a.on{color:var(--ink);border-bottom-color:var(--red)}
 section{padding-block:clamp(40px,6vw,80px)}
 .label{font:700 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:20px}
 .label::before{content:"";width:16px;height:2px;background:var(--red-hi)}
