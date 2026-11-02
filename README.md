@@ -29,6 +29,7 @@ Si `capsulas.json` tiene un error, el build se corta y la web publicada queda co
 
 - `paginasCiclos`: `true` genera una página por ciclo.
 - `cintaPosters`: `true` muestra la cinta de pósters (desde 6 cápsulas).
+- `dondeVerla`: `true` muestra «Dónde verla en Argentina» en la ficha de cada película (TMDB watch/providers; los datos son de JustWatch y hay que citarlos: ya aparece «Fuente: JustWatch»). Se pide con `TMDB_KEY` cada 7 días y queda en `data/watch/<id>.json`; si el dato tiene más de 21 días sin renovar, se oculta. No hay links directos a cada plataforma: los botones llevan a la página de disponibilidad de TMDB/JustWatch. Con `false` no se pide ni se muestra nada.
 - `goatcounter`, `spotifyUrl`, `youtubeMusicUrl`, `appleUrl`, `amazonUrl`, `podcast.*`: estadísticas, plataformas y datos del feed.
 
 ## Medición de uso (invisible para el público)
@@ -38,6 +39,7 @@ Además de las visitas, GoatCounter recibe eventos sin cookies, que se ven en su
 - `play/<id>`, `mitad/<id>` (escuchó al menos la mitad, sin contar saltos) y `fin/<id>`: reproducciones de cada cápsula, una vez por visita.
 - `siguiente-automatico/<id>` y `autoplay/on|off`: uso del botón "Seguir con el siguiente".
 - `compartir/<red>/<id>` (whatsapp, telegram, x, facebook, copiar), `charla/<id>`, `tmdb/<id>`, `trailer/<id>`.
+- `donde-ver/<plataforma>`: clics en los botones de «Dónde verla».
 - `plataforma/<nombre>`: clics a Spotify, YouTube Music, Apple Podcasts, Amazon Music, RSS, Instagram y Radio Monk.
 - `filtro/ciclo/<nombre>`, `filtro/genero/<nombre>`, `busqueda` (sin guardar el texto), `calendario/google|ics`, `navegacion/anterior|siguiente`.
 

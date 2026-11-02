@@ -66,6 +66,29 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const fecha = iso => new Date(iso + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
 const hm = m => (m ? `${Math.floor(m / 60)} h ${m % 60} min` : "");
 
+// ---- "Dónde verla" (TMDB watch/providers, datos de JustWatch): solo con "dondeVerla": true en site ----
+async function disponibilidad(id) {
+  if (site.dondeVerla !== true || !id) return null;
+  const file = `data/watch/${id}.json`;
+  let w = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
+  const dias = x => (Date.now() - new Date(x?._fetched || 0)) / 864e5;
+  if (KEY && !(dias(w) < 7)) try { // se vuelve a pedir cada 7 días (la disponibilidad cambia más que la ficha)
+    const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/watch/providers?api_key=${KEY}`, { signal: AbortSignal.timeout(15000) });
+    if (res.ok) {
+      const ar = (await res.json()).results?.AR || {}; const nom = l => (l || []).map(p => p.provider_name).filter(Boolean);
+      w = { _fetched: new Date().toISOString(), link: ar.link || "", flatrate: nom(ar.flatrate), free: [...nom(ar.free), ...nom(ar.ads)], rent: nom(ar.rent), buy: nom(ar.buy) };
+      mkdirSync("data/watch", { recursive: true }); writeFileSync(file, JSON.stringify(w));
+    } else console.log(`TMDB respondió ${res.status} para la disponibilidad de ${id}; se usa la copia guardada si existe.`);
+  } catch (e) { console.log(`TMDB no respondió para la disponibilidad de ${id} (${e.name}); se usa la copia guardada si existe.`); }
+  if (!w || !(dias(w) <= 21)) return null; // pasadas 3 semanas sin renovar, mejor no mostrar un dato viejo
+  const items = [], vistos = new Set(); const sumar = (n, pre) => { if (!vistos.has(n) && items.length < 4) { vistos.add(n); items.push({ n, t: pre ? `${pre} · ${n}` : n }); } };
+  (w.flatrate || []).forEach(n => sumar(n, "")); (w.free || []).forEach(n => sumar(n, "Gratis")); (w.rent || []).forEach(n => sumar(n, "Alquilar"));
+  if (!items.length) (w.buy || []).forEach(n => sumar(n, "Comprar"));
+  if (!items.length) return null;
+  return { link: /^https:\/\/www\.themoviedb\.org\//.test(w.link) ? w.link : `https://www.themoviedb.org/movie/${id}/watch?locale=AR`, items };
+}
+const whHtml = w => w ? `<div class="wh"><p class="k">Dónde verla en Argentina</p><div class="pills">${w.items.map(i => `<a class="ver" data-p="${esc(i.n)}" href="${esc(w.link)}" target="_blank" rel="noopener">${esc(i.t)}</a>`).join("")}</div><p class="src">Fuente: <a href="https://www.justwatch.com" target="_blank" rel="noopener">JustWatch</a></p></div>` : "";
+
 async function ficha(c) {
   let id = c.tmdb_id;
   try {
@@ -97,7 +120,7 @@ async function ficha(c) {
     const d = JSON.parse(readFileSync(file, "utf8"));
     const dias = (Date.now() - new Date(d._fetched || 0)) / 864e5;
     if (!(dias <= 150)) { console.log(`Ficha de "${c.film}" vencida (${Math.round(dias)} días, límite TMDB: 6 meses): no se muestra hasta renovarla con TMDB_KEY.`); return null; }
-    return { id, ...d };
+    return { id, ...d, watch: await disponibilidad(id) };
   } catch (e) { console.log("TMDB:", e.message); return null; }
 }
 
@@ -168,6 +191,7 @@ const cl=a=>{const h=a.href||'';
  if(/(twitter|x)\\.com\\/intent/.test(h))return 'compartir/x/'+id;
  if(/facebook\\.com\\/sharer/.test(h))return 'compartir/facebook/'+id;
  if(a.classList.contains('charla'))return 'charla/'+id;
+ if(a.classList.contains('ver'))return 'donde-ver/'+(a.dataset.p||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
  if(/open\\.spotify\\.com/.test(h))return 'plataforma/spotify';
  if(/music\\.youtube\\.com|youtube\\.com\\/playlist/.test(h))return 'plataforma/youtube-music';
  if(/instagram\\.com/.test(h))return 'plataforma/instagram';
@@ -205,6 +229,7 @@ const extra = `
 .trl iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}.trl a{font-size:14px;color:var(--mute)}
 #transcripcion h2,#transcripcion .hint{padding-left:18px}
 .ficha h2{font-size:22px;margin-bottom:24px}.ficha dl{display:grid;gap:16px}.ficha .r{position:relative;padding-left:34px}.ficha .r svg{position:absolute;left:0;top:2px;color:var(--mute)}.ficha dt{color:var(--mute);font-size:12px}.ficha dd{margin:0;font-size:15px}
+.wh{margin-top:24px}.wh .k{font-size:12px;color:var(--mute);margin:0 0 8px}.wh .pills{display:flex;gap:8px;flex-wrap:wrap}.wh .pills a{border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13px;text-decoration:none}.wh .pills a:hover{border-color:var(--ink)}.wh .src{font-size:11px;color:var(--mute);opacity:.75;margin:10px 0 0}.wh .src a{color:inherit}
 .ficha .tm{display:inline-block;margin-top:28px;border:1px solid var(--mute);padding:10px 18px;border-radius:2px;font-size:14px;text-decoration:none}.ficha .tm:hover{border-color:var(--ink)}
 `;
 
@@ -227,13 +252,13 @@ for (const c of reales) {
   if (t) fichas[c.id] = { tmdb_id: t.id, title: t.title, original_title: t.original_title, year: (t.release_date || "").slice(0, 4), runtime: t.runtime,
     country: pais(t), director: dir || "", cast, genres: (t.genres || []).map(x => x.name),
     vote_average: t.vote_average || 0, vote_count: t.vote_count || 0,
-    poster: t.poster ? IMG + "w500" + t.poster : "", backdrop: t.backdrop ? IMG + "w1280" + t.backdrop : "" };
+    poster: t.poster ? IMG + "w500" + t.poster : "", backdrop: t.backdrop ? IMG + "w1280" + t.backdrop : "", ...(t.watch ? { watch: t.watch } : {}) };
   const yt = c.trailer === false ? "" : ytId(c.trailer) || ytId(t?.trailer);
   const bd = c.backdrop || (t?.backdrop ? IMG + "w1280" + t.backdrop : "");
   const trailerHtml = yt ? `<section id="trailer" aria-labelledby="tt" style="padding:0 0 44px"><h2 id="tt" style="font-size:22px;margin-bottom:16px">Tráiler</h2><div class="trl"><button class="trbtn${bd ? " img" : ""}" id="trbtn" type="button" data-id="${yt}" data-t="Tráiler de ${esc(c.film)}"${bd ? ` style="background-image:url('${esc(bd)}')"` : ""}><span class="pl"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span>Ver el tráiler</span></button><a href="https://www.youtube.com/watch?v=${yt}" target="_blank" rel="noopener">Abrir en YouTube ↗</a></div></section>` : "";
   const fichaHtml = t ? `<aside class="ficha" aria-labelledby="tf"><h2 id="tf">Datos de la película</h2><dl>
 ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_title : "")}${row(IC.lang, "Título en español", t.title)}${row(IC.cal, "Año", (t.release_date || "").slice(0, 4))}${row(IC.clock, "Duración", hm(t.runtime))}${row(IC.flag, "País", pais(t))}${row(IC.award, "Director", dir)}${row(IC.user, "Reparto principal", cast)}${row(IC.mask, "Géneros", generos)}</dl>
-<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside>` : "";
+${whHtml(t.watch)}<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside>` : "";
   // tarjeta propia para compartir (si falla algo, se usa el fondo de la película o el og.png genérico)
   mkdirSync(`capsulas/${c.id}`, { recursive: true });
   const cardFile = `capsulas/${c.id}/og.jpg`;
