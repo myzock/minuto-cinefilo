@@ -381,7 +381,7 @@ function renderFeatured(){
     ${whBlock(f.watch)}
     ${f.tmdb_id ? `<a class="btn" href="https://www.themoviedb.org/movie/${esc(f.tmdb_id)}" target="_blank" rel="noopener">Ver en TMDB ↗</a>` : ""}</aside>` : "";
   box.innerHTML = `<div class="feat-main"><div class="poster">${poster}</div><div>
-    <p class="label">Episodio destacado${c.numero ? " · #" + esc(c.numero) : ""}</p>
+    <p class="label">${c === sorted[0] ? "Episodio destacado" : "Cápsula"}${c.numero ? " · #" + esc(c.numero) : ""}</p>
     ${c.demo ? '<span class="badge">Contenido de ejemplo</span>' : ""}
     <h2 class="film">${page(c) ? `<a href="${page(c)}" style="text-decoration:none">${esc(c.title)}</a>` : esc(c.title)}</h2>
     ${(c.subtitle || c.film) && norm(c.subtitle || c.film) !== norm(c.title) ? `<p class="sub">${esc(c.subtitle || c.film)}</p>` : ""}
@@ -398,8 +398,8 @@ function renderFeatured(){
     <div class="tools">
       ${page(c) ? `<a href="${page(c)}${c.transcript ? "#transcripcion" : ""}">${ic('<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9.5 12h5M9.5 16h5"/>')}${c.transcript ? "Guion" : "Ver episodio"}</a>` : ""}
       ${f?.tmdb_id ? `<a href="https://www.themoviedb.org/movie/${esc(f.tmdb_id)}" target="_blank" rel="noopener">${ic('<path d="M3 12l9-9h8v8l-9 9z"/><circle cx="15.5" cy="8.5" r="1.2"/>')}TMDB</a>` : ""}
-      <button type="button" id="nextBtn" title="Reproducir el siguiente episodio de la lista">Siguiente episodio ${ic('<path d="M9 6l6 6-6 6"/>')}</button>
-      <button type="button" id="autoBtn" role="switch" aria-checked="${autoNext}" title="Al terminar un episodio, pasa solo al siguiente de la lista"><span class="sw" aria-hidden="true"></span>Reproducción automática</button>
+      <button type="button" id="nextBtn" title="Reproducir la siguiente cápsula de la lista">Siguiente cápsula ${ic('<path d="M9 6l6 6-6 6"/>')}</button>
+      <button type="button" id="autoBtn" role="switch" aria-checked="${autoNext}" title="Al terminar una cápsula, pasa sola a la siguiente de la lista"><span class="sw" aria-hidden="true"></span>Reproducción automática</button>
       <button type="button" id="shareBtn" aria-expanded="false" aria-controls="share">${ic('<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>')}Compartir</button>
     </div>
     ${listenRow()}
