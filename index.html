@@ -175,7 +175,7 @@ body.mini-on{padding-bottom:76px}
 .prox{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-left:3px solid var(--red);background:var(--panel);border-radius:6px;padding:16px 20px;margin-top:20px}
 .prox[hidden]{display:none}.prox p{margin:0}.prox .t{font-size:17px;font-weight:600}.prox .w{color:var(--mute);font-size:14px;margin-top:2px}
 .prox .acts{display:flex;gap:14px;flex-wrap:wrap;font-size:14px}.prox .acts a{color:var(--ink);border-bottom:1px solid var(--red);text-decoration:none;padding:4px 0}.prox .acts a:hover{color:var(--red-hi)}
-.tools button[aria-pressed="true"] .dot{background:var(--red)}.tools .dot{width:8px;height:8px;border-radius:50%;background:#3a424d;display:inline-block}
+.tools button[hidden]{display:none}.tools .sw{width:34px;height:20px;border-radius:999px;background:#3a424d;position:relative;flex:none;transition:background .2s}.tools .sw::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}.tools button[aria-checked="true"] .sw{background:var(--red)}.tools button[aria-checked="true"] .sw::after{transform:translateX(14px)}.tools button:focus-visible{outline:2px solid var(--red-hi);outline-offset:3px;border-radius:4px}@media(prefers-reduced-motion:reduce){.tools .sw,.tools .sw::after{transition:none}}
 .featwrap{position:relative;isolation:isolate}
 .featbg{position:absolute;inset:-70px -40px;z-index:-1;pointer-events:none}
 .featbg i{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(60px) saturate(1.3);opacity:0;transition:opacity 1.2s ease}.featbg i.on{opacity:.32}
@@ -261,6 +261,7 @@ body.mini-on{padding-bottom:76px}
   <div class="wrap tmdb"><img src="tmdb-logo.svg" alt="TMDB" height="12"><span>Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB. Datos de películas: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">The Movie Database</a>.</span></div>
 </footer>
 
+<audio id="audio" preload="metadata"></audio>
 <div class="mini" id="mini" role="region" aria-label="Reproductor flotante">
   <button class="play" id="mPlay" type="button" aria-pressed="false" aria-label="Reproducir"></button>
   <button class="mt" type="button" title="Volver al reproductor"><span id="mName"></span></button>
@@ -397,14 +398,17 @@ function renderFeatured(){
     <div class="tools">
       ${page(c) ? `<a href="${page(c)}${c.transcript ? "#transcripcion" : ""}">${ic('<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9.5 12h5M9.5 16h5"/>')}${c.transcript ? "Guion" : "Ver episodio"}</a>` : ""}
       ${f?.tmdb_id ? `<a href="https://www.themoviedb.org/movie/${esc(f.tmdb_id)}" target="_blank" rel="noopener">${ic('<path d="M3 12l9-9h8v8l-9 9z"/><circle cx="15.5" cy="8.5" r="1.2"/>')}TMDB</a>` : ""}
-      <button type="button" id="autoBtn" aria-pressed="${autoNext}" title="Al terminar, reproduce el siguiente episodio de la lista"><span class="dot" aria-hidden="true"></span>Seguir con el siguiente</button>
+      <button type="button" id="nextBtn" title="Reproducir el siguiente episodio de la lista">Siguiente episodio ${ic('<path d="M9 6l6 6-6 6"/>')}</button>
+      <button type="button" id="autoBtn" role="switch" aria-checked="${autoNext}" title="Al terminar un episodio, pasa solo al siguiente de la lista"><span class="sw" aria-hidden="true"></span>Reproducción automática</button>
       <button type="button" id="shareBtn" aria-expanded="false" aria-controls="share">${ic('<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>')}Compartir</button>
     </div>
     ${listenRow()}
     ${charlaBox(c)}
     <div class="share" id="share"></div>
-    <audio id="audio" preload="metadata"></audio></div></div>${fh}`;
-  $("#autoBtn").onclick = () => { autoNext = !autoNext; track("autoplay/" + (autoNext ? "on" : "off")); $("#autoBtn").setAttribute("aria-pressed", autoNext); try { localStorage.setItem("autoNext", autoNext ? "1" : "0"); } catch(e) {} };
+    </div></div>${fh}`;
+  $("#nextBtn").onclick = () => { const n = siguiente(); if(n){ track("siguiente-manual/" + n.id); listen(n.id, true); } };
+  if(!siguiente()) $("#nextBtn").hidden = true;
+  $("#autoBtn").onclick = () => { autoNext = !autoNext; track("autoplay/" + (autoNext ? "on" : "off")); $("#autoBtn").setAttribute("aria-checked", autoNext); try { localStorage.setItem("autoNext", autoNext ? "1" : "0"); } catch(e) {} };
   $("#shareBtn").onclick = () => { const o = $("#share").classList.toggle("open"); $("#shareBtn").setAttribute("aria-expanded", o); };
   renderShare(c); setupPlayer(c); fillDurations(); setBg(c.backdrop || c.poster);
 }
@@ -425,8 +429,8 @@ function setupPlayer(c){
   if(peaks && wb){ wb.classList.add("on"); if(window.__dw) removeEventListener("resize", window.__dw); window.__dw = dw; addEventListener("resize", dw); }
   const setP = () => { seek.style.setProperty("--p", seek.value + "%"); dw(); };
   setP();
-  if(!c.audio){ play.disabled = seek.disabled = true; note.textContent = "El audio de este episodio todavía no está disponible."; return; }
-  audio.src = c.audio;
+  if(!c.audio){ audio.pause(); audio.removeAttribute("src"); audio.load(); play.disabled = seek.disabled = true; note.textContent = "El audio de este episodio todavía no está disponible."; return; }
+  audio.src = c.audio; mediaSession(c);
   play.onclick = () => audio.paused ? audio.play().catch(() => { note.textContent = "No se pudo reproducir el audio. Revisá la ruta del archivo."; }) : audio.pause();
   audio.onplay = () => { play.setAttribute("aria-pressed","true"); play.setAttribute("aria-label","Pausar"); };
   audio.onpause = audio.onended = () => { play.setAttribute("aria-pressed","false"); play.setAttribute("aria-label","Reproducir"); };
@@ -530,6 +534,21 @@ function renderCinta(){
   ul.onclick = e => { const b = e.target.closest("button[data-id]"); if(b) listen(b.dataset.id); };
 }
 
+function anterior(){
+  const lista = ciclo ? sorted.filter(c => c.ciclo === ciclo) : sorted, i = lista.indexOf(current);
+  for(let j = i - 1; j >= 0; j--) if(lista[j].audio) return lista[j];
+  return null;
+}
+function mediaSession(c){
+  if(!("mediaSession" in navigator)) return;
+  try {
+    const f = fich(c), img = c.poster || f?.poster || "";
+    navigator.mediaSession.metadata = new MediaMetadata({title: c.title, artist: "Minuto Cinéfilo", album: c.ciclo || "Minuto Cinéfilo", artwork: img ? [{src: new URL(img, location.href).href}] : []});
+    const go = fn => () => { const n = fn(); if(n) listen(n.id, true); };
+    navigator.mediaSession.setActionHandler("nexttrack", siguiente() ? go(siguiente) : null);
+    navigator.mediaSession.setActionHandler("previoustrack", anterior() ? go(anterior) : null);
+  } catch(e) {}
+}
 function siguiente(){
   const lista = ciclo ? sorted.filter(c => c.ciclo === ciclo) : sorted, i = lista.indexOf(current);
   for(let j = i + 1; j < lista.length; j++) if(lista[j].audio) return lista[j];
@@ -608,7 +627,7 @@ document.querySelectorAll(".hero-play").forEach(b => b.addEventListener("click",
   const cur = () => document.getElementById("audio");
   const sync = () => { const on = started && !barVisible; mini.classList.toggle("on", on); document.body.classList.toggle("mini-on", on); };
   const watch = () => { if(io) io.disconnect(); const bar = document.querySelector(".bar"); if(!bar) return; io = new IntersectionObserver(e => { barVisible = e[0].isIntersecting; sync(); }); io.observe(bar); };
-  new MutationObserver(() => { const a = cur(); if(a && a !== last){ last = a; started = false; barVisible = true; watch(); sync(); } }).observe($("#latest"), {childList: true});
+  new MutationObserver(() => { if(cur()){ started = false; barVisible = true; watch(); sync(); } }).observe($("#latest"), {childList: true});
   const st = on => { mPlay.setAttribute("aria-pressed", on); mPlay.setAttribute("aria-label", on ? "Pausar" : "Reproducir"); };
   document.addEventListener("play", e => { if(e.target.id !== "audio") return; started = true; mName.textContent = current ? current.title : ""; st(true); sync(); }, true);
   document.addEventListener("pause", e => { if(e.target.id === "audio") st(false); }, true);
