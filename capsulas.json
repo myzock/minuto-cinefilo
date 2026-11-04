@@ -136,6 +136,18 @@
       "description": "¿Puede una película de monstruos gigantes hacerte pensar en la guerra, en la culpa y en la esperanza de volver a empezar? En 2023, una película japonesa lo logró. Y esta semana llega su continuación: Godzilla Minus Zero.",
       "audio": "audio/godzilla-minus-zero.mp3",
       "transcript": "transcripciones/godzilla-minus-zero.txt"
+    },
+    {
+      "id": "el-corazon-de-la-bestia",
+      "title": "El corazón de la bestia",
+      "film": "Heart of the Beast",
+      "tmdb_id": 1263337,
+      "backdrop": "https://image.tmdb.org/t/p/w1280/kpqsljPQtWqPKJBTAEtoXtQZ9Ko.jpg",
+      "date": "2026-11-12",
+      "hora": "17:00",
+      "description": "Un hombre. Un perro. Y kilómetros de naturaleza salvaje entre ellos y el resto del mundo. Así arranca El corazón de la bestia.",
+      "audio": "audio/el-corazon-de-la-bestia.mp3",
+      "transcript": "transcripciones/el-corazon-de-la-bestia.txt"
     }
   ]
 }
