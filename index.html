@@ -204,7 +204,7 @@ body.mini-on{padding-bottom:76px}
 <header>
   <div class="wrap">
     <a class="logo" href="#inicio" aria-label="Minuto Cinéfilo, inicio"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d93a32"/><circle cx="20" cy="20" r="3.2" fill="#090c10"/><g fill="#090c10"><circle cx="20" cy="9" r="4"/><circle cx="30.5" cy="16.5" r="4"/><circle cx="26.5" cy="29" r="4"/><circle cx="13.5" cy="29" r="4"/><circle cx="9.5" cy="16.5" r="4"/></g></svg>MINUTO CINÉFILO</a>
-    <nav aria-label="Principal"><a href="#inicio">Inicio</a><a href="#archivo">Episodios</a><a href="#sobre">Sobre el proyecto</a><a id="lnkRadio" href="#" target="_blank" rel="noopener">Radio Monk</a><a id="lnkIg" href="#" target="_blank" rel="noopener">Instagram</a></nav>
+    <nav aria-label="Principal"><a href="#inicio">Inicio</a><a href="#archivo">Cápsulas</a><a href="#sobre">Sobre el proyecto</a><a id="lnkRadio" href="#" target="_blank" rel="noopener">Radio Monk</a><a id="lnkIg" href="#" target="_blank" rel="noopener">Instagram</a></nav>
     <form class="hsearch" role="search" onsubmit="return false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg><input id="q" type="search" placeholder="Buscar una película…" aria-label="Buscar por película o título" autocomplete="off"></form>
   </div>
 </header>
@@ -217,8 +217,8 @@ body.mini-on{padding-bottom:76px}
       <h1>El cine, en pocos minutos.</h1>
       <p class="lead">Una cápsula de 2 a 4 minutos, para que conozcas una película, descubras sus secretos y te den ganas de verla (o volver a verla)</p>
       <div class="actions">
-        <button class="bigplay hero-play" type="button" aria-label="Reproducir el último episodio"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
-        <button class="pill hero-play" type="button"><span id="heroTxt">Escuchá el último episodio</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 10v4M9 6v12M13 9v6M17 4v16M21 10v4"/></svg></button>
+        <button class="bigplay hero-play" type="button" aria-label="Reproducir la última cápsula"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+        <button class="pill hero-play" type="button"><span id="heroTxt">Escuchá la última cápsula</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 10v4M9 6v12M13 9v6M17 4v16M21 10v4"/></svg></button>
       </div>
       <p class="credit" id="heroCredit"></p>
     </div>
@@ -229,15 +229,15 @@ body.mini-on{padding-bottom:76px}
     <div class="prox" id="prox" hidden></div>
     <div class="duo">
       <div class="panel" id="archivo">
-        <div class="panel-h"><h3 id="listTitle">Últimos episodios</h3><button class="more-link" id="more" type="button" hidden>Ver todos →</button></div>
+        <div class="panel-h"><h3 id="listTitle">Últimas cápsulas</h3><button class="more-link" id="more" type="button" hidden>Ver todos →</button></div>
         <ul class="list" id="list"></ul>
         <noscript><!--SEO-LIST--><ul><li><a href="capsulas/the-exorcist-09/">El Exorcista</a> — The Exorcist</li><li><a href="capsulas/the-shining/">El resplandor</a> — The Shining</li><li><a href="capsulas/halloween/">La noche de Halloween</a> — Halloween</li><li><a href="capsulas/buddy-06/">Buddy</a> — Buddy</li><li><a href="capsulas/clayface-05/">Clayface</a> — Clayface</li><li><a href="capsulas/whalefall-01/">La caída de la ballena (Whalefall)</a> — Whalefall</li><li><a href="capsulas/insidious-out-of-the-further-02/">La noche del demonio: Están entre nosotros</a> — Insidious: Out of the Further</li><li><a href="capsulas/backrooms-03/">Backrooms: Sin Salida</a> — Backrooms</li><li><a href="capsulas/toystory5-04/">Toy Story 5</a> — Toy Story 5</li></ul><!--/SEO-LIST--></noscript>
-        <p class="empty" id="empty" hidden>No hay episodios que coincidan. Probá con otro título o con el nombre de la película.</p>
+        <p class="empty" id="empty" hidden>No hay cápsulas que coincidan. Probá con otro título o con el nombre de la película.</p>
       </div>
       <div>
         <div class="panel" id="ciclosPanel" hidden><div class="panel-h"><h3>Ciclos</h3></div><div class="cats" id="ciclos"></div></div>
         <div class="panel" id="catsPanel" hidden><div class="panel-h"><h3>Géneros</h3></div><div class="cats" id="cats"></div></div>
-        <div class="social"><div><strong>Más en Minuto Cinéfilo</strong><p>Seguinos para no perderte los próximos episodios.</p><div class="stats" id="stats" hidden></div><div class="chiplinks" id="socialLinks"></div></div><span class="hand">Nos vemos en el próximo minuto…</span></div>
+        <div class="social"><div><strong>Más en Minuto Cinéfilo</strong><p>Seguinos para no perderte los próximas cápsulas.</p><div class="stats" id="stats" hidden></div><div class="chiplinks" id="socialLinks"></div></div><span class="hand">Nos vemos en el próximo minuto…</span></div>
       </div>
     </div>
   </div></section>
@@ -313,7 +313,7 @@ Promise.all([
     CAPSULAS = d.capsulas.filter(pub);
     PROX = d.capsulas.filter(c => !c.demo && !pub(c)).sort((a, b) => a.date.localeCompare(b.date) || (a.hora || "").localeCompare(b.hora || ""));
     init(); })
-  .catch(() => { $("#latest").innerHTML = '<p class="empty" style="padding:32px">No se pudieron cargar los episodios. Probá recargar la página.</p>'; });
+  .catch(() => { $("#latest").innerHTML = '<p class="empty" style="padding:32px">No se pudieron cargar las cápsulas. Probá recargar la página.</p>'; });
 
 function init(){
   sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date) || (b.hora||"").localeCompare(a.hora||"") || (b.numero||0) - (a.numero||0));
@@ -351,13 +351,13 @@ function init(){
 
 function renderHero(){
   const c = sorted[0]; if(!c) return;
-  if(!c.audio) $("#heroTxt").textContent = "Explorar los episodios";
+  if(!c.audio) $("#heroTxt").textContent = "Explorar las cápsulas";
   if(c.backdrop){
     const img = new Image(); img.alt = ""; img.decoding = "async";
     img.onload = () => {
       $("#heroBg").replaceChildren(img); $("#inicio").classList.remove("noimg");
       const y = fich(c)?.year;
-      $("#heroCredit").innerHTML = "<em>" + esc(c.film) + (y ? " (" + esc(y) + ")" : "") + "</em><br>" + (c.numero ? "Episodio #" + esc(c.numero) + " · " : "") + "Imagen: TMDB";
+      $("#heroCredit").innerHTML = "<em>" + esc(c.film) + (y ? " (" + esc(y) + ")" : "") + "</em><br>" + (c.numero ? "Cápsula #" + esc(c.numero) + " · " : "") + "Imagen: TMDB";
     };
     img.src = c.backdrop;
   }
@@ -371,7 +371,7 @@ function listenRow(){
 }
 function renderFeatured(){
   const c = current, box = $("#latest");
-  if(!c){ box.innerHTML = '<p class="empty" style="padding:32px">Todavía no hay episodios publicados.</p>'; return; }
+  if(!c){ box.innerHTML = '<p class="empty" style="padding:32px">Todavía no hay cápsulas publicadas.</p>'; return; }
   const f = fich(c);
   box.className = "feat" + (f ? "" : " solo");
   const poster = (c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>") + score(f) + (c.ciclo ? `<span class="ciclo">${esc(c.ciclo)}</span>` : "");
@@ -381,7 +381,7 @@ function renderFeatured(){
     ${whBlock(f.watch)}
     ${f.tmdb_id ? `<a class="btn" href="https://www.themoviedb.org/movie/${esc(f.tmdb_id)}" target="_blank" rel="noopener">Ver en TMDB ↗</a>` : ""}</aside>` : "";
   box.innerHTML = `<div class="feat-main"><div class="poster">${poster}</div><div>
-    <p class="label">${c === sorted[0] ? "Episodio destacado" : "Cápsula"}${c.numero ? " · #" + esc(c.numero) : ""}</p>
+    <p class="label">${c === sorted[0] ? "Cápsula destacada" : "Cápsula"}${c.numero ? " · #" + esc(c.numero) : ""}</p>
     ${c.demo ? '<span class="badge">Contenido de ejemplo</span>' : ""}
     <h2 class="film">${page(c) ? `<a href="${page(c)}" style="text-decoration:none">${esc(c.title)}</a>` : esc(c.title)}</h2>
     ${(c.subtitle || c.film) && norm(c.subtitle || c.film) !== norm(c.title) ? `<p class="sub">${esc(c.subtitle || c.film)}</p>` : ""}
@@ -396,7 +396,7 @@ function renderFeatured(){
     </div>
     <p class="note" id="note" role="status"></p>
     <div class="tools">
-      ${page(c) ? `<a href="${page(c)}${c.transcript ? "#transcripcion" : ""}">${ic('<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9.5 12h5M9.5 16h5"/>')}${c.transcript ? "Guion" : "Ver episodio"}</a>` : ""}
+      ${page(c) ? `<a href="${page(c)}${c.transcript ? "#transcripcion" : ""}">${ic('<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M9.5 12h5M9.5 16h5"/>')}${c.transcript ? "Guion" : "Ver cápsula"}</a>` : ""}
       ${f?.tmdb_id ? `<a href="https://www.themoviedb.org/movie/${esc(f.tmdb_id)}" target="_blank" rel="noopener">${ic('<path d="M3 12l9-9h8v8l-9 9z"/><circle cx="15.5" cy="8.5" r="1.2"/>')}TMDB</a>` : ""}
       <button type="button" id="nextBtn" title="Reproducir la siguiente cápsula de la lista">Siguiente cápsula ${ic('<path d="M9 6l6 6-6 6"/>')}</button>
       <button type="button" id="autoBtn" role="switch" aria-checked="${autoNext}" title="Al terminar una cápsula, pasa sola a la siguiente de la lista"><span class="sw" aria-hidden="true"></span>Reproducción automática</button>
@@ -429,7 +429,7 @@ function setupPlayer(c){
   if(peaks && wb){ wb.classList.add("on"); if(window.__dw) removeEventListener("resize", window.__dw); window.__dw = dw; addEventListener("resize", dw); }
   const setP = () => { seek.style.setProperty("--p", seek.value + "%"); dw(); };
   setP();
-  if(!c.audio){ audio.pause(); audio.removeAttribute("src"); audio.load(); play.disabled = seek.disabled = true; note.textContent = "El audio de este episodio todavía no está disponible."; return; }
+  if(!c.audio){ audio.pause(); audio.removeAttribute("src"); audio.load(); play.disabled = seek.disabled = true; note.textContent = "El audio de esta cápsula todavía no está disponible."; return; }
   audio.src = c.audio; mediaSession(c);
   play.onclick = () => audio.paused ? audio.play().catch(() => { note.textContent = "No se pudo reproducir el audio. Revisá la ruta del archivo."; }) : audio.pause();
   audio.onplay = () => { play.setAttribute("aria-pressed","true"); play.setAttribute("aria-label","Pausar"); };
@@ -453,7 +453,7 @@ function renderList(){
   const q = norm($("#q").value.trim());
   const rows = sorted.filter(c => ciclo || c !== current).filter(c => !ciclo || c.ciclo === ciclo).filter(c => !genre || (fich(c)?.genres || []).includes(genre)).filter(c => !q || norm(c.title + " " + c.film).includes(q));
   const full = q || genre || ciclo || showAll, shown = full ? rows : rows.slice(0, 7);
-  $("#listTitle").textContent = q ? "Resultados" : ciclo ? "Ciclo " + ciclo : genre ? genre : "Últimos episodios";
+  $("#listTitle").textContent = q ? "Resultados" : ciclo ? "Ciclo " + ciclo : genre ? genre : "Últimas cápsulas";
   $("#list").innerHTML = shown.map(c => {
     const f = fich(c);
     return `<li class="item"><div class="thumb" data-id="${esc(c.id)}">${c.poster ? `<img src="${esc(thumb(c.poster))}" alt="" loading="lazy">` : "Sin imagen"}</div>

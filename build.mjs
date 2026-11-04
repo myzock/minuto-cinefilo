@@ -275,7 +275,7 @@ ${whHtml(t.watch)}<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" 
   const pub = asc.filter(publicado), i = pub.indexOf(c);
   const ant = i > 0 ? pub[i - 1] : (futuro ? pub[pub.length - 1] : null), sig = i >= 0 && i < pub.length - 1 ? pub[i + 1] : null;
   const epN = x => x.film || x.title;
-  const navEp = ant || sig ? `<div class="wrap"><nav class="epnav" aria-label="Más episodios">${ant ? `<a class="ant" href="../${ant.id}/"><small>← Episodio anterior</small><span>${esc(epN(ant))}</span></a>` : "<span></span>"}${sig ? `<a class="sig" href="../${sig.id}/"><small>Episodio siguiente →</small><span>${esc(epN(sig))}</span></a>` : "<span></span>"}</nav></div>` : "";
+  const navEp = ant || sig ? `<div class="wrap"><nav class="epnav" aria-label="Más cápsulas">${ant ? `<a class="ant" href="../${ant.id}/"><small>← Cápsula anterior</small><span>${esc(epN(ant))}</span></a>` : "<span></span>"}${sig ? `<a class="sig" href="../${sig.id}/"><small>Cápsula siguiente →</small><span>${esc(epN(sig))}</span></a>` : "<span></span>"}</nav></div>` : "";
   const subs = [["Spotify", site.spotifyUrl], ["Apple Podcasts", site.appleUrl], ["YouTube Music", site.youtubeMusicUrl], ["Amazon Music", site.amazonUrl]].filter(x => x[1]);
   const subsHtml = `<div class="share subs"><span>Escuchá en</span>${subs.map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("")}<a href="../../feed.xml">RSS</a></div>`;
   const jld = JSON.stringify({ "@context": "https://schema.org", "@type": "PodcastEpisode", name: c.title, url: pageUrl, datePublished: c.date, description: sinAst(c.description),
@@ -304,11 +304,11 @@ ${whHtml(t.watch)}<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" 
 <style>${css}${extra}</style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
 <header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
-<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Episodios</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
+<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main id="contenido"><div class="wrap" style="padding-block:clamp(48px,8vw,112px)">
-<a class="back" href="../../#archivo">← Todos los episodios</a>
+<a class="back" href="../../#archivo">← Todas las cápsulas</a>
 <div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}${pun}${c.ciclo ? `<span class="ciclo">${esc(c.ciclo)}</span>` : ""}</div>
-<div>${c.numero ? `<p class="label" style="margin-bottom:12px">Episodio #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.title)}</h1>${norm(c.subtitle || c.film) && norm(c.subtitle || c.film) !== norm(c.title) ? `<p style="color:var(--mute);font-size:18px;margin-top:6px">${esc(c.subtitle || c.film)}</p>` : ""}
+<div>${c.numero ? `<p class="label" style="margin-bottom:12px">Cápsula #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.title)}</h1>${norm(c.subtitle || c.film) && norm(c.subtitle || c.film) !== norm(c.title) ? `<p style="color:var(--mute);font-size:18px;margin-top:6px">${esc(c.subtitle || c.film)}</p>` : ""}
 ${site.paginasCiclos === true && c.ciclo ? `<p style="margin-top:8px"><a href="../../ciclos/${esc(norm(c.ciclo).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""))}/" style="color:var(--red-hi)">Ver todo el ciclo ${esc(c.ciclo)} →</a></p>` : ""}<div class="meta"><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
 <p class="desc">${cursiva(esc(c.description))}</p>${player}
 ${c.charla && /^https:\/\//.test(c.charla) ? `<a class="charla" href="${esc(c.charla)}" target="_blank" rel="noopener"><span><b>¿Querés más?</b> Escuchá la charla completa sobre ${esc(c.film || c.title)}</span><em>Spotify ↗</em></a>` : ""}
@@ -395,9 +395,9 @@ if (site.paginasCiclos === true) {
 <link rel="icon" href="../../favicon.svg">${fonts}
 <style>${css}.cic{list-style:none;padding:0;margin:32px 0 0;display:grid;gap:12px}.cic a{display:grid;gap:4px;border:1px solid #2a2f37;border-radius:6px;padding:16px 18px;text-decoration:none;color:inherit}.cic a:hover{border-color:var(--ink)}.cic b{font-size:18px}.cic span{color:var(--mute);font-size:14px}</style></head><body>
 <header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
-<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Episodios</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
+<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main><div class="wrap" style="padding-block:clamp(48px,8vw,112px);max-width:760px">
-<a class="back" href="../../#archivo">← Todos los episodios</a>
+<a class="back" href="../../#archivo">← Todas las cápsulas</a>
 <p class="label" style="margin-bottom:12px">Ciclo</p><h1 class="film" style="font-size:clamp(32px,5vw,56px)">${esc(nombre)}</h1>
 <p style="color:var(--mute);margin-top:10px">${eps.length} ${eps.length === 1 ? "cápsula" : "cápsulas"}, de la más antigua a la más nueva.</p>
 <ul class="cic">${lista}</ul></div></main>
