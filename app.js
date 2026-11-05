@@ -224,8 +224,8 @@ function renderProx(){
   const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Minuto Cinefilo//ES","BEGIN:VEVENT","UID:" + c.id + "@minutocinefilo.com.ar","DTSTAMP:" + fz(new Date()),
     ini ? "DTSTART:" + a : "DTSTART;VALUE=DATE:" + a, ini ? "DTEND:" + b : "DTEND;VALUE=DATE:" + b,
     "SUMMARY:" + titulo.replace(/[,;]/g, " "), "DESCRIPTION:" + det.replace(/[,;]/g, " "), "URL:" + location.origin + "/", "END:VEVENT","END:VCALENDAR"].join("\r\n");
-  box.innerHTML = `<div><p class="label" style="margin-bottom:6px">Próximamente</p><p class="t">${esc(c.title)}</p><p class="w">${esc(cuando)}</p></div>
-    <div class="acts"><a href="${esc(g)}" target="_blank" rel="noopener">Agregar a Google Calendar</a><a href="data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}" download="minuto-cinefilo.ics">Otro calendario (.ics)</a></div>`;
+  box.innerHTML = `<div class="wrap pin"><p class="t"><span class="label">Próximamente</span><b>${esc(c.title)}</b><span class="w">${esc(cuando)}</span></p>
+    <div class="acts"><a href="${esc(g)}" target="_blank" rel="noopener">Agregar a Google Calendar</a><a href="data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}" download="minuto-cinefilo.ics">Otro calendario (.ics)</a></div></div>`;
   box.hidden = false;
 }
 
