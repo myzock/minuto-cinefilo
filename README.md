@@ -52,3 +52,9 @@ Si GoatCounter no carga (por ejemplo por un bloqueador de anuncios), no pasa nad
 - **Google Fonts**: tipografías.
 
 Este producto usa TMDB y las API de TMDB, pero no está avalado, certificado ni aprobado por TMDB.
+
+## Seguridad
+- **CSP**: la home (`index.html`) y `404.html` llevan una política de seguridad de contenido en un `<meta>`; las páginas generadas la reciben de `build.mjs` (los scripts en línea se autorizan por hash, calculado en cada build). La política solo deja cargar imágenes del propio sitio y de `image.tmdb.org`, fuentes de Google Fonts, el contador GoatCounter y el tráiler de `youtube-nocookie.com`. Si algún día agregás otra fuente (otro host de imágenes, otro servicio de estadísticas), hay que sumarla a esa política o el navegador la bloquea.
+- La lógica de la home está en `app.js` (antes iba dentro de `index.html`), para no necesitar `unsafe-inline` en los scripts.
+- Las acciones de GitHub del workflow están fijadas por código exacto (SHA). Para actualizarlas hay que cambiar el SHA a mano.
+- **TMDB**: `TMDB_KEY` puede ser la clave v3 o el "Token de acceso de lectura de la API" (v4, empieza con `eyJ`); con el token la credencial viaja en una cabecera y no en la URL.

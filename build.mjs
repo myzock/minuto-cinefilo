@@ -13,7 +13,35 @@ const { site, capsulas } = datos;
 const index = readFileSync("index.html", "utf8");
 const css = index.match(/<style>([\s\S]*?)<\/style>/)[1];
 const fonts = index.match(/<link href="https:\/\/fonts\.googleapis[^>]*>/)[0];
+
+// ---- Política de seguridad de contenido (CSP) para las páginas generadas ----
+// Los scripts en línea se autorizan por hash (sha256) calculado acá mismo, así la CSP nunca queda desfasada del contenido.
+import { createHash } from "node:crypto";
+function conCsp(html) {
+  const hashes = [...html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="application\/ld\+json")[^>]*>([\s\S]*?)<\/script>/g)]
+    .map(m => `'sha256-${createHash("sha256").update(m[1], "utf8").digest("base64")}'`);
+  const gc = site.goatcounter && /^[a-z0-9-]+$/i.test(site.goatcounter) ? `https://${site.goatcounter}.goatcounter.com` : "";
+  const csp = [
+    "default-src 'none'",
+    `script-src 'self' ${[...new Set(hashes)].join(" ")}${gc ? " https://gc.zgo.at" : ""}`.trim(),
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src https://fonts.gstatic.com",
+    `img-src 'self' data: https://image.tmdb.org${gc ? " " + gc : ""}`,
+    `connect-src 'self'${gc ? " " + gc : ""}`,
+    "media-src 'self'",
+    "frame-src https://www.youtube-nocookie.com",
+    "object-src 'none'", "base-uri 'self'", "form-action 'self'",
+  ].join("; ");
+  return html.replace('<meta charset="utf-8">', `<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="${csp}">`);
+}
 const KEY = process.env.TMDB_KEY;
+// TMDB acepta la clave v3 (?api_key=) o el "Token de acceso de lectura" v4 (empieza con "eyJ"), que viaja en una cabecera y no en la URL.
+// Si el secreto TMDB_KEY es un token v4, se manda por cabecera; si es una clave v3, todo sigue igual.
+const KEY_V4 = !!KEY && KEY.startsWith("eyJ");
+function tfetch(url, opts = {}) {
+  if (!KEY_V4) return fetch(url, opts);
+  return fetch(url.replace(/([?&])api_key=[^&]*&?/, "$1").replace(/[?&]$/, ""), { ...opts, headers: { ...(opts.headers || {}), Authorization: `Bearer ${KEY}` } });
+}
 const IMG = "https://image.tmdb.org/t/p/";
 const HOY = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }); // AAAA-MM-DD, hora de Argentina
 const AHORA = new Date().toLocaleTimeString("en-GB", { timeZone: "America/Argentina/Buenos_Aires", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }); // HH:MM, hora de Argentina
@@ -73,7 +101,7 @@ async function disponibilidad(id) {
   let w = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
   const dias = x => (Date.now() - new Date(x?._fetched || 0)) / 864e5;
   if (KEY && !(dias(w) < 7)) try { // se vuelve a pedir cada 7 días (la disponibilidad cambia más que la ficha)
-    const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/watch/providers?api_key=${KEY}`, { signal: AbortSignal.timeout(15000) });
+    const res = await tfetch(`https://api.themoviedb.org/3/movie/${id}/watch/providers?api_key=${KEY}`, { signal: AbortSignal.timeout(15000) });
     if (res.ok) {
       const ar = (await res.json()).results?.AR || {}; const nom = l => (l || []).map(p => p.provider_name).filter(Boolean);
       w = { _fetched: new Date().toISOString(), link: ar.link || "", flatrate: nom(ar.flatrate), free: [...nom(ar.free), ...nom(ar.ads)], rent: nom(ar.rent), buy: nom(ar.buy) };
@@ -93,7 +121,7 @@ async function ficha(c) {
   let id = c.tmdb_id;
   try {
     if (KEY && !id) {
-      const r = await (await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${KEY}&language=es-AR&query=${encodeURIComponent(c.film)}`, { signal: AbortSignal.timeout(15000) })).json();
+      const r = await (await tfetch(`https://api.themoviedb.org/3/search/movie?api_key=${KEY}&language=es-AR&query=${encodeURIComponent(c.film)}`, { signal: AbortSignal.timeout(15000) })).json();
       id = r.results?.[0]?.id;
       if (id) console.log(`Aviso: "${c.film}" sin tmdb_id; se usó ${id}. Agregá "tmdb_id": ${id} al JSON para fijarlo.`);
     }
@@ -102,10 +130,10 @@ async function ficha(c) {
     const hit = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
     const fresca = hit && "trailer" in hit && "vote_average" in hit && (Date.now() - new Date(hit._fetched || 0)) / 864e5 < 30; // se vuelve a pedir a TMDB cada 30 días
     if (KEY && !fresca) try {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${KEY}&language=es-AR&append_to_response=credits,images&include_image_language=null`, { signal: AbortSignal.timeout(15000) });
+      const res = await tfetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${KEY}&language=es-AR&append_to_response=credits,images&include_image_language=null`, { signal: AbortSignal.timeout(15000) });
       if (res.ok) {
         const j = await res.json(); // se guarda solo lo que la web muestra, con fecha de descarga
-        const videos = async lang => { try { const r = await fetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${KEY}&language=${lang}`, { signal: AbortSignal.timeout(15000) }); return r.ok ? (await r.json()).results || [] : []; } catch { return []; } };
+        const videos = async lang => { try { const r = await tfetch(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${KEY}&language=${lang}`, { signal: AbortSignal.timeout(15000) }); return r.ok ? (await r.json()).results || [] : []; } catch { return []; } };
         const elegir = l => l.filter(x => x.site === "YouTube" && x.type === "Trailer").sort((a, b) => (b.official - a.official) || String(b.published_at).localeCompare(String(a.published_at)))[0]?.key;
         const trailer = elegir(await videos("es-AR")) || elegir(await videos("en-US")) || "";
         const slim = { _fetched: new Date().toISOString(), trailer, title: j.title, original_title: j.original_title, release_date: j.release_date, runtime: j.runtime, vote_average: j.vote_average || 0, vote_count: j.vote_count || 0, poster: j.poster_path || "",
@@ -326,7 +354,7 @@ ${audio ? `<script>const W=${JSON.stringify(c.audio && ONDAS[c.audio] ? ONDAS[c.
 ${yt ? `<script>${trl}</script>` : ""}
 </body></html>`;
   mkdirSync(`capsulas/${c.id}`, { recursive: true });
-  writeFileSync(`capsulas/${c.id}/index.html`, html);
+  writeFileSync(`capsulas/${c.id}/index.html`, conCsp(html));
 }
 // ---- Feed de podcast (para Spotify, Apple Podcasts, etc.) ----
 const pod = site.podcast;
@@ -367,7 +395,7 @@ if (KEY && !yaHoy) { // el build corre cada hora: los estrenos se renuevan una v
     const cand = (r.results || []).filter(m => m.poster_path && !propios.has(m.id) && (m.release_date || "") >= desde).slice(0, 16); // se descartan reestrenos (fecha global vieja)
     const items = [];
     for (const m of cand) { // la fecha de "discover" es la global: se pide la de EEUU (estreno en cines o limitado)
-      const d = await (await fetch(`https://api.themoviedb.org/3/movie/${m.id}/release_dates?api_key=${KEY}`, { signal: AbortSignal.timeout(15000) })).json();
+      const d = await (await tfetch(`https://api.themoviedb.org/3/movie/${m.id}/release_dates?api_key=${KEY}`, { signal: AbortSignal.timeout(15000) })).json();
       const fechas = ((d.results || []).find(x => x.iso_3166_1 === "US")?.release_dates || []).filter(x => x.type === 2 || x.type === 3).map(x => x.release_date.slice(0, 10)).filter(x => x >= HOY).sort();
       if (fechas[0]) items.push({ id: m.id, title: m.title, date: fechas[0], poster: IMG + "w342" + m.poster_path });
     }
@@ -405,7 +433,7 @@ if (site.paginasCiclos === true) {
 ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : ""}
 </body></html>`;
     mkdirSync(`ciclos/${sl}`, { recursive: true });
-    writeFileSync(`ciclos/${sl}/index.html`, html);
+    writeFileSync(`ciclos/${sl}/index.html`, conCsp(html));
     urls.push(pageUrl);
   }
 }
