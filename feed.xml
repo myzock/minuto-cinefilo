@@ -5,7 +5,7 @@
 <description>Minuto Cinéfilo es un espacio dedicado a descubrir las historias que hay detrás de las películas: curiosidades, decisiones creativas, anécdotas de rodaje y detalles que hacen del cine una experiencia que siempre merece unos minutos más. Un proyecto de Vamos x Partes, el programa que se emite en Radio Monk.</description>
 <atom:link href="https://minutocinefilo.com.ar/feed.xml" rel="self" type="application/rss+xml"/>
 <itunes:author>Minuto Cinéfilo</itunes:author><itunes:explicit>false</itunes:explicit><itunes:type>episodic</itunes:type>
-<itunes:owner><itunes:name>Minuto Cinéfilo</itunes:name><itunes:email>minutocinefilok@gmail.com</itunes:email></itunes:owner>
+<itunes:owner><itunes:name>Minuto Cinéfilo</itunes:name><itunes:email>contacto@minutocinefilo.com.ar</itunes:email></itunes:owner>
 <itunes:image href="https://minutocinefilo.com.ar/podcast.jpg"/>
 <itunes:category text="TV &amp; Film"><itunes:category text="Film History"/></itunes:category>
 <item><title>Godzilla Minus Zero</title><description>¿Puede una película de monstruos gigantes hacerte pensar en la guerra, en la culpa y en la esperanza de volver a empezar? En 2023, una película japonesa lo logró. Y esta semana llega su continuación: Godzilla Minus Zero.</description><link>https://minutocinefilo.com.ar/capsulas/godzilla-minus-zero/</link><guid isPermaLink="false">https://myzock.github.io/minuto-cinefilo/godzilla-minus-zero</guid><pubDate>Thu, 05 Nov 2026 20:00:00 GMT</pubDate><enclosure url="https://minutocinefilo.com.ar/audio/godzilla-minus-zero.mp3" length="3088101" type="audio/mpeg"/><itunes:episode>10</itunes:episode><itunes:episodeType>full</itunes:episodeType><itunes:explicit>false</itunes:explicit><itunes:duration>3:11</itunes:duration></item>
