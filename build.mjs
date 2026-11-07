@@ -14,6 +14,8 @@ const index = readFileSync("index.html", "utf8");
 const css = index.match(/<style>([\s\S]*?)<\/style>/)[1];
 const fonts = index.match(/<link href="https:\/\/fonts\.googleapis[^>]*>/)[0];
 
+const preco = '<link rel="preconnect" href="https://image.tmdb.org"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>';
+
 // ---- Política de seguridad de contenido (CSP) para las páginas generadas ----
 // Los scripts en línea se autorizan por hash (sha256) calculado acá mismo, así la CSP nunca queda desfasada del contenido.
 import { createHash } from "node:crypto";
@@ -283,7 +285,7 @@ for (const c of reales) {
     poster: t.poster ? IMG + "w500" + t.poster : "", backdrop: t.backdrop ? IMG + "w1280" + t.backdrop : "", ...(t.watch ? { watch: t.watch } : {}) };
   const yt = c.trailer === false ? "" : ytId(c.trailer) || ytId(t?.trailer);
   const bd = c.backdrop || (t?.backdrop ? IMG + "w1280" + t.backdrop : "");
-  const trailerHtml = yt ? `<section id="trailer" aria-labelledby="tt" style="padding:0 0 44px"><h2 id="tt" style="font-size:22px;margin-bottom:16px">Tráiler</h2><div class="trl"><button class="trbtn${bd ? " img" : ""}" id="trbtn" type="button" data-id="${yt}" data-t="Tráiler de ${esc(c.film)}"${bd ? ` style="background-image:url('${esc(bd)}')"` : ""}><span class="pl"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span>Ver el tráiler</span></button><a href="https://www.youtube.com/watch?v=${yt}" target="_blank" rel="noopener">Abrir en YouTube ↗</a></div></section>` : "";
+  const trailerHtml = yt ? `<section id="trailer" aria-labelledby="tt" style="padding:0 0 44px"><h2 id="tt" style="font-size:22px;margin-bottom:16px">Tráiler</h2><div class="trl"><button class="trbtn${bd ? " img" : ""}" id="trbtn" type="button" data-id="${yt}" data-t="Tráiler de ${esc(c.film)}"${bd ? ` style="background-image:url('${esc(bd.replace("/t/p/w1280/", "/t/p/w780/"))}')"` : ""}><span class="pl"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span>Ver el tráiler</span></button><a href="https://www.youtube.com/watch?v=${yt}" target="_blank" rel="noopener">Abrir en YouTube ↗</a></div></section>` : "";
   const fichaHtml = t ? `<aside class="ficha" aria-labelledby="tf"><h2 id="tf">Datos de la película</h2><dl>
 ${row(IC.film, "Título original", t.original_title !== t.title ? t.original_title : "")}${row(IC.lang, "Título en español", t.title)}${row(IC.cal, "Año", (t.release_date || "").slice(0, 4))}${row(IC.clock, "Duración", hm(t.runtime))}${row(IC.flag, "País", pais(t))}${row(IC.award, "Director", dir)}${row(IC.user, "Reparto principal", cast)}${row(IC.mask, "Géneros", generos)}</dl>
 ${whHtml(t.watch)}<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" target="_blank" rel="noopener">Ver en TMDB ↗</a></aside>` : "";
@@ -328,14 +330,14 @@ ${whHtml(t.watch)}<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" 
 <meta property="og:image" content="${ogImg}">${existsSync(cardFile) ? '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:type" content="image/jpeg">' : ""}<meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${ogImg}"><meta name="color-scheme" content="dark">${futuro ? '<meta name="robots" content="noindex">' : ""}
 <script type="application/ld+json">${jld}</script>
-<link rel="icon" href="../../favicon.svg">${fonts}
+<link rel="icon" href="../../favicon.svg">${preco}${fonts}
 <style>${css}${extra}</style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
 <header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
 <nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main id="contenido"><div class="wrap" style="padding-block:clamp(48px,8vw,112px)">
 <a class="back" href="../../#archivo">← Todas las cápsulas</a>
-<div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}">` : "<span>Póster no disponible</span>"}${pun}${c.ciclo ? `<span class="ciclo">${esc(c.ciclo)}</span>` : ""}</div>
+<div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}" decoding="async">` : "<span>Póster no disponible</span>"}${pun}${c.ciclo ? `<span class="ciclo">${esc(c.ciclo)}</span>` : ""}</div>
 <div>${c.numero ? `<p class="label" style="margin-bottom:12px">Cápsula #${esc(c.numero)}</p>` : ""}<h1 class="film" style="font-size:clamp(30px,4vw,52px)">${esc(c.title)}</h1>${norm(c.subtitle || c.film) && norm(c.subtitle || c.film) !== norm(c.title) ? `<p style="color:var(--mute);font-size:18px;margin-top:6px">${esc(c.subtitle || c.film)}</p>` : ""}
 ${site.paginasCiclos === true && c.ciclo ? `<p style="margin-top:8px"><a href="../../ciclos/${esc(norm(c.ciclo).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""))}/" style="color:var(--red-hi)">Ver todo el ciclo ${esc(c.ciclo)} →</a></p>` : ""}<div class="meta"><time datetime="${esc(c.date)}">${fecha(c.date)}</time><span id="dur">${c.duration ? esc(c.duration) + " min" : ""}</span></div>
 <p class="desc">${cursiva(esc(c.description))}</p>${player}
@@ -420,7 +422,7 @@ if (site.paginasCiclos === true) {
 <meta name="description" content="${esc(desc)}"><link rel="canonical" href="${pageUrl}">
 <meta property="og:type" content="website"><meta property="og:title" content="Ciclo ${esc(nombre)} — Minuto Cinéfilo"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${pageUrl}"><meta property="og:image" content="${site.url}og.png"><meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image"><meta name="color-scheme" content="dark">
-<link rel="icon" href="../../favicon.svg">${fonts}
+<link rel="icon" href="../../favicon.svg">${preco}${fonts}
 <style>${css}.cic{list-style:none;padding:0;margin:32px 0 0;display:grid;gap:12px}.cic a{display:grid;gap:4px;border:1px solid #2a2f37;border-radius:6px;padding:16px 18px;text-decoration:none;color:inherit}.cic a:hover{border-color:var(--ink)}.cic b{font-size:18px}.cic span{color:var(--mute);font-size:14px}</style></head><body>
 <header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
 <nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>

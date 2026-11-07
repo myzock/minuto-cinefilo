@@ -8,6 +8,9 @@ const fmtTime = t => isFinite(t) ? Math.floor(t/60) + ":" + String(Math.floor(t%
 const norm = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 const page = c => c.demo ? null : "capsulas/" + encodeURIComponent(c.id) + "/";
 const fich = c => FICHAS[c.id];
+// Tamaños de imagen de TMDB según uso: el fondo desenfocado no necesita resolución, y en celular alcanza con 780 px.
+const bgSmall = u => String(u).replace("image.tmdb.org/t/p/w1280/", "image.tmdb.org/t/p/w300/").replace("image.tmdb.org/t/p/w500/", "image.tmdb.org/t/p/w342/");
+const heroSize = u => matchMedia("(max-width:760px)").matches ? String(u).replace("image.tmdb.org/t/p/w1280/", "image.tmdb.org/t/p/w780/") : u;
 const thumb = u => String(u).replace("image.tmdb.org/t/p/w500/", "image.tmdb.org/t/p/w342/"); // miniaturas: no hace falta el tamaño grande
 const ic = d => '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
 const I = {
@@ -87,7 +90,7 @@ function renderHero(){
       const y = fich(c)?.year;
       $("#heroCredit").innerHTML = "<em>" + esc(c.film) + (y ? " (" + esc(y) + ")" : "") + "</em><br>" + (c.numero ? "Cápsula #" + esc(c.numero) + " · " : "") + "Imagen: TMDB";
     };
-    img.src = c.backdrop;
+    img.src = heroSize(c.backdrop);
   }
 }
 
@@ -138,7 +141,7 @@ function renderFeatured(){
   if(!siguiente()) $("#nextBtn").hidden = true;
   $("#autoBtn").onclick = () => { autoNext = !autoNext; track("autoplay/" + (autoNext ? "on" : "off")); $("#autoBtn").setAttribute("aria-checked", autoNext); try { localStorage.setItem("autoNext", autoNext ? "1" : "0"); } catch(e) {} };
   $("#shareBtn").onclick = () => { const o = $("#share").classList.toggle("open"); $("#shareBtn").setAttribute("aria-expanded", o); };
-  renderShare(c); setupPlayer(c); fillDurations(); setBg(c.backdrop || c.poster);
+  renderShare(c); setupPlayer(c); fillDurations(); setBg(bgSmall(c.backdrop || c.poster));
 }
 
 function renderShare(c){
