@@ -334,7 +334,7 @@ ${whHtml(t.watch)}<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" 
 <style>${css}${extra}</style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
 <header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
-<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
+<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="../../prensa/">Prensa</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main id="contenido"><div class="wrap" style="padding-block:clamp(48px,8vw,112px)">
 <a class="back" href="../../#archivo">← Todas las cápsulas</a>
 <div class="latest" style="margin-top:0"><div class="poster">${c.poster ? `<img src="${esc(c.poster)}" alt="Póster de ${esc(c.film)}" decoding="async">` : "<span>Póster no disponible</span>"}${pun}${c.ciclo ? `<span class="ciclo">${esc(c.ciclo)}</span>` : ""}</div>
@@ -425,7 +425,7 @@ if (site.paginasCiclos === true) {
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml"><link rel="icon" href="../../favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="../../apple-touch-icon.png">${preco}${fonts}
 <style>${css}.cic{list-style:none;padding:0;margin:32px 0 0;display:grid;gap:12px}.cic a{display:grid;gap:4px;border:1px solid #2a2f37;border-radius:6px;padding:16px 18px;text-decoration:none;color:inherit}.cic a:hover{border-color:var(--ink)}.cic b{font-size:18px}.cic span{color:var(--mute);font-size:14px}</style></head><body>
 <header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
-<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
+<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="../../prensa/">Prensa</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main><div class="wrap" style="padding-block:clamp(48px,8vw,112px);max-width:760px">
 <a class="back" href="../../#archivo">← Todas las cápsulas</a>
 <p class="label" style="margin-bottom:12px">Ciclo</p><h1 class="film" style="font-size:clamp(32px,5vw,56px)">${esc(nombre)}</h1>
@@ -438,6 +438,61 @@ ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}
     writeFileSync(`ciclos/${sl}/index.html`, conCsp(html));
     urls.push(pageUrl);
   }
+}
+// ---- Página de prensa (/prensa/): contacto y material para distribuidoras, cadenas y medios ----
+{
+  const pageUrl = `${site.url}prensa/`;
+  const ult = asc.filter(c => !c.demo && publicado(c)).reverse();
+  const desde = ult.length ? fecha(ult[ult.length - 1].date) : "";
+  const recientes = ult.slice(0, 6).map(x => `<li><a href="../capsulas/${esc(x.id)}/"><b>${esc(x.title)}</b><span>${x.film && x.film !== x.title ? esc(x.film) + " · " : ""}${fecha(x.date)}</span></a></li>`).join("");
+  const mail = esc((site.podcast && site.podcast.email) || "");
+  const desc = "Información de prensa de Minuto Cinéfilo: qué hacemos, material para descargar y contacto para invitaciones a avant premières y eventos.";
+  const html = `<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prensa | Minuto Cinéfilo</title>
+<meta name="description" content="${esc(desc)}"><link rel="canonical" href="${pageUrl}">
+<meta property="og:type" content="website"><meta property="og:title" content="Prensa — Minuto Cinéfilo"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${pageUrl}"><meta property="og:image" content="${site.url}og.png"><meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image"><meta name="color-scheme" content="dark">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml"><link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="../apple-touch-icon.png">${preco}${fonts}
+<style>${css}.pr section{padding-block:clamp(32px,5vw,56px);border-top:1px solid var(--line)}.pr .hero{border-top:0;padding-top:clamp(40px,7vw,96px)}.pr h2{font-size:clamp(24px,3vw,34px);margin-bottom:16px}.pr p{color:#cfd3d8;max-width:62ch}.pr .lead{font-size:19px;margin-top:20px;color:var(--ink)}
+.pr .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.pr .btn{display:inline-block;padding:12px 20px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;background:var(--red);color:#fff}.pr .btn.o{background:none;border:1px solid #3a444f;color:var(--ink)}
+.pr .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.pr .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}.pr .card h3{font:700 17px/1.2 var(--serif);margin-bottom:8px}.pr .card p{font-size:15px;color:var(--mute)}
+.pr .rec{list-style:none;padding:0;display:grid;gap:10px}.pr .rec a{display:grid;gap:2px;border:1px solid #2a2f37;border-radius:6px;padding:14px 18px;text-decoration:none}.pr .rec a:hover{border-color:var(--ink)}.pr .rec span{color:var(--mute);font-size:14px}
+.pr .kit{display:flex;flex-wrap:wrap;gap:12px}.pr .kit a{display:grid;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;text-decoration:none;font-size:15px}.pr .kit a:hover{border-color:var(--ink)}.pr .kit small{color:var(--mute);font-size:12px}
+.pr .mail{font:800 clamp(20px,3vw,28px)/1.2 var(--serif);color:var(--ink);display:inline-block;margin-top:6px}
+.pr .quien{color:var(--mute);margin-top:22px;font-size:15px}</style></head><body>
+<header><div class="wrap"><a class="logo" href="../">${REEL}MINUTO CINÉFILO</a>
+<nav aria-label="Principal"><a href="../">Inicio</a><a href="../#archivo">Cápsulas</a><a href="../#sobre">Sobre el proyecto</a><a class="on" href="./" aria-current="page">Prensa</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
+<main class="pr">
+<section class="hero"><div class="wrap">
+<p class="label">Prensa</p>
+<h1 class="film" style="font-size:clamp(34px,5vw,58px);max-width:16ch">El cine, en pocos minutos.</h1>
+<p class="lead">Minuto Cinéfilo son cápsulas de audio de 2 a 4 minutos con historias, curiosidades y detalles de las películas. Un proyecto de Vamos x Partes, que se emite en Radio Monk.</p>
+<div class="cta"><a class="btn" href="mailto:${mail}">Escribinos</a>${ult[0] ? `<a class="btn o" href="../capsulas/${esc(ult[0].id)}/">Escuchar una cápsula</a>` : ""}</div>
+</div></section>
+<section><div class="wrap"><p class="label">Qué hacemos</p><h2>Cobertura de estrenos y eventos</h2>
+<div class="cols">
+<div class="card"><h3>Cápsula de audio</h3><p>Una pieza de 2 a 4 minutos sobre la película o el evento, publicada en la web y en las plataformas de audio.</p></div>
+<div class="card"><h3>Presencia en redes</h3><p>Publicaciones en Instagram, con mención a la distribuidora, la sala o el evento.</p></div>
+<div class="card"><h3>Difusión en radio</h3><p>Las cápsulas se emiten en Vamos x Partes, por Radio Monk.</p></div>
+</div></div></section>
+<section><div class="wrap"><p class="label">Cómo trabajamos</p><h2>Datos verificados, voz propia</h2>
+<p>Cada cápsula parte de fuentes verificables y la narramos nosotros. Cada película tiene su ficha, su tráiler y la transcripción del audio, todo en la web${desde ? `, publicando desde ${esc(desde)}` : ""}.</p></div></section>
+${recientes ? `<section><div class="wrap"><p class="label">Cobertura reciente</p><h2>Lo último que publicamos</h2><ul class="rec">${recientes}</ul><p style="margin-top:16px"><a href="../#archivo">Ver todas las cápsulas →</a></p></div></section>` : ""}
+<section><div class="wrap"><p class="label">Material de prensa</p><h2>Logo para descargar</h2>
+<div class="kit"><a href="logo-minuto-cinefilo-fondo-blanco.png" download>Logo (PNG)<small>Sobre fondo blanco</small></a><a href="logo-minuto-cinefilo-transparente.png" download>Logo (PNG)<small>Fondo transparente</small></a><a href="../favicon.svg" download>Carrete (SVG)<small>Ícono vectorial</small></a></div></div></section>
+<section><div class="wrap"><p class="label">Contacto</p><h2>Hablemos</h2>
+<p>Para invitaciones a funciones de prensa, avant premières y eventos, escribinos a:</p>
+<a class="mail" href="mailto:${mail}">${mail}</a>
+<p class="quien">Carlos Cadillac y Matías Dussort</p></div></section>
+</main>
+<footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div></footer>
+${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : ""}
+</body></html>`;
+  mkdirSync("prensa", { recursive: true });
+  writeFileSync("prensa/index.html", conCsp(html));
+  urls.push(pageUrl);
 }
 { // lista estática de episodios publicados dentro de <noscript> en la home (para quien no corre JS)
   const lista = asc.filter(publicado).reverse().map(x => `<li><a href="capsulas/${x.id}/">${esc(x.title)}</a> — ${esc(x.film || "")}</li>`).join("");
