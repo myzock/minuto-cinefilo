@@ -484,8 +484,7 @@ ${recientes ? `<section><div class="wrap"><p class="label">Cobertura reciente</p
 <div class="kit"><a href="logo-minuto-cinefilo-fondo-blanco.png" download>Logo (PNG)<small>Sobre fondo blanco</small></a><a href="logo-minuto-cinefilo-transparente.png" download>Logo (PNG)<small>Fondo transparente</small></a><a href="../favicon.svg" download>Carrete (SVG)<small>Ícono vectorial</small></a></div></div></section>
 <section><div class="wrap"><p class="label">Contacto</p><h2>Hablemos</h2>
 <p>Para invitaciones a funciones de prensa, avant premières y eventos, escribinos a:</p>
-<a class="mail" href="mailto:${mail}">${mail}</a>
-<p class="quien">Carlos Cadillac y Matías Dussort</p></div></section>
+<a class="mail" href="mailto:${mail}">${mail}</a></div></section>
 </main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div></footer>
 ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : ""}
