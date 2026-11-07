@@ -330,7 +330,7 @@ ${whHtml(t.watch)}<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" 
 <meta property="og:image" content="${ogImg}">${existsSync(cardFile) ? '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:type" content="image/jpeg">' : ""}<meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${ogImg}"><meta name="color-scheme" content="dark">${futuro ? '<meta name="robots" content="noindex">' : ""}
 <script type="application/ld+json">${jld}</script>
-<link rel="icon" href="../../favicon.svg">${preco}${fonts}
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml"><link rel="icon" href="../../favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="../../apple-touch-icon.png">${preco}${fonts}
 <style>${css}${extra}</style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
 <header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
@@ -422,7 +422,7 @@ if (site.paginasCiclos === true) {
 <meta name="description" content="${esc(desc)}"><link rel="canonical" href="${pageUrl}">
 <meta property="og:type" content="website"><meta property="og:title" content="Ciclo ${esc(nombre)} — Minuto Cinéfilo"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${pageUrl}"><meta property="og:image" content="${site.url}og.png"><meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image"><meta name="color-scheme" content="dark">
-<link rel="icon" href="../../favicon.svg">${preco}${fonts}
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml"><link rel="icon" href="../../favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="../../apple-touch-icon.png">${preco}${fonts}
 <style>${css}.cic{list-style:none;padding:0;margin:32px 0 0;display:grid;gap:12px}.cic a{display:grid;gap:4px;border:1px solid #2a2f37;border-radius:6px;padding:16px 18px;text-decoration:none;color:inherit}.cic a:hover{border-color:var(--ink)}.cic b{font-size:18px}.cic span{color:var(--mute);font-size:14px}</style></head><body>
 <header><div class="wrap"><a class="logo" href="../../">${REEL}MINUTO CINÉFILO</a>
 <nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
