@@ -54,7 +54,8 @@ function init(){
   $("#year").textContent = new Date().getFullYear();
   const soc = [["Instagram",SITE.instagramUrl],["Radio Monk",SITE.radioUrl],["YouTube",SITE.youtubeUrl],["Spotify",SITE.spotifyUrl],["Apple Podcasts",SITE.appleUrl],["YouTube Music",SITE.youtubeMusicUrl],["Amazon Music",SITE.amazonUrl],["RSS","feed.xml"],["X",SITE.xUrl]].filter(x => x[1]);
   const lk = soc.map(([n,u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("");
-  $("#socialLinks").innerHTML = lk; $("#footLinks").innerHTML = lk;
+  const em = SITE.podcast && SITE.podcast.email, ct = em ? `<a href="mailto:${esc(em)}">Contacto</a>` : "";
+  $("#socialLinks").innerHTML = lk; $("#footLinks").innerHTML = lk + ct;
   if (SITE.goatcounter && /^[a-z0-9-]+$/i.test(SITE.goatcounter)) { const g = document.createElement("script"); g.async = true; g.src = "https://gc.zgo.at/count.js"; g.dataset.goatcounter = "https://" + SITE.goatcounter + ".goatcounter.com/count"; document.head.appendChild(g); }
   renderHero(); renderFeatured(); renderList(); renderCats(); renderCiclos(); renderProx(); renderStats(); renderCinta();
   fetch("data/proximos.json").then(r => r.ok ? r.json() : null).then(d => {
