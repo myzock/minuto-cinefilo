@@ -13,6 +13,7 @@
       "guidBase": "https://myzock.github.io/minuto-cinefilo/"
     },
     "spotifyUrl": "https://open.spotify.com/show/4pyAXOjqZNmFPgTE0TFktl",
+  "appleUrl": "https://podcasts.apple.com/us/podcast/minuto-cin%C3%A9filo/id6832161128",
     "youtubeMusicUrl": "https://www.youtube.com/playlist?list=PLRENQuFBczTw",
     "goatcounter": "minuto-cinefilo",
     "prensa": {
@@ -20,7 +21,7 @@
       "programaDetalle": "programa de revista que se emite los sábados de 10 a 11 h",
       "radio": "Radio Monk",
       "radioDetalle": "una radio online de Buenos Aires",
-      "plataformas": "la web, Spotify, Amazon Music e Instagram",
+      "plataformas": "la web, Spotify, Apple Podcasts, YouTube Music, Amazon Music e Instagram",
       "muestra": "godzilla-minus-zero",
       "respuesta": "Leemos y respondemos de lunes a viernes, de 8 a 17 h (hora de Argentina). Te contestamos dentro de las 48 horas hábiles."
     },

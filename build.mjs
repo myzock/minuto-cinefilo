@@ -490,7 +490,7 @@ ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}
 .pr .kit{display:flex;flex-wrap:wrap;gap:12px}.pr .kit a{display:grid;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;text-decoration:none;font-size:15px}.pr .kit a:hover{border-color:var(--ink)}.pr .kit small{color:var(--mute);font-size:12px}
 .pr .mail{font:800 clamp(15px,4.6vw,28px)/1.2 var(--serif);color:var(--ink);display:inline-block;max-width:100%;overflow-wrap:anywhere;margin:-6px 0 -12px;padding-block:12px}
 .pr .quien{color:var(--mute);margin-top:22px;font-size:15px}.pr .pasos{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;counter-reset:p}.pr .pasos li{counter-increment:p;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:6px}.pr .pasos li::before{content:counter(p);font:800 28px/1 var(--serif);color:var(--red-hi)}.pr .pasos b{font:700 17px/1.2 var(--serif)}.pr .pasos span{color:var(--mute);font-size:15px}
-.pr .muestra{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;max-width:640px}.pr .muestra h3{font:700 19px/1.2 var(--serif)}.pr .muestra .m{color:var(--mute);font-size:14px;margin:4px 0 14px}.pr .muestra audio{display:block;width:100%;height:44px}.pr .muestra .l{margin-top:14px;font-size:15px}.pr .nota{font-size:14px;color:var(--mute)}.pr .aparte{margin-top:16px}</style></head><body>
+.pr .muestra{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;max-width:640px}.pr .muestra h3{font:700 19px/1.2 var(--serif)}.pr .muestra .m{color:var(--mute);font-size:14px;margin:4px 0 14px}.pr .muestra{max-width:720px}.wavebox{position:relative;height:44px;min-width:0}.wavebox canvas{display:none;width:100%;height:100%}.wavebox.on canvas{display:block}.wavebox input{position:absolute;inset:0;width:100%;height:100%;margin:0}.wavebox.on input{opacity:0}.player.v{grid-template-columns:56px 1fr auto auto;background:#0b0f14}.vol{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:13px}.vol input{width:84px}@media(hover:none){.vol{display:none}.player.v{grid-template-columns:56px 1fr auto}}.pr .muestra .note{font-size:13px;margin-top:8px;min-height:0}.pr .muestra .l{margin-top:14px;font-size:15px}.pr .nota{font-size:14px;color:var(--mute)}.pr .aparte{margin-top:16px}</style></head><body>
 <header><div class="wrap"><a class="logo" href="../">${REEL}MINUTO CINÉFILO</a>
 <nav aria-label="Principal"><a href="../">Inicio</a><a href="../#archivo">Cápsulas</a><a href="../#sobre">Sobre el proyecto</a><a class="on" href="./" aria-current="page">Prensa</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main class="pr">
@@ -506,7 +506,11 @@ ${pr.plataformas ? `<p class="aparte">Publicamos en ${esc(pr.plataformas)} (@som
 </div></section>
 ${muestra ? `<section id="muestra"><div class="wrap"><p class="label">Escuchá una cápsula</p><h2>Una muestra de nuestro trabajo</h2>
 <div class="muestra"><h3>${esc(muestra.title)}</h3><p class="m">${muestra.film && muestra.film !== muestra.title ? esc(muestra.film) + " · " : ""}${fecha(muestra.date)}${durMin(muestra) ? " · " + esc(durMin(muestra)) + " min" : ""}</p>
-<audio controls preload="none" src="../${encodeURI(muestra.audio)}" aria-label="Cápsula ${esc(muestra.title)}"></audio>
+<div class="player v" role="group" aria-label="Reproductor de ${esc(muestra.title)}">
+<button class="play" id="pl" aria-pressed="false" aria-label="Reproducir"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+<div class="wavebox" id="wb"><canvas id="wv" aria-hidden="true"></canvas><input type="range" id="sk" min="0" max="100" step="0.1" value="0" aria-label="Posición del audio"></div><span class="time" id="tm">0:00 / ${esc(durMin(muestra) || "--:--")}</span>
+<label class="vol">Vol <input type="range" id="vo" min="0" max="1" step="0.05" value="1" aria-label="Volumen"></label></div>
+<audio id="au" preload="metadata" src="../${encodeURI(muestra.audio)}"></audio><p class="note" id="note" role="status"></p>
 <p class="l"><a href="../capsulas/${esc(muestra.id)}/">Ver la página de la cápsula y leer el guion →</a></p></div>
 <p class="nota" style="margin-top:14px">Las cápsulas se narran con voz generada por inteligencia artificial. Los textos y la edición son del equipo de Minuto Cinéfilo.</p></div></section>` : ""}
 <section><div class="wrap"><p class="label">Qué hacemos</p><h2>Coberturas que ofrecemos</h2>
@@ -535,6 +539,8 @@ ${pr.respuesta ? `<p class="aparte">${esc(pr.respuesta)}</p>` : ""}
 </main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div></footer>
 ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : ""}
+${muestra ? `<script>const W=${JSON.stringify(ONDAS[muestra.audio] ? ONDAS[muestra.audio].p : null)};${client}
+(function(){const au=document.getElementById('au'),gc=(p,t)=>{try{window.goatcounter&&window.goatcounter.count&&window.goatcounter.count({path:p,title:t||p,event:true})}catch(e){}};let u=0;au.addEventListener('play',()=>{if(!u){u=1;gc('prensa/muestra','Prensa: reproducción de la muestra')}})})();</script>` : ""}
 </body></html>`;
   mkdirSync("prensa", { recursive: true });
   writeFileSync("prensa/index.html", conCsp(html));
