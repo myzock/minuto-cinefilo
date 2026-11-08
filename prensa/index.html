@@ -77,12 +77,20 @@ nav{flex-wrap:nowrap;overflow-x:auto;width:100%;order:3;scrollbar-width:none;mar
 nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;padding:8px 0}
 }
 .charla{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between;margin-top:16px;border:1px solid var(--line);border-left:3px solid var(--red);border-radius:6px;padding:12px 16px;background:#0b0f14;color:var(--ink);text-decoration:none;font-size:15px}.charla b{color:var(--red-hi)}.charla em{font-style:normal;font-size:14px;border-bottom:1px solid var(--red)}.charla:hover em{color:var(--red-hi)}
+
+/* ---- Áreas de toque de ~44 px (WCAG 2.2, criterio 2.5.8) sin agrandar el diseño: padding + margen negativo, o una zona invisible alrededor ---- */
+@media(max-width:760px){nav a{padding-block:10px}}
+footer div a{padding-block:11px;margin-block:-11px}
+.listen a{padding:11px 8px;margin:-11px -8px}
+.share a,.share button{padding:11px 8px;margin:-5px -8px}
+/* Foco del teclado en la onda para navegadores sin :has() (lo activa app.js) */
+.wavebox.kb{outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
 .pr section{padding-block:clamp(32px,5vw,56px);border-top:1px solid var(--line)}.pr .hero{border-top:0;padding-top:clamp(40px,7vw,96px)}.pr h2{font-size:clamp(24px,3vw,34px);margin-bottom:16px}.pr p{color:#cfd3d8;max-width:62ch}.pr .lead{font-size:19px;margin-top:20px;color:var(--ink)}
 .pr .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.pr .btn{display:inline-block;padding:12px 20px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;background:var(--red);color:#fff}.pr .btn.o{background:none;border:1px solid #3a444f;color:var(--ink)}
 .pr .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.pr .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}.pr .card h3{font:700 17px/1.2 var(--serif);margin-bottom:8px}.pr .card p{font-size:15px;color:var(--mute)}
 .pr .rec{list-style:none;padding:0;display:grid;gap:10px}.pr .rec a{display:grid;gap:2px;border:1px solid #2a2f37;border-radius:6px;padding:14px 18px;text-decoration:none}.pr .rec a:hover{border-color:var(--ink)}.pr .rec span{color:var(--mute);font-size:14px}
 .pr .kit{display:flex;flex-wrap:wrap;gap:12px}.pr .kit a{display:grid;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;text-decoration:none;font-size:15px}.pr .kit a:hover{border-color:var(--ink)}.pr .kit small{color:var(--mute);font-size:12px}
-.pr .mail{font:800 clamp(20px,3vw,28px)/1.2 var(--serif);color:var(--ink);display:inline-block;margin-top:6px}
+.pr .mail{font:800 clamp(15px,4.6vw,28px)/1.2 var(--serif);color:var(--ink);display:inline-block;max-width:100%;overflow-wrap:anywhere;margin:-6px 0 -12px;padding-block:12px}
 .pr .quien{color:var(--mute);margin-top:22px;font-size:15px}.pr .pasos{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;counter-reset:p}.pr .pasos li{counter-increment:p;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:6px}.pr .pasos li::before{content:counter(p);font:800 28px/1 var(--serif);color:var(--red-hi)}.pr .pasos b{font:700 17px/1.2 var(--serif)}.pr .pasos span{color:var(--mute);font-size:15px}</style></head><body>
 <header><div class="wrap"><a class="logo" href="../"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d93a32"/><circle cx="20" cy="20" r="3.2" fill="#090c10"/><g fill="#090c10"><circle cx="20" cy="9" r="4"/><circle cx="30.5" cy="16.5" r="4"/><circle cx="26.5" cy="29" r="4"/><circle cx="13.5" cy="29" r="4"/><circle cx="9.5" cy="16.5" r="4"/></g></svg>MINUTO CINÉFILO</a>
 <nav aria-label="Principal"><a href="../">Inicio</a><a href="../#archivo">Cápsulas</a><a href="../#sobre">Sobre el proyecto</a><a class="on" href="./" aria-current="page">Prensa</a><a href="https://www.radiomonk.com.ar" target="_blank" rel="noopener">Radio Monk</a><a href="https://www.instagram.com/somosminutocinefilo" target="_blank" rel="noopener">Instagram</a></nav></div></header>
