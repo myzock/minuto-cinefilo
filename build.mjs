@@ -452,14 +452,29 @@ ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}
     urls.push(pageUrl);
   }
 }
-// ---- Página de prensa (/prensa/): contacto y material para distribuidoras, cadenas y medios ----
+// ---- Página de prensa (/prensa/): presentación institucional para distribuidoras, cadenas de cine y prensa ----
+// Los textos que cambian con el tiempo (programa de radio, plataformas, muestra, tiempo de respuesta) salen de "prensa" en capsulas.json.
+// Si un campo queda vacío, la frase o el bloque que lo usa no aparece. No se publican nombres ni datos personales.
 {
   const pageUrl = `${site.url}prensa/`;
+  const pr = site.prensa || {};
   const ult = asc.filter(c => !c.demo && publicado(c)).reverse();
-  const desde = ult.length ? fecha(ult[ult.length - 1].date) : "";
-  const recientes = ult.slice(0, 6).map(x => `<li><a href="../capsulas/${esc(x.id)}/"><b>${esc(x.title)}</b><span>${x.film && x.film !== x.title ? esc(x.film) + " · " : ""}${fecha(x.date)}</span></a></li>`).join("");
+  const durMin = c => { const d = c.duration ? null : ONDAS[c.audio]?.d; if (c.duration) return c.duration; if (!d) return ""; return `${Math.floor(d / 60)}:${String(d % 60).padStart(2, "0")}`; };
+  const fila = x => `<li><a href="../capsulas/${esc(x.id)}/"><b>${esc(x.title)}</b><span>${x.film && x.film !== x.title ? esc(x.film) + " · " : ""}${fecha(x.date)}</span></a></li>`;
+  const sueltas = ult.filter(x => !x.ciclo).slice(0, 6).map(fila).join("");
+  const deCiclo = ult.filter(x => x.ciclo).slice(0, 4).map(fila).join("");
+  // cápsula de muestra: la indicada en prensa.muestra si ya está publicada y tiene audio propio; si no, la última publicada (y el build avisa)
+  const conAudio = c => c && c.audio && !/^https?:/.test(c.audio) && existsSync(c.audio);
+  let muestra = ult.find(x => x.id === pr.muestra);
+  if (!conAudio(muestra)) {
+    if (pr.muestra) console.log(`::warning::prensa.muestra "${pr.muestra}" no está publicada o no tiene audio propio; se usa la última cápsula publicada.`);
+    muestra = ult.find(conAudio);
+  }
   const mail = esc((site.podcast && site.podcast.email) || "");
-  const desc = "Información de prensa de Minuto Cinéfilo: qué hacemos, material para descargar y contacto para invitaciones a avant premières y eventos.";
+  const prog = String(pr.programa || "").trim(), radio = String(pr.radio || "").trim();
+  const quienDe = prog ? ` de ${esc(prog)}${radio ? `, el programa que se emite en ${esc(radio)}` : ""}` : "";
+  const origen = prog ? `Nació en <b>${esc(prog)}</b>${pr.programaDetalle ? `, ${esc(pr.programaDetalle)}` : ""}${radio ? `, por <b>${esc(radio)}</b>${pr.radioDetalle ? `, ${esc(pr.radioDetalle)}` : ""}` : ""}.` : "";
+  const desc = "Presentación de Minuto Cinéfilo para distribuidoras, cadenas de cine y prensa: qué hacemos, cómo trabajamos, material para descargar y contacto.";
   const html = `<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -471,41 +486,52 @@ ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}
 <style>${css}.pr section{padding-block:clamp(32px,5vw,56px);border-top:1px solid var(--line)}.pr .hero{border-top:0;padding-top:clamp(40px,7vw,96px)}.pr h2{font-size:clamp(24px,3vw,34px);margin-bottom:16px}.pr p{color:#cfd3d8;max-width:62ch}.pr .lead{font-size:19px;margin-top:20px;color:var(--ink)}
 .pr .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.pr .btn{display:inline-block;padding:12px 20px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;background:var(--red);color:#fff}.pr .btn.o{background:none;border:1px solid #3a444f;color:var(--ink)}
 .pr .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.pr .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}.pr .card h3{font:700 17px/1.2 var(--serif);margin-bottom:8px}.pr .card p{font-size:15px;color:var(--mute)}
-.pr .rec{list-style:none;padding:0;display:grid;gap:10px}.pr .rec a{display:grid;gap:2px;border:1px solid #2a2f37;border-radius:6px;padding:14px 18px;text-decoration:none}.pr .rec a:hover{border-color:var(--ink)}.pr .rec span{color:var(--mute);font-size:14px}
+.pr .rec{list-style:none;padding:0;display:grid;gap:10px}.pr .rec a{display:grid;gap:2px;border:1px solid #2a2f37;border-radius:6px;padding:14px 18px;text-decoration:none}.pr .rec a:hover{border-color:var(--ink)}.pr .rec span{color:var(--mute);font-size:14px}.pr h3.sub{font:700 17px/1.2 var(--serif);margin:24px 0 12px}
 .pr .kit{display:flex;flex-wrap:wrap;gap:12px}.pr .kit a{display:grid;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;text-decoration:none;font-size:15px}.pr .kit a:hover{border-color:var(--ink)}.pr .kit small{color:var(--mute);font-size:12px}
 .pr .mail{font:800 clamp(15px,4.6vw,28px)/1.2 var(--serif);color:var(--ink);display:inline-block;max-width:100%;overflow-wrap:anywhere;margin:-6px 0 -12px;padding-block:12px}
-.pr .quien{color:var(--mute);margin-top:22px;font-size:15px}.pr .pasos{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;counter-reset:p}.pr .pasos li{counter-increment:p;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:6px}.pr .pasos li::before{content:counter(p);font:800 28px/1 var(--serif);color:var(--red-hi)}.pr .pasos b{font:700 17px/1.2 var(--serif)}.pr .pasos span{color:var(--mute);font-size:15px}</style></head><body>
+.pr .quien{color:var(--mute);margin-top:22px;font-size:15px}.pr .pasos{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;counter-reset:p}.pr .pasos li{counter-increment:p;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:6px}.pr .pasos li::before{content:counter(p);font:800 28px/1 var(--serif);color:var(--red-hi)}.pr .pasos b{font:700 17px/1.2 var(--serif)}.pr .pasos span{color:var(--mute);font-size:15px}
+.pr .muestra{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;max-width:640px}.pr .muestra h3{font:700 19px/1.2 var(--serif)}.pr .muestra .m{color:var(--mute);font-size:14px;margin:4px 0 14px}.pr .muestra audio{display:block;width:100%;height:44px}.pr .muestra .l{margin-top:14px;font-size:15px}.pr .nota{font-size:14px;color:var(--mute)}.pr .aparte{margin-top:16px}</style></head><body>
 <header><div class="wrap"><a class="logo" href="../">${REEL}MINUTO CINÉFILO</a>
 <nav aria-label="Principal"><a href="../">Inicio</a><a href="../#archivo">Cápsulas</a><a href="../#sobre">Sobre el proyecto</a><a class="on" href="./" aria-current="page">Prensa</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main class="pr">
 <section class="hero"><div class="wrap">
 <p class="label">Prensa</p>
 <h1 class="film" style="font-size:clamp(34px,5vw,58px);max-width:16ch">El cine, en pocos minutos.</h1>
-<p class="lead">Minuto Cinéfilo son cápsulas de audio de 2 a 4 minutos con historias, curiosidades y detalles de las películas. Un proyecto de Vamos x Partes, que se emite en Radio Monk.</p>
-<div class="cta"><a class="btn" href="mailto:${mail}">Escribinos</a>${ult[0] ? `<a class="btn o" href="../capsulas/${esc(ult[0].id)}/">Escuchar una cápsula</a>` : ""}</div>
+<p class="lead">Minuto Cinéfilo son cápsulas de audio de 2 a 4 minutos sobre películas: historias, curiosidades y decisiones creativas. Un proyecto independiente y sin fines de lucro${quienDe}.</p>
+<div class="cta"><a class="btn" href="mailto:${mail}">Escribinos</a>${muestra ? `<a class="btn o" href="#muestra">Escuchar una cápsula</a>` : ""}</div>
 </div></section>
-<section><div class="wrap"><p class="label">Qué hacemos</p><h2>Cobertura de estrenos y eventos</h2>
+<section><div class="wrap"><p class="label">Quiénes somos</p><h2>Un medio de cine en audio</h2>
+<p>Minuto Cinéfilo tiene dirección editorial propia: hay un equipo responsable de cada cápsula y de las respuestas a la prensa. ${origen}</p>
+${pr.plataformas ? `<p class="aparte">Publicamos en ${esc(pr.plataformas)} (@somosminutocinefilo). Hacemos contenido breve, claro y fácil de entender, para quienes quieren conocer una película en pocos minutos.</p>` : `<p class="aparte">Hacemos contenido breve, claro y fácil de entender, para quienes quieren conocer una película en pocos minutos.</p>`}
+</div></section>
+${muestra ? `<section id="muestra"><div class="wrap"><p class="label">Escuchá una cápsula</p><h2>Una muestra de nuestro trabajo</h2>
+<div class="muestra"><h3>${esc(muestra.title)}</h3><p class="m">${muestra.film && muestra.film !== muestra.title ? esc(muestra.film) + " · " : ""}${fecha(muestra.date)}${durMin(muestra) ? " · " + esc(durMin(muestra)) + " min" : ""}</p>
+<audio controls preload="none" src="../${encodeURI(muestra.audio)}" aria-label="Cápsula ${esc(muestra.title)}"></audio>
+<p class="l"><a href="../capsulas/${esc(muestra.id)}/">Ver la página de la cápsula y leer el guion →</a></p></div>
+<p class="nota" style="margin-top:14px">Las cápsulas se narran con voz generada por inteligencia artificial. Los textos y la edición son del equipo de Minuto Cinéfilo.</p></div></section>` : ""}
+<section><div class="wrap"><p class="label">Qué hacemos</p><h2>Coberturas que ofrecemos</h2>
 <div class="cols">
-<div class="card"><h3>Cápsula de audio</h3><p>Una pieza de 2 a 4 minutos sobre la película o el evento, publicada en la web y en las plataformas de audio.</p></div>
+<div class="card"><h3>Cápsula de estreno</h3><p>Una pieza de 2 a 4 minutos sobre la película, publicada en la web y en las plataformas de audio.</p></div>
+<div class="card"><h3>Avant premières y funciones de prensa</h3><p>Cobertura de la función con cápsula y publicaciones en redes.</p></div>
+<div class="card"><h3>Eventos</h3><p>Presentaciones, ciclos y actividades de cine, con cápsula y presencia en redes.</p></div>
+<div class="card"><h3>Entrevistas</h3><p>Conversaciones con equipos de las películas, a coordinar según el caso.</p></div>
 <div class="card"><h3>Presencia en redes</h3><p>Publicaciones en Instagram, con mención a la distribuidora, la sala o el evento.</p></div>
-<div class="card"><h3>Difusión en radio</h3><p>Las cápsulas se emiten en Vamos x Partes, por Radio Monk.</p></div>
+${prog ? `<div class="card"><h3>Difusión en radio</h3><p>Las cápsulas se emiten en ${esc(prog)}${radio ? `, por ${esc(radio)}` : ""}.</p></div>` : ""}
 </div></div></section>
-<section><div class="wrap"><p class="label">Próximamente</p><h2>Minutos de más</h2>
-<p>Además de las cápsulas, vamos a sumar un podcast llamado <b style="color:var(--ink)">Minutos de más</b>: un espacio de 30 a 40 minutos para conversar con más tiempo sobre cine.</p></div></section>
+<section><div class="wrap"><p class="label">Línea editorial</p><h2>Reseña independiente, no pieza de difusión</h2>
+<p>Una invitación nos permite ver la película y contarla; no condiciona lo que decimos. Nuestras cápsulas son editoriales y reflejan lo que nos pareció cada película. No ofrecemos coberturas favorables a cambio de invitaciones.</p>
+<p class="aparte">Si alguna vez publicáramos contenido acordado con una marca o una distribuidora, lo indicaríamos expresamente como tal.</p></div></section>
 <section><div class="wrap"><p class="label">Cómo trabajamos</p><h2>Primero la película, después la cápsula</h2>
-<ol class="pasos"><li><b>Vemos la película.</b><span>En la sala, en una función de prensa o en un evento.</span></li><li><b>Armamos el guion.</b><span>Con lo que nos pareció y los datos que la rodean.</span></li><li><b>Lo publicamos para nuestra audiencia.</b><span>En la web, en las plataformas de audio y en redes.</span></li></ol></div></section>
-${recientes ? `<section><div class="wrap"><p class="label">Cobertura reciente</p><h2>Lo último que publicamos</h2><ul class="rec">${recientes}</ul><p style="margin-top:16px"><a href="../#archivo">Ver todas las cápsulas →</a></p></div></section>` : ""}
+<ol class="pasos"><li><b>Vemos la película.</b><span>En la sala, en una función de prensa o en un evento.</span></li><li><b>Armamos el guion.</b><span>Con nuestra mirada y datos verificados sobre la película.</span></li><li><b>Publicamos.</b><span>El día del estreno o, como máximo, al día siguiente: en la web, las plataformas de audio y las redes.</span></li></ol>
+<p class="aparte">Para coordinar fechas y horarios nos sirve conocer el día del estreno y el de la función. Tráiler, afiche, ficha técnica y fotos de prensa nos ayudan a preparar la cápsula y las publicaciones.</p></div></section>
+${sueltas ? `<section><div class="wrap"><p class="label">Últimas cápsulas</p><h2>Lo último que publicamos</h2><ul class="rec">${sueltas}</ul>${deCiclo ? `<h3 class="sub">Ciclos y especiales</h3><ul class="rec">${deCiclo}</ul>` : ""}<p style="margin-top:16px"><a href="../#archivo">Ver todas las cápsulas →</a></p></div></section>` : ""}
 <section><div class="wrap"><p class="label">Material de prensa</p><h2>Logo para descargar</h2>
 <div class="kit"><a href="logo-minuto-cinefilo-fondo-blanco.png" download>Logo (PNG)<small>Sobre fondo blanco</small></a><a href="logo-minuto-cinefilo-transparente.png" download>Logo (PNG)<small>Fondo transparente</small></a><a href="../favicon.svg" download>Carrete (SVG)<small>Ícono vectorial</small></a></div></div></section>
-<section><div class="wrap"><p class="label">Qué necesitamos</p><h2>Para cubrir una película o un evento</h2>
-<div class="cols">
-<div class="card"><h3>Invitación</h3><p>A la función de prensa, avant première o evento, para ver la película antes de hablar de ella.</p></div>
-<div class="card"><h3>Material de la película</h3><p>Tráiler, afiche, ficha técnica y fotos de prensa, para usar en la cápsula y en las publicaciones.</p></div>
-<div class="card"><h3>Fecha con anticipación</h3><p>Saber cuándo se estrena y cuándo es la función, para publicar la cápsula en el momento justo.</p></div>
-</div></div></section>
 <section><div class="wrap"><p class="label">Contacto</p><h2>Hablemos</h2>
-<p>Para invitaciones a funciones de prensa, avant premières y eventos, escribinos a:</p>
-<a class="mail" href="mailto:${mail}">${mail}</a></div></section>
+<p>Para invitaciones a funciones de prensa, avant premières, eventos y entrevistas, escribinos a:</p>
+<a class="mail" href="mailto:${mail}">${mail}</a>
+${pr.respuesta ? `<p class="aparte">${esc(pr.respuesta)}</p>` : ""}
+<p class="aparte">También por Instagram: <a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">@somosminutocinefilo</a></p></div></section>
 </main>
 <footer><div class="wrap"><span>© ${new Date().getFullYear()} Minuto Cinéfilo</span><em>${esc(site.footerPhrase)}</em></div></footer>
 ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>` : ""}
