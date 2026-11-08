@@ -478,7 +478,7 @@ ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}
 <div class="card"><h3>Difusión en radio</h3><p>Las cápsulas se emiten en Vamos x Partes, por Radio Monk.</p></div>
 </div></div></section>
 <section><div class="wrap"><p class="label">Cómo trabajamos</p><h2>Primero la película, después la cápsula</h2>
-<ol class="pasos"><li><b>Vemos la película.</b><span>En la sala, en una función de prensa o en un evento.</span></li><li><b>Armamos el guion.</b><span>Con lo que nos pareció y los datos que la rodean.</span></li><li><b>Lo publicamos para el público.</b><span>En la web, en las plataformas de audio y en redes.</span></li></ol></div></section>
+<ol class="pasos"><li><b>Vemos la película.</b><span>En la sala, en una función de prensa o en un evento.</span></li><li><b>Armamos el guion.</b><span>Con lo que nos pareció y los datos que la rodean.</span></li><li><b>Lo publicamos para nuestra audiencia.</b><span>En la web, en las plataformas de audio y en redes.</span></li></ol></div></section>
 ${recientes ? `<section><div class="wrap"><p class="label">Cobertura reciente</p><h2>Lo último que publicamos</h2><ul class="rec">${recientes}</ul><p style="margin-top:16px"><a href="../#archivo">Ver todas las cápsulas →</a></p></div></section>` : ""}
 <section><div class="wrap"><p class="label">Material de prensa</p><h2>Logo para descargar</h2>
 <div class="kit"><a href="logo-minuto-cinefilo-fondo-blanco.png" download>Logo (PNG)<small>Sobre fondo blanco</small></a><a href="logo-minuto-cinefilo-transparente.png" download>Logo (PNG)<small>Fondo transparente</small></a><a href="../favicon.svg" download>Carrete (SVG)<small>Ícono vectorial</small></a></div></div></section>
