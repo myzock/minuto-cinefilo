@@ -36,6 +36,7 @@ function conCsp(html) {
   ].join("; ");
   return html.replace('<meta charset="utf-8">', `<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="${csp}">`);
 }
+const tarjetasFallidas = []; // cápsulas cuya tarjeta para compartir (og.jpg) no se pudo generar; se informan al final del build
 const KEY = process.env.TMDB_KEY;
 // TMDB acepta la clave v3 (?api_key=) o el "Token de acceso de lectura" v4 (empieza con "eyJ"), que viaja en una cabecera y no en la URL.
 // Si el secreto TMDB_KEY es un token v4, se manda por cabecera; si es una clave v3, todo sigue igual.
@@ -53,6 +54,8 @@ const publicado = c => c.date < HOY || (c.date === HOY && (!c.hora || c.hora <= 
 {
   const errores = [], avisos = [], ids = new Set();
   const urlOk = u => /^https:\/\/[a-z0-9.-]+\/([^\s]*\/)?$/i.test(u || "");
+  // AAAA-MM-DD que exista de verdad: rechaza 2026-02-31, 2026-04-31, 29/02 de años no bisiestos, mes 00 o 13, etc.
+  const fechaOk = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); if (!m) return false; const y = +m[1], mo = +m[2], d = +m[3], t = new Date(Date.UTC(y, mo - 1, d)); return t.getUTCFullYear() === y && t.getUTCMonth() === mo - 1 && t.getUTCDate() === d; };
   if (!urlOk(site.url)) errores.push(`"site.url" debe tener la forma https://minutocinefilo.com.ar/ (con https:// una sola vez y la barra / al final). Valor actual: ${JSON.stringify(site.url)}`);
   if (site.podcast?.guidBase && !urlOk(site.podcast.guidBase)) errores.push(`"podcast.guidBase" debe tener la forma https://dominio/ruta/ (con barra al final). Valor actual: ${JSON.stringify(site.podcast.guidBase)}`);
   capsulas.forEach((c, i) => {
@@ -63,7 +66,7 @@ const publicado = c => c.date < HOY || (c.date === HOY && (!c.hora || c.hora <= 
     if (!c.title) errores.push(`${id}: falta "title"`);
     if (!c.description) errores.push(`${id}: falta "description"`);
     if (c.hora && !/^([01]\d|2[0-3]):[0-5]\d$/.test(c.hora)) errores.push(`${id}: "hora" debe tener el formato HH:MM de 00:00 a 23:59 (valor: ${JSON.stringify(c.hora)})`);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(c.date || "") || isNaN(new Date(c.date))) errores.push(`${id}: "date" debe tener el formato AAAA-MM-DD (valor: ${JSON.stringify(c.date)})`);
+    if (!fechaOk(c.date)) errores.push(`${id}: "date" debe tener el formato AAAA-MM-DD y ser una fecha que exista (valor: ${JSON.stringify(c.date)})`);
     if (c.tmdb_id && !Number.isInteger(+c.tmdb_id)) errores.push(`${id}: "tmdb_id" debe ser un número (valor: ${JSON.stringify(c.tmdb_id)})`);
     if (!c.tmdb_id && !c.film) errores.push(`${id}: falta "tmdb_id" (o al menos "film")`);
     const lanzado = publicado(c), dest = lanzado ? errores : avisos, nota = lanzado ? "" : " (todavía no, el episodio está agendado)";
@@ -91,6 +94,14 @@ const publicado = c => c.date < HOY || (c.date === HOY && (!c.hora || c.hora <= 
   const resumen = `## Chequeo de capsulas.json\n- Publicados: ${pub}\n- Agendados: ${agen}\n` + (errores.length ? `\n### Errores (no se publicó nada)\n${errores.map(m => "- " + m).join("\n")}\n` : "\nTodo en orden.\n") + (avisos.length ? `\n### Avisos\n${avisos.map(m => "- " + m).join("\n")}\n` : "");
   if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, resumen, { flag: "a" });
   if (errores.length) { console.error("\nSe encontraron errores en capsulas.json:\n" + errores.map(m => " - " + m).join("\n") + "\n\nNo se generó nada: la web publicada sigue como estaba."); process.exit(1); }
+}
+// <title> de la cápsula: película — título | marca; si pasa de ~65 caracteres se usa solo el título y, si aun así no entra, se acorta
+const SUF_TITULO = " | Minuto Cinéfilo";
+function tituloSeo(c) {
+  const completo = norm(c.film) && norm(c.film) !== norm(c.title) ? c.film + " — " + c.title : c.title;
+  if ((completo + SUF_TITULO).length <= 65) return completo;
+  if ((c.title + SUF_TITULO).length <= 65) return c.title;
+  return c.title.slice(0, 65 - SUF_TITULO.length - 1).replace(/\s+\S*$/, "") + "…";
 }
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fecha = iso => new Date(iso + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
@@ -239,7 +250,7 @@ const extra = `
 .wavebox{position:relative;height:44px;min-width:0}.wavebox canvas{display:none;width:100%;height:100%}.wavebox.on canvas{display:block}.wavebox input{position:absolute;inset:0;width:100%;height:100%;margin:0}.wavebox.on input{opacity:0}.wavebox:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
 .cols{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:clamp(32px,6vw,96px);margin-top:clamp(56px,8vw,96px);align-items:start}
 @media(max-width:900px){.cols{grid-template-columns:1fr}}
-.back{display:inline-block;margin-bottom:40px;font-size:14px;color:var(--mute)}
+.back{display:inline-block;margin-top:-11px;margin-bottom:29px;padding-block:11px;font-size:14px;color:var(--mute)}
 .poster{position:relative}.score{position:absolute;left:12px;bottom:12px;background:rgba(9,12,16,.82);border:1px solid #2a2f37;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600;backdrop-filter:blur(4px)}.score small{font-weight:400;color:var(--mute);font-size:11px;margin-left:4px}
 .epnav{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding-bottom:64px}.epnav a{display:grid;gap:6px;border:1px solid #2a2f37;border-radius:6px;padding:16px 18px;text-decoration:none;color:inherit}.epnav a:hover{border-color:var(--ink)}.epnav small{color:var(--mute);font-size:12px}.epnav span{font-size:16px}.epnav .sig{text-align:right}@media(max-width:560px){.epnav{grid-template-columns:1fr}.epnav .sig{text-align:left}}
 .player.v{grid-template-columns:56px 1fr auto auto}
@@ -256,7 +267,8 @@ const extra = `
 .trbtn>*{position:relative}.trbtn:hover{border-color:var(--ink)}
 .trbtn .pl{width:64px;height:64px;border-radius:50%;background:var(--red);display:grid;place-items:center;transition:background .2s}.trbtn:hover .pl{background:var(--red-hi)}.trbtn .pl svg{width:26px;height:26px;color:#fff}
 .trbtn:not(.img){aspect-ratio:auto;flex-direction:row;justify-content:flex-start;padding:16px 20px}.trbtn:not(.img) .pl{width:44px;height:44px}
-.trl iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}.trl a{font-size:14px;color:var(--mute)}
+.trl iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}.trl a{font-size:14px;color:var(--mute);padding-block:11px;margin-block:-11px}
+.wh .pills a{position:relative}.wh .pills a::after{content:"";position:absolute;inset:-7px -4px}
 #transcripcion h2,#transcripcion .hint{padding-left:18px}
 .ficha h2{font-size:22px;margin-bottom:24px}.ficha dl{display:grid;gap:16px}.ficha .r{position:relative;padding-left:34px}.ficha .r svg{position:absolute;left:0;top:2px;color:var(--mute)}.ficha dt{color:var(--mute);font-size:12px}.ficha dd{margin:0;font-size:15px}
 .wh{margin-top:24px}.wh .k{font-size:12px;color:var(--mute);margin:0 0 8px}.wh .pills{display:flex;gap:8px;flex-wrap:wrap}.wh .pills a{border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:13px;text-decoration:none}.wh .pills a:hover{border-color:var(--ink)}.wh .src{font-size:11px;color:var(--mute);opacity:.75;margin:10px 0 0}.wh .src a{color:inherit}
@@ -300,7 +312,8 @@ ${whHtml(t.watch)}<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" 
     const alDia = existsSync(cardFile) && cache[c.id] === clave; // el build corre cada hora: solo se rehace la tarjeta si cambió algo
     if (!alDia && src) { try { const r = await fetch(src, { signal: AbortSignal.timeout(15000) }); if (r.ok) bg = Buffer.from(await r.arrayBuffer()); } catch {} }
     if (alDia) { /* tarjeta al día */ } else if (bg || !existsSync(cardFile)) { const { tarjeta } = await import("./og.mjs"); const buf = await tarjeta({ numero: c.numero, title: c.title, bgBuffer: bg }); if (buf) { writeFileSync(cardFile, buf); if (bg) { cache[c.id] = clave; writeFileSync(cacheFile, JSON.stringify(cache)); } } }
-  } catch (e) { console.log(`::warning::No se pudo generar la tarjeta de ${c.id}: ${e.message}`); }
+  } catch (e) { console.log(`::warning::No se pudo generar la tarjeta de ${c.id}: ${e.message}`); tarjetasFallidas.push(`${c.id}: ${e.message}`); }
+  if (!existsSync(cardFile) && !tarjetasFallidas.some(t => t.startsWith(c.id + ":"))) tarjetasFallidas.push(`${c.id}: no hay tarjeta og.jpg (al compartir se usa la imagen de reserva)`);
   const ogImg = existsSync(cardFile) ? `${pageUrl}og.jpg` : bd || c.poster || `${site.url}og.png`;
   const pub = asc.filter(publicado), i = pub.indexOf(c);
   const ant = i > 0 ? pub[i - 1] : (futuro ? pub[pub.length - 1] : null), sig = i >= 0 && i < pub.length - 1 ? pub[i + 1] : null;
@@ -322,7 +335,7 @@ ${whHtml(t.watch)}<a class="tm" href="https://www.themoviedb.org/movie/${t.id}" 
   const html = `<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(norm(c.film) && norm(c.film) !== norm(c.title) ? c.film + " — " + c.title : c.title)} | Minuto Cinéfilo</title>
+<title>${esc(tituloSeo(c))} | Minuto Cinéfilo</title>
 <meta name="description" content="${esc(recorta(sinAst(c.description)))}">
 <link rel="canonical" href="${pageUrl}">
 <meta property="og:type" content="article"><meta property="og:title" content="${esc(c.title)} — Minuto Cinéfilo">
@@ -460,7 +473,7 @@ ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}
 .pr .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.pr .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}.pr .card h3{font:700 17px/1.2 var(--serif);margin-bottom:8px}.pr .card p{font-size:15px;color:var(--mute)}
 .pr .rec{list-style:none;padding:0;display:grid;gap:10px}.pr .rec a{display:grid;gap:2px;border:1px solid #2a2f37;border-radius:6px;padding:14px 18px;text-decoration:none}.pr .rec a:hover{border-color:var(--ink)}.pr .rec span{color:var(--mute);font-size:14px}
 .pr .kit{display:flex;flex-wrap:wrap;gap:12px}.pr .kit a{display:grid;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;text-decoration:none;font-size:15px}.pr .kit a:hover{border-color:var(--ink)}.pr .kit small{color:var(--mute);font-size:12px}
-.pr .mail{font:800 clamp(20px,3vw,28px)/1.2 var(--serif);color:var(--ink);display:inline-block;margin-top:6px}
+.pr .mail{font:800 clamp(15px,4.6vw,28px)/1.2 var(--serif);color:var(--ink);display:inline-block;max-width:100%;overflow-wrap:anywhere;margin:-6px 0 -12px;padding-block:12px}
 .pr .quien{color:var(--mute);margin-top:22px;font-size:15px}.pr .pasos{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;counter-reset:p}.pr .pasos li{counter-increment:p;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:6px}.pr .pasos li::before{content:counter(p);font:800 28px/1 var(--serif);color:var(--red-hi)}.pr .pasos b{font:700 17px/1.2 var(--serif)}.pr .pasos span{color:var(--mute);font-size:15px}</style></head><body>
 <header><div class="wrap"><a class="logo" href="../">${REEL}MINUTO CINÉFILO</a>
 <nav aria-label="Principal"><a href="../">Inicio</a><a href="../#archivo">Cápsulas</a><a href="../#sobre">Sobre el proyecto</a><a class="on" href="./" aria-current="page">Prensa</a><a href="${esc(site.radioUrl)}" target="_blank" rel="noopener">Radio Monk</a><a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">Instagram</a></nav></div></header>
@@ -504,9 +517,15 @@ ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}
 { // lista estática de episodios publicados dentro de <noscript> en la home (para quien no corre JS)
   const lista = asc.filter(publicado).reverse().map(x => `<li><a href="capsulas/${x.id}/">${esc(x.title)}</a> — ${esc(x.film || "")}</li>`).join("");
   const idx = readFileSync("index.html", "utf8");
-  const nuevo = idx.replace(/<!--SEO-LIST-->[\s\S]*?<!--\/SEO-LIST-->/, `<!--SEO-LIST--><ul>${lista}</ul><!--/SEO-LIST-->`);
+  const hayProx = asc.some(x => !x.demo && !publicado(x)); // hay un episodio agendado: la home reserva el lugar del aviso "Próximamente" para que no salte
+  const nuevo = idx.replace(/<!--SEO-LIST-->[\s\S]*?<!--\/SEO-LIST-->/, `<!--SEO-LIST--><ul>${lista}</ul><!--/SEO-LIST-->`)
+    .replace(/<body class="cargando(?: hay-prox)?">/, `<body class="cargando${hayProx ? " hay-prox" : ""}">`);
   if (nuevo !== idx) writeFileSync("index.html", nuevo);
 }
 writeFileSync("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `<url><loc>${u}</loc></url>`).join("\n")}\n</urlset>\n`);
 writeFileSync("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${site.url}sitemap.xml\n`);
+if (tarjetasFallidas.length) {
+  console.log(`::error::${tarjetasFallidas.length} tarjeta(s) para compartir sin generar: ${tarjetasFallidas.join(" | ")}`);
+  if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, `\n### Tarjetas para compartir sin generar\n${tarjetasFallidas.map(m => "- " + m).join("\n")}\n\nLas páginas se publicaron igual, pero al compartirlas en redes se usa una imagen de reserva.\n`, { flag: "a" });
+}
 console.log(`OK: ${urls.length - 1} página(s) generadas`);

@@ -26,6 +26,14 @@ const I = {
 };
 const I_PLAY = '<svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 
+// Muestra lo que está debajo del héroe recién cuando la portada terminó de dibujarse (evita que el pie y "Sobre el proyecto" salten: CLS)
+const listo = () => document.body.classList.remove("cargando");
+// Foco del teclado en la onda para navegadores sin :has() (en los demás lo resuelve el CSS)
+try { if (!CSS.supports("selector(:has(*))")) {
+  document.addEventListener("focusin", e => { const t = e.target; if (t.matches && t.matches(".wavebox input") && t.matches(":focus-visible")) t.closest(".wavebox").classList.add("kb"); });
+  document.addEventListener("focusout", e => { const w = e.target.closest && e.target.closest(".wavebox"); if (w) w.classList.remove("kb"); });
+} } catch {}
+
 Promise.all([
   fetch("capsulas.json").then(r => { if(!r.ok) throw 0; return r.json(); }),
   fetch("data/fichas.json").then(r => r.ok ? r.json() : {}).catch(() => ({})),
@@ -44,7 +52,7 @@ Promise.all([
     CAPSULAS = d.capsulas.filter(pub);
     PROX = d.capsulas.filter(c => !c.demo && !pub(c)).sort((a, b) => a.date.localeCompare(b.date) || (a.hora || "").localeCompare(b.hora || ""));
     init(); })
-  .catch(() => { $("#latest").innerHTML = '<p class="empty" style="padding:32px">No se pudieron cargar las cápsulas. Probá recargar la página.</p>'; });
+  .catch(() => { $("#latest").innerHTML = '<p class="empty" style="padding:32px">No se pudieron cargar las cápsulas. Probá recargar la página.</p>'; listo(); });
 
 function init(){
   sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date) || (b.hora||"").localeCompare(a.hora||"") || (b.numero||0) - (a.numero||0));
@@ -58,7 +66,7 @@ function init(){
   $("#socialLinks").innerHTML = lk; $("#footLinks").innerHTML = lk + ct;
   if (SITE.goatcounter && /^[a-z0-9-]+$/i.test(SITE.goatcounter)) { const g = document.createElement("script"); g.async = true; g.src = "https://gc.zgo.at/count.js"; g.dataset.goatcounter = "https://" + SITE.goatcounter + ".goatcounter.com/count"; document.head.appendChild(g); }
   renderHero(); renderFeatured(); renderList(); renderCats(); renderCiclos(); renderProx(); renderStats(); renderCinta();
-  fetch("data/proximos.json").then(r => r.ok ? r.json() : null).then(d => {
+  const pEstr = fetch("data/proximos.json").then(r => r.ok ? r.json() : null).then(d => {
     if (!d || !d.items || !d.items.length) return;
     $("#estrList").innerHTML = d.items.map(m => `<li><a href="https://www.themoviedb.org/movie/${esc(m.id)}" target="_blank" rel="noopener"><img src="${esc(m.poster)}" alt="Póster de ${esc(m.title)}" loading="lazy" width="150" height="225"><b>${esc(m.title)}</b><time datetime="${esc(m.date)}">${new Date(m.date + "T12:00:00").toLocaleDateString("es-AR", {day: "numeric", month: "long"})}</time></a></li>`).join("");
     $("#estrenos").hidden = false;
@@ -79,6 +87,7 @@ function init(){
       t = setInterval(() => { if (!pausa && visible && !document.hidden && ul.scrollWidth > ul.clientWidth + 8) mover(1); }, 4000);
     }
   }).catch(() => {});
+  Promise.race([pEstr, new Promise(r => setTimeout(r, 1500))]).then(listo);
 }
 
 function renderHero(){
@@ -189,7 +198,7 @@ function renderList(){
   $("#list").innerHTML = shown.map(c => {
     const f = fich(c);
     return `<li class="item"><div class="thumb" data-id="${esc(c.id)}">${c.poster ? `<img src="${esc(thumb(c.poster))}" alt="" loading="lazy">` : "Sin imagen"}</div>
-      <div>${c.numero || c.ciclo ? `<p class="no">${c.numero ? "#" + esc(c.numero) : ""}${c.numero && c.ciclo ? " · " : ""}${c.ciclo ? `<span style="color:var(--red-hi);font-weight:700;letter-spacing:.08em;text-transform:uppercase">${esc(c.ciclo)}</span>` : ""}</p>` : ""}<h4>${page(c) ? `<a href="${page(c)}">${esc(c.title)}</a>` : esc(c.title)}</h4>
+      <div>${c.numero || c.ciclo ? `<p class="no">${c.numero ? "#" + esc(c.numero) : ""}${c.numero && c.ciclo ? " · " : ""}${c.ciclo ? `<span style="color:var(--red-hi);font-weight:700;letter-spacing:.08em;text-transform:uppercase">${esc(c.ciclo)}</span>` : ""}</p>` : ""}<h3>${page(c) ? `<a href="${page(c)}">${esc(c.title)}</a>` : esc(c.title)}</h3>
       <p class="s"><span>${esc(c.film)}</span>${f?.year ? `<span>${esc(f.year)}</span>` : ""}${f && f.vote_count >= 20 && f.vote_average ? `<span class="rate">★ ${Number(f.vote_average).toFixed(1)}</span>` : ""}<span ${c.audio ? `data-dur="${esc(c.audio)}"` : ""}>${c.duration ? esc(c.duration) + " min" : ""}</span></p></div>
       <button class="rowplay" data-id="${esc(c.id)}" aria-label="Escuchar ${esc(c.title)}">${ic('<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>')}</button></li>`;
   }).join("");

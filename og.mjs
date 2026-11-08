@@ -1,14 +1,11 @@
 // Tarjeta para compartir (1200x630) de cada episodio: fondo de la película oscurecido + marca + título.
-import { execSync } from "node:child_process";
 
 let sharpMod;
+// sharp viene fijado en package.json / package-lock.json (el workflow hace `npm ci`). Si no está instalado, se avisa con un error claro: ya no se instala por su cuenta ni se ignora en silencio.
 async function cargarSharp() {
   if (sharpMod !== undefined) return sharpMod;
   try { sharpMod = (await import("sharp")).default; }
-  catch {
-    try { execSync("npm install --no-save --no-audit --no-fund sharp", { stdio: "ignore" }); sharpMod = (await import("sharp")).default; }
-    catch { sharpMod = null; }
-  }
+  catch (e) { throw new Error(`no se pudo cargar la librería sharp (¿falta ejecutar "npm ci"?): ${e.message}`); }
   return sharpMod;
 }
 const x = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -21,9 +18,9 @@ function lineas(texto, max) {
   return out;
 }
 
-// bgBuffer: Buffer con la imagen de fondo (o null). Devuelve un Buffer JPEG, o null si no hay sharp.
+// bgBuffer: Buffer con la imagen de fondo (o null). Devuelve un Buffer JPEG; si algo falla, lanza un error (el build lo informa).
 export async function tarjeta({ numero, title, bgBuffer }) {
-  const sharp = await cargarSharp(); if (!sharp) return null;
+  const sharp = await cargarSharp();
   const W = 1200, H = 630;
   let fs = 74, max = 15, ls = lineas(title, max);
   if (ls.length > 3) { fs = 56; max = 21; ls = lineas(title, max); }
@@ -41,6 +38,6 @@ ${ls.map((l, i) => `<text x="64" y="${y0 + i * alto}" font-family="${fuente}" fo
 <text x="64" y="574" font-family="${fuente}" font-weight="500" font-size="26" fill="#aeb6bf">Cápsulas de cine de 2 a 4 minutos · minutocinefilo.com.ar</text>
 </svg>`;
   let base = sharp({ create: { width: W, height: H, channels: 3, background: "#0e1217" } }).jpeg().toBuffer();
-  if (bgBuffer) { try { base = sharp(bgBuffer).resize(W, H, { fit: "cover", position: "attention" }).modulate({ brightness: 0.8 }).toBuffer(); } catch {} }
+  if (bgBuffer) { try { base = sharp(bgBuffer).resize(W, H, { fit: "cover", position: "attention" }).modulate({ brightness: 0.8 }).toBuffer(); } catch (e) { console.log(`::warning::Tarjeta de "${title}": no se pudo usar la imagen de fondo (${e.message}); se usa un fondo liso`); } }
   return sharp(await base).composite([{ input: Buffer.from(svg) }]).jpeg({ quality: 84, mozjpeg: true }).toBuffer();
 }

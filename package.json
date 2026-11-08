@@ -1,0 +1,7 @@
+{
+  "name": "minuto-cinefilo",
+  "private": true,
+  "description": "Sitio estático de Minuto Cinéfilo. La única dependencia es sharp, que dibuja las tarjetas para compartir (og.jpg) en el build.",
+  "engines": { "node": ">=20.3.0" },
+  "dependencies": { "sharp": "0.33.5" }
+}

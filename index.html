@@ -92,6 +92,14 @@ nav{flex-wrap:nowrap;overflow-x:auto;width:100%;order:3;scrollbar-width:none;mar
 nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;padding:8px 0}
 }
 .charla{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between;margin-top:16px;border:1px solid var(--line);border-left:3px solid var(--red);border-radius:6px;padding:12px 16px;background:#0b0f14;color:var(--ink);text-decoration:none;font-size:15px}.charla b{color:var(--red-hi)}.charla em{font-style:normal;font-size:14px;border-bottom:1px solid var(--red)}.charla:hover em{color:var(--red-hi)}
+
+/* ---- Áreas de toque de ~44 px (WCAG 2.2, criterio 2.5.8) sin agrandar el diseño: padding + margen negativo, o una zona invisible alrededor ---- */
+@media(max-width:760px){nav a{padding-block:10px}}
+footer div a{padding-block:11px;margin-block:-11px}
+.listen a{padding:11px 8px;margin:-11px -8px}
+.share a,.share button{padding:11px 8px;margin:-5px -8px}
+/* Foco del teclado en la onda para navegadores sin :has() (lo activa app.js) */
+.wavebox.kb{outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
 </style>
 <style id="home">
 /* ===== HOME ===== */
@@ -113,8 +121,6 @@ nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;padding:8px 0}
 .pill{display:inline-flex;align-items:center;gap:12px;border:1px solid #3a444f;border-radius:999px;padding:16px 24px;background:rgba(9,12,16,.55);color:var(--ink);font:500 15px var(--sans);cursor:pointer;transition:border-color .2s}.pill:hover{border-color:var(--ink)}
 .hero .credit{position:absolute;right:var(--pad);bottom:18px;font-size:12px;line-height:1.5;color:var(--mute);text-align:right;margin:0}
 @media(max-width:760px){.hero-bg{inset:0}.hero-bg::after{background:linear-gradient(0deg,#090c10 0%,rgba(9,12,16,.86) 55%,rgba(9,12,16,.5) 100%)}.hero .credit{position:static;margin-top:24px;text-align:left}}
-.hero-in>*{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}.hero-in>.lead{animation-delay:.12s}.hero-in>.actions{animation-delay:.24s}
-@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 .feat{display:grid;grid-template-columns:minmax(0,1fr) 340px;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}.feat.solo{grid-template-columns:1fr}
 .feat-main{display:grid;grid-template-columns:300px minmax(0,1fr);gap:36px;padding:32px;align-items:center}
@@ -138,13 +144,13 @@ nav::-webkit-scrollbar{display:none}nav a{white-space:nowrap;padding:8px 0}
 .duo{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;margin-top:24px}
 @media(max-width:960px){.duo{grid-template-columns:1fr}}
 .panel{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:28px}
-.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}.panel h3{font:700 20px var(--serif)}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}.panel h2,.panel h3{font:700 20px var(--serif);letter-spacing:normal}
 .more-link{background:none;border:0;color:var(--mute);font:inherit;font-size:13px;cursor:pointer}.more-link:hover{color:var(--ink)}
 .list{list-style:none;padding:0}
 .item{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}
 .thumb{width:104px;aspect-ratio:16/10;border-radius:6px;overflow:hidden;background:#141a21;display:grid;place-items:center;font-size:11px;color:var(--mute)}
 .thumb img{width:100%;height:100%;object-fit:cover;object-position:center 20%;display:block}
-.item .no{font-size:12px;color:var(--mute)}.item h4{font:700 15px/1.3 var(--serif)}.item h4 a{text-decoration:none}.item h4 a:hover{color:var(--red-hi)}
+.item .no{font-size:12px;color:var(--mute)}.item h3{font:700 15px/1.3 var(--serif)}.item h3 a{text-decoration:none}.item h3 a:hover{color:var(--red-hi)}
 .item .s{font-size:13px;color:var(--mute)}
 .rowplay{width:40px;height:40px;border-radius:50%;border:1px solid #3a444f;background:none;color:var(--ink);cursor:pointer;display:grid;place-items:center}.rowplay:hover{border-color:var(--red-hi);color:var(--red-hi)}
 .rowplay svg{width:15px;height:15px;fill:currentColor}
@@ -200,10 +206,29 @@ body.mini-on{padding-bottom:76px}
 .cinta li{margin-right:14px;flex:none}.cinta button{display:block;border:1px solid #232b35;border-radius:3px;overflow:hidden;background:#10151b;padding:0;cursor:pointer;width:96px;aspect-ratio:2/3;transition:transform .25s,border-color .25s}.cinta button:hover,.cinta button:focus-visible{transform:translateY(-4px);border-color:var(--red)}.cinta img{width:100%;height:100%;object-fit:cover;display:block}
 @keyframes cinta{to{transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){.cinta{overflow-x:auto}.cinta ul{animation:none}.cinta .dup{display:none}}
+
+/* ---- Carga de la portada (CLS): lo que queda debajo del héroe se muestra recién cuando app.js terminó de dibujarlo, así el pie y "Sobre el proyecto" no saltan.
+   Sin JavaScript se ve todo (ver <noscript> en <head>). Si app.js tardara o fallara, una animación sin movimiento lo revela a los 4 s. ---- */
+body.cargando :is(#capsulas,#cinta,#estrenos,#sobre,footer){visibility:hidden;animation:revelar 0s 4s forwards}
+@keyframes revelar{to{visibility:visible}}
+/* zona de toque ampliada (invisible) en botones con borde, donde el relleno cambiaría el diseño */
+.chiplinks a,.wh .pills a,.prox .acts a{position:relative}
+.chiplinks a::after,.wh .pills a::after,.prox .acts a::after{content:"";position:absolute;inset:-7px -4px}
+/* espacio reservado para el aviso "Próximamente" (lo marca build.mjs con la clase hay-prox cuando hay un episodio agendado): así no empuja el héroe al aparecer. Alturas según el ancho. */
+body.hay-prox #prox{min-height:52px}
+body.hay-prox.cargando #prox[hidden]{display:block}
+@media(max-width:1004px){body.hay-prox #prox{min-height:82px}}
+@media(max-width:614px){body.hay-prox #prox{min-height:107px}}
+@media(max-width:379px){body.hay-prox #prox{min-height:142px}}
+.tools a,.tools button{padding-block:11px;margin-block:-5px}
+.more-link{padding-block:11px;margin-block:-11px}
+.rowplay{position:relative}.rowplay::after{content:"";position:absolute;inset:-2px}
+.logo{padding-block:5px;margin-block:-5px}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"PodcastSeries","name":"Minuto Cinéfilo","url":"https://minutocinefilo.com.ar/","description":"Cápsulas de audio de 2 a 4 minutos sobre cine. Un proyecto de Vamos x Partes, emitido en Radio Monk.","inLanguage":"es-AR","webFeed":"https://minutocinefilo.com.ar/feed.xml","image":"https://minutocinefilo.com.ar/podcast.jpg"}</script>
+<noscript><style>body.cargando :is(#capsulas,#cinta,#estrenos,#sobre,footer){visibility:visible;animation:none}</style></noscript>
 </head>
-<body>
+<body class="cargando hay-prox">
 <a class="skip" href="#contenido">Saltar al contenido</a>
 <header>
   <div class="wrap">
@@ -212,7 +237,7 @@ body.mini-on{padding-bottom:76px}
     <form class="hsearch" role="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg><input id="q" type="search" placeholder="Buscar una película…" aria-label="Buscar por película o título" autocomplete="off"></form>
   </div>
 </header>
-<div class="prox" id="prox" hidden></div>
+<div class="prox" id="prox" role="region" aria-label="Próxima cápsula" hidden></div>
 
 <main id="contenido">
   <div class="hero noimg" id="inicio">
@@ -233,14 +258,14 @@ body.mini-on{padding-bottom:76px}
     <div class="featwrap"><div class="featbg" id="featBg" aria-hidden="true"></div><div class="feat" id="latest" aria-live="polite"></div></div>
     <div class="duo">
       <div class="panel" id="archivo">
-        <div class="panel-h"><h3 id="listTitle">Últimas cápsulas</h3><button class="more-link" id="more" type="button" hidden>Ver todos →</button></div>
+        <div class="panel-h"><h2 id="listTitle">Últimas cápsulas</h2><button class="more-link" id="more" type="button" hidden>Ver todos →</button></div>
         <ul class="list" id="list"></ul>
         <noscript><!--SEO-LIST--><ul><li><a href="capsulas/godzilla-minus-zero/">Godzilla Minus Zero</a> — Godzilla Minus Zero</li><li><a href="capsulas/the-exorcist-09/">El Exorcista</a> — The Exorcist</li><li><a href="capsulas/the-shining/">El resplandor</a> — The Shining</li><li><a href="capsulas/halloween/">La noche de Halloween</a> — Halloween</li><li><a href="capsulas/buddy-06/">Buddy</a> — Buddy</li><li><a href="capsulas/clayface-05/">Clayface</a> — Clayface</li><li><a href="capsulas/whalefall-01/">La caída de la ballena (Whalefall)</a> — Whalefall</li><li><a href="capsulas/insidious-out-of-the-further-02/">La noche del demonio: Están entre nosotros</a> — Insidious: Out of the Further</li><li><a href="capsulas/backrooms-03/">Backrooms: Sin Salida</a> — Backrooms</li><li><a href="capsulas/toystory5-04/">Toy Story 5</a> — Toy Story 5</li></ul><!--/SEO-LIST--></noscript>
         <p class="empty" id="empty" hidden>No hay cápsulas que coincidan. Probá con otro título o con el nombre de la película.</p>
       </div>
       <div>
-        <div class="panel" id="ciclosPanel" hidden><div class="panel-h"><h3>Ciclos</h3></div><div class="cats" id="ciclos"></div></div>
-        <div class="panel" id="catsPanel" hidden><div class="panel-h"><h3>Géneros</h3></div><div class="cats" id="cats"></div></div>
+        <div class="panel" id="ciclosPanel" hidden><div class="panel-h"><h2>Ciclos</h2></div><div class="cats" id="ciclos"></div></div>
+        <div class="panel" id="catsPanel" hidden><div class="panel-h"><h2>Géneros</h2></div><div class="cats" id="cats"></div></div>
         <div class="social"><div><strong>Más en Minuto Cinéfilo</strong><p>Seguinos para no perderte los próximas cápsulas.</p><div class="stats" id="stats" hidden></div><div class="chiplinks" id="socialLinks"></div></div><span class="hand">Nos vemos en el próximo minuto…</span></div>
       </div>
     </div>
