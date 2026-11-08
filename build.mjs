@@ -477,8 +477,6 @@ ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}
 <div class="card"><h3>Presencia en redes</h3><p>Publicaciones en Instagram, con mención a la distribuidora, la sala o el evento.</p></div>
 <div class="card"><h3>Difusión en radio</h3><p>Las cápsulas se emiten en Vamos x Partes, por Radio Monk.</p></div>
 </div></div></section>
-<section><div class="wrap"><p class="label">Cómo trabajamos</p><h2>Datos verificados, voz propia</h2>
-<p>Cada cápsula parte de fuentes verificables y la narramos nosotros. Cada película tiene su ficha, su tráiler y la transcripción del audio, todo en la web${desde ? `, publicando desde ${esc(desde)}` : ""}.</p></div></section>
 ${recientes ? `<section><div class="wrap"><p class="label">Cobertura reciente</p><h2>Lo último que publicamos</h2><ul class="rec">${recientes}</ul><p style="margin-top:16px"><a href="../#archivo">Ver todas las cápsulas →</a></p></div></section>` : ""}
 <section><div class="wrap"><p class="label">Material de prensa</p><h2>Logo para descargar</h2>
 <div class="kit"><a href="logo-minuto-cinefilo-fondo-blanco.png" download>Logo (PNG)<small>Sobre fondo blanco</small></a><a href="logo-minuto-cinefilo-transparente.png" download>Logo (PNG)<small>Fondo transparente</small></a><a href="../favicon.svg" download>Carrete (SVG)<small>Ícono vectorial</small></a></div></div></section>
