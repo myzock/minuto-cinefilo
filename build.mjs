@@ -532,7 +532,7 @@ ${sueltas ? `<section><div class="wrap"><p class="label">Últimas cápsulas</p><
 <section><div class="wrap"><p class="label">Material de prensa</p><h2>Logo para descargar</h2>
 <div class="kit"><a href="logo-minuto-cinefilo-fondo-blanco.png" download>Logo (PNG)<small>Sobre fondo blanco</small></a><a href="logo-minuto-cinefilo-transparente.png" download>Logo (PNG)<small>Fondo transparente</small></a><a href="../favicon.svg" download>Carrete (SVG)<small>Ícono vectorial</small></a></div></div></section>
 <section><div class="wrap"><p class="label">Contacto</p><h2>Hablemos</h2>
-<p>Para invitaciones a funciones de prensa, avant premières, eventos y entrevistas, escribinos a:</p>
+<p>Si querés que cubramos tu estreno, función o evento, escribinos.</p>
 <a class="mail" href="mailto:${mail}">${mail}</a>
 ${pr.respuesta ? `<p class="aparte">${esc(pr.respuesta)}</p>` : ""}
 <p class="aparte">También por Instagram: <a href="${esc(site.instagramUrl)}" target="_blank" rel="noopener">@somosminutocinefilo</a></p></div></section>
