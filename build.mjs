@@ -477,6 +477,8 @@ ${site.goatcounter ? `<script data-goatcounter="https://${esc(site.goatcounter)}
 <div class="card"><h3>Presencia en redes</h3><p>Publicaciones en Instagram, con mención a la distribuidora, la sala o el evento.</p></div>
 <div class="card"><h3>Difusión en radio</h3><p>Las cápsulas se emiten en Vamos x Partes, por Radio Monk.</p></div>
 </div></div></section>
+<section><div class="wrap"><p class="label">Próximamente</p><h2>La Charla</h2>
+<p>Además de las cápsulas, vamos a sumar un podcast llamado <b style="color:var(--ink)">La Charla</b>: un espacio de 30 a 40 minutos para conversar con más tiempo sobre cine.</p></div></section>
 <section><div class="wrap"><p class="label">Cómo trabajamos</p><h2>Primero la película, después la cápsula</h2>
 <ol class="pasos"><li><b>Vemos la película.</b><span>En la sala, en una función de prensa o en un evento.</span></li><li><b>Armamos el guion.</b><span>Con lo que nos pareció y los datos que la rodean.</span></li><li><b>Lo publicamos para nuestra audiencia.</b><span>En la web, en las plataformas de audio y en redes.</span></li></ol></div></section>
 ${recientes ? `<section><div class="wrap"><p class="label">Cobertura reciente</p><h2>Lo último que publicamos</h2><ul class="rec">${recientes}</ul><p style="margin-top:16px"><a href="../#archivo">Ver todas las cápsulas →</a></p></div></section>` : ""}
