@@ -547,7 +547,7 @@ ${muestra ? `<script>const W=${JSON.stringify(ONDAS[muestra.audio] ? ONDAS[muest
   urls.push(pageUrl);
 }
 { // lista estática de episodios publicados dentro de <noscript> en la home (para quien no corre JS)
-  const lista = asc.filter(publicado).reverse().map(x => `<li><a href="capsulas/${x.id}/">${esc(x.title)}</a> — ${esc(x.film || "")}</li>`).join("");
+  const lista = asc.filter(publicado).reverse().map(x => `<li><a href="capsulas/${x.id}/">${esc(x.title)}</a>${x.film && x.film.trim().toLowerCase() !== x.title.trim().toLowerCase() ? " — " + esc(x.film) : ""}</li>`).join("");
   const idx = readFileSync("index.html", "utf8");
   const hayProx = asc.some(x => !x.demo && !publicado(x)); // hay un episodio agendado: la home reserva el lugar del aviso "Próximamente" para que no salte
   const nuevo = idx.replace(/<!--SEO-LIST-->[\s\S]*?<!--\/SEO-LIST-->/, `<!--SEO-LIST--><ul>${lista}</ul><!--/SEO-LIST-->`)
