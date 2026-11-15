@@ -160,6 +160,66 @@
       "transcript": "transcripciones/el-corazon-de-la-bestia.txt"
     },
     {
+      "id": "rocky",
+      "ciclo": "Rocky",
+      "title": "Rocky",
+      "film": "Rocky",
+      "tmdb_id": 1366,
+      "date": "2026-11-15",
+      "hora": "12:00",
+      "description": "En marzo de 1975, un actor casi desconocido se sentó en un cine a ver una pelea por el título mundial de los pesos pesados. Se llamaba Sylvester Stallone, y lo que vio esa noche le cambió la vida. Así nació Rocky.",
+      "audio": "audio/rocky.mp3",
+      "transcript": "transcripciones/rocky.txt"
+    },
+    {
+      "id": "rocky-ii",
+      "ciclo": "Rocky",
+      "title": "Rocky II",
+      "film": "Rocky II",
+      "tmdb_id": 1367,
+      "date": "2026-11-16",
+      "hora": "12:00",
+      "description": "¿Qué hacés después de la mejor noche de tu vida? Esa es la pregunta de Rocky II, la revancha que Stallone escribió, dirigió y protagonizó… con una lesión que terminó metida en el guion.",
+      "audio": "audio/rocky-ii.mp3",
+      "transcript": "transcripciones/rocky-ii.txt"
+    },
+    {
+      "id": "rocky-iii",
+      "ciclo": "Rocky",
+      "title": "Rocky III",
+      "film": "Rocky III",
+      "tmdb_id": 1371,
+      "date": "2026-11-17",
+      "hora": "12:00",
+      "description": "Rocky es campeón, rico y famoso, y justo por eso está en peligro. La historia de Rocky III, de Mister T, de una estatua de bronce y de una canción que existe porque Queen dijo que no.",
+      "audio": "audio/rocky-iii.mp3",
+      "transcript": "transcripciones/rocky-iii.txt"
+    },
+    {
+      "id": "rocky-iv",
+      "ciclo": "Rocky",
+      "title": "Rocky IV",
+      "film": "Rocky IV",
+      "tmdb_id": 1374,
+      "date": "2026-11-18",
+      "hora": "12:00",
+      "description": "¿Cuánto estás dispuesto a arriesgar para que una escena parezca real? Sylvester Stallone lo averiguó filmando Rocky IV. Y la respuesta lo mandó a terapia intensiva.",
+      "audio": "audio/rocky-iv.mp3",
+      "transcript": "transcripciones/rocky-iv.txt"
+    },
+    {
+      "id": "rocky-v",
+      "ciclo": "Rocky",
+      "title": "Rocky V",
+      "film": "Rocky V",
+      "tmdb_id": 1375,
+      "date": "2026-11-19",
+      "hora": "12:00",
+      "description": "¿Sabías que Rocky Balboa tenía que morir en 1990? Estaba escrito así. Y esa es apenas una de las historias que esconde Rocky V, la película más discutida de toda la saga.",
+      "audio": "audio/rocky-v.mp3",
+      "transcript": "transcripciones/rocky-v.txt"
+    },
+    {
       "id": "yo-soy-rocky",
       "title": "Yo soy Rocky",
       "film": "I Play Rocky",
@@ -169,6 +229,18 @@
       "description": "Yo soy Rocky llega a los cines. Una cápsula de Minuto Cinéfilo sobre la película.",
       "audio": "audio/yo-soy-rocky.mp3",
       "transcript": "transcripciones/yo-soy-rocky.txt"
+    },
+    {
+      "id": "rocky-balboa",
+      "ciclo": "Rocky",
+      "title": "Rocky Balboa",
+      "film": "Rocky Balboa",
+      "tmdb_id": 1246,
+      "date": "2026-11-20",
+      "hora": "12:00",
+      "description": "¿Qué pasaría si el mejor boxeador de ayer peleara contra el campeón de hoy? Con casi sesenta años, Sylvester Stallone volvió a ponerse los guantes para darle a Rocky la despedida que merecía.",
+      "audio": "audio/rocky-balboa.mp3",
+      "transcript": "transcripciones/rocky-balboa.txt"
     }
   ]
 }
