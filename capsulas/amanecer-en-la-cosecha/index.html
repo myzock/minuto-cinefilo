@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-xAIOKfG9u2EWrbzO8BGDiXpquSFuuDMNoz7OUclV+vQ=' 'sha256-97UM+3sfIW3q2Wn98vI2WdGbaG5ySOz3QDTlPUsJiPk=' 'sha256-EczjZDyXZV6NeyiDdrKgXtPO67FsrPlqHc8i4I4XcMs=' https://gc.zgo.at; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://image.tmdb.org https://minuto-cinefilo.goatcounter.com; connect-src 'self' https://minuto-cinefilo.goatcounter.com; media-src 'self'; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-QD9p631QV2jEa8QY7+n3NkW9gwiiGoR7TYHtpg1wDog=' 'sha256-97UM+3sfIW3q2Wn98vI2WdGbaG5ySOz3QDTlPUsJiPk=' 'sha256-EczjZDyXZV6NeyiDdrKgXtPO67FsrPlqHc8i4I4XcMs=' https://gc.zgo.at; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://image.tmdb.org https://minuto-cinefilo.goatcounter.com; connect-src 'self' https://minuto-cinefilo.goatcounter.com; media-src 'self'; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Los Juegos del Hambre: Amanecer en la cosecha | Minuto Cinéfilo</title>
 <meta name="description" content="¿Qué le tiene que pasar a alguien para convertirse en el Haymitch que conocimos? Esa es la pregunta que responde Los Juegos del Hambre: Amanecer en la…">
@@ -119,7 +119,7 @@ footer div a{padding-block:11px;margin-block:-11px}
 </style></head><body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
 <header><div class="wrap"><a class="logo" href="../../"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#d93a32"/><circle cx="20" cy="20" r="3.2" fill="#090c10"/><g fill="#090c10"><circle cx="20" cy="9" r="4"/><circle cx="30.5" cy="16.5" r="4"/><circle cx="26.5" cy="29" r="4"/><circle cx="13.5" cy="29" r="4"/><circle cx="9.5" cy="16.5" r="4"/></g></svg>MINUTO CINÉFILO</a>
-<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="../../prensa/">Prensa</a><a href="https://www.radiomonk.com.ar" target="_blank" rel="noopener">Radio Monk</a><a href="https://www.instagram.com/somosminutocinefilo" target="_blank" rel="noopener">Instagram</a></nav></div></header>
+<nav aria-label="Principal"><a href="../../">Inicio</a><a href="../../#archivo">Cápsulas</a><a href="../../#sobre">Sobre el proyecto</a><a href="../../prensa/">Prensa</a><a href="https://www.instagram.com/somosminutocinefilo" target="_blank" rel="noopener">Instagram</a></nav></div></header>
 <main id="contenido"><div class="wrap" style="padding-block:clamp(48px,8vw,112px)">
 <a class="back" href="../../#archivo">← Todas las cápsulas</a>
 <div class="latest" style="margin-top:0"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/aGFIoSGOv5iJGCviwGQJEfnHXIv.jpg" alt="Póster de The Hunger Games: Sunrise on the Reaping" decoding="async"><span class="score" title="Puntaje de los usuarios de TMDB (237 votos)">★ 7.8 <small>TMDB</small></span></div>
@@ -147,7 +147,7 @@ footer div a{padding-block:11px;margin-block:-11px}
 const gc=(p,t)=>{try{window.goatcounter&&window.goatcounter.count&&window.goatcounter.count({path:p,title:t||p,event:true})}catch(e){}};
 const id=(location.pathname.match(/capsulas\/([^/]+)/)||[])[1]||'';
 const vs=new Set();const una=(p,t)=>{if(vs.has(p))return;vs.add(p);gc(p,t)};
-const RU="https://www.radiomonk.com.ar";
+const RU="";
 const au=document.getElementById('au');
 if(au){
  au.addEventListener('play',()=>una('play/'+id,'Play: '+document.title));
