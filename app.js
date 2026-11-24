@@ -57,7 +57,7 @@ Promise.all([
 function init(){
   sorted = [...CAPSULAS].sort((a,b) => b.date.localeCompare(a.date) || (b.hora||"").localeCompare(a.hora||"") || (b.numero||0) - (a.numero||0));
   current = sorted[0];
-  $("#lnkIg").href = $("#lnkIg2").href = SITE.instagramUrl; $("#lnkRadio").href = SITE.radioUrl;
+  $("#lnkIg").href = $("#lnkIg2").href = SITE.instagramUrl; const lr = $("#lnkRadio"); if (SITE.radioUrl) { lr.href = SITE.radioUrl; lr.hidden = false; } else lr.remove();
   $("#aboutText").textContent = SITE.aboutHome || SITE.about; $("#fraseFooter").textContent = SITE.footerPhrase;
   $("#year").textContent = new Date().getFullYear();
   const soc = [["Instagram",SITE.instagramUrl],["Radio Monk",SITE.radioUrl],["YouTube",SITE.youtubeUrl],["Spotify",SITE.spotifyUrl],["Apple Podcasts",SITE.appleUrl],["YouTube Music",SITE.youtubeMusicUrl],["Amazon Music",SITE.amazonUrl],["RSS","feed.xml"],["X",SITE.xUrl]].filter(x => x[1]);
